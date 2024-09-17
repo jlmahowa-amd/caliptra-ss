@@ -1,13 +1,13 @@
 # Create path variables
 set fpgaDir [file dirname [info script]]
 set outputDir $fpgaDir/caliptra_build
-set packageDir $outputDir/caliptra_package
-set adapterDir $outputDir/soc_adapter_package
+set caliptrapackageDir $outputDir/caliptra_package
+set sspackageDir $outputDir/ss_package
 # Clean and create output directory.
 file delete -force $outputDir
 file mkdir $outputDir
-file mkdir $packageDir
-file mkdir $adapterDir
+file mkdir $caliptrapackageDir
+file mkdir $sspackageDir
 
 # Simplistic processing of command line arguments to enable different features
 # Defaults:
@@ -189,9 +189,10 @@ close_bd_design [get_bd_designs caliptra_package_bd]
 # Package IP
 puts "Fileset when packaging: [current_fileset]"
 puts "\n\nVERILOG DEFINES: [get_property verilog_define [current_fileset]]"
-ipx::package_project -root_dir $packageDir -vendor design -library user -taxonomy /UserIP -import_files -set_current false
-ipx::unload_core $packageDir/component.xml
-ipx::edit_ip_in_project -upgrade true -name tmp_edit_project -directory $packageDir $packageDir/component.xml
+ipx::package_project -root_dir $caliptrapackageDir -vendor design -library user -taxonomy /UserIP -import_files
+# -set_current false
+#ipx::unload_core $caliptrapackageDir/component.xml
+#ipx::edit_ip_in_project -upgrade true -name tmp_edit_project -directory $caliptrapackageDir $caliptrapackageDir/component.xml
 ipx::infer_bus_interfaces xilinx.com:interface:apb_rtl:1.0 [ipx::current_core]
 ipx::infer_bus_interfaces xilinx.com:interface:bram_rtl:1.0 [ipx::current_core]
 ipx::add_bus_parameter MASTER_TYPE [ipx::get_bus_interfaces axi_bram -of_objects [ipx::current_core]]
@@ -206,8 +207,8 @@ ipx::update_checksums [ipx::current_core]
 ipx::check_integrity [ipx::current_core]
 ipx::save_core [ipx::current_core]
 
-# Close temp project
-close_project
+## Close temp project
+#close_project
 # Close caliptra_package_project
 close_project
 
@@ -312,10 +313,7 @@ if {$JTAG} {
 } else {
   # Tie off JTAG inputs
   create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
-  connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_tck]
-  connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_tms]
-  connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_tdi]
-  connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_trst_n]
+  connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_in]
 }
 
 save_bd_design

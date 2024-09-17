@@ -1,15 +1,15 @@
-# Create path variables
-set fpgaDir [file dirname [info script]]
-set outputDir $fpgaDir/caliptra_build
-set caliptrapackageDir $outputDir/caliptra_package
-set sspackageDir $outputDir/ss_package
-set adapterDir $outputDir/soc_adapter_package
-# Clean and create output directory.
-file delete -force $outputDir
-file mkdir $outputDir
-file mkdir $caliptrapackageDir
-file mkdir $sspackageDir
-file mkdir $adapterDir
+## Create path variables
+#set fpgaDir [file dirname [info script]]
+#set outputDir $fpgaDir/caliptra_build
+#set caliptrapackageDir $outputDir/caliptra_package
+#set sspackageDir $outputDir/ss_package
+#set adapterDir $outputDir/soc_adapter_package
+## Clean and create output directory.
+#file delete -force $outputDir
+#file mkdir $outputDir
+#file mkdir $caliptrapackageDir
+#file mkdir $sspackageDir
+#file mkdir $adapterDir
 
 set caliptrartlDir $fpgaDir/caliptra-rtl
 set ssrtlDir $fpgaDir
@@ -17,7 +17,7 @@ set ssrtlDir $fpgaDir
 set VERILOG_OPTIONS {TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE TEC_MCU_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4}
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 
-start_gui
+#start_gui
 
 create_project soc_package_project $outputDir -part xczu7ev-ffvc1156-2-e
 # Try setting after creating project
