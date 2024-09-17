@@ -223,7 +223,7 @@ source fpga_ss_configuration.tcl
 create_project caliptra_fpga_project $outputDir -part xczu7ev-ffvc1156-2-e
 
 # Include the packaged IP
-set_property  ip_repo_paths  "$packageDir $adapterDir" [current_project]
+set_property  ip_repo_paths  "$caliptrapackageDir $sspackageDir" [current_project]
 update_ip_catalog
 
 # Create SOC block design

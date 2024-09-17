@@ -16,12 +16,13 @@
 `define MCU_RV_LSU_BUS_TAG_local 1
 `default_nettype none
 
-`include "common_defines.sv"
+//`include "common_defines.sv"
 `include "config_defines.svh"
 `include "caliptra_reg_defines.svh"
 `include "caliptra_macros.svh"
 
 `include "config_defines_mcu.svh"
+//`include "mcu_common_defines.vh"
 
 module caliptra_ss_top_fpga (
     input bit core_clk,
@@ -62,20 +63,194 @@ module caliptra_ss_top_fpga (
     output reg  [15:0] S_AXI_CALIPTRA_RID,
     output wire S_AXI_CALIPTRA_RLAST,
     output wire S_AXI_CALIPTRA_RVALID,
-    input  wire S_AXI_CALIPTRA_RREADY
-);
-//import axi_pkg::*;
-//import soc_ifc_pkg::*;
+    input  wire S_AXI_CALIPTRA_RREADY,
 
-// TODO: What is this for?
-    `ifndef VERILATOR
-        bit          [31:0]         mem_signature_begin = 32'd0; // TODO:
-        bit          [31:0]         mem_signature_end   = 32'd0;
-        bit          [31:0]         mem_mailbox         = 32'hD0580000;
-    `endif
+    //-------------------------- LSU AXI signals--------------------------
+    // AXI Write Channels
+    output wire                      M_AXI_MCU_LSU_AWVALID,
+    input  wire                      M_AXI_MCU_LSU_AWREADY,
+    output wire [3-1:0]              M_AXI_MCU_LSU_AWID,
+    output wire [              31:0] M_AXI_MCU_LSU_AWADDR,
+    output wire [               3:0] M_AXI_MCU_LSU_AWREGION,
+    output wire [               7:0] M_AXI_MCU_LSU_AWLEN,
+    output wire [               2:0] M_AXI_MCU_LSU_AWSIZE,
+    output wire [               1:0] M_AXI_MCU_LSU_AWBURST,
+    output wire                      M_AXI_MCU_LSU_AWLOCK,
+    output wire [               3:0] M_AXI_MCU_LSU_AWCACHE,
+    output wire [               2:0] M_AXI_MCU_LSU_AWPROT,
+    output wire [               3:0] M_AXI_MCU_LSU_AWQOS,
+
+    output wire                      M_AXI_MCU_LSU_WVALID,
+    input  wire                      M_AXI_MCU_LSU_WREADY,
+    output wire [63:0]               M_AXI_MCU_LSU_WDATA,
+    output wire [ 7:0]               M_AXI_MCU_LSU_WSTRB,
+    output wire                      M_AXI_MCU_LSU_WLAST,
+
+    input  wire                      M_AXI_MCU_LSU_BVALID,
+    output wire                      M_AXI_MCU_LSU_BREADY,
+    input  wire [               1:0] M_AXI_MCU_LSU_BRESP,
+    input  wire [3-1:0]              M_AXI_MCU_LSU_BID,
+
+    // AXI Read Channels
+    output wire                      M_AXI_MCU_LSU_ARVALID,
+    input  wire                      M_AXI_MCU_LSU_ARREADY,
+    output wire [3-1:0]              M_AXI_MCU_LSU_ARID,
+    output wire [              31:0] M_AXI_MCU_LSU_ARADDR,
+    output wire [               3:0] M_AXI_MCU_LSU_ARREGION,
+    output wire [               7:0] M_AXI_MCU_LSU_ARLEN,
+    output wire [               2:0] M_AXI_MCU_LSU_ARSIZE,
+    output wire [               1:0] M_AXI_MCU_LSU_ARBURST,
+    output wire                      M_AXI_MCU_LSU_ARLOCK,
+    output wire [               3:0] M_AXI_MCU_LSU_ARCACHE,
+    output wire [               2:0] M_AXI_MCU_LSU_ARPROT,
+    output wire [               3:0] M_AXI_MCU_LSU_ARQOS,
+
+    input  wire                      M_AXI_MCU_LSU_RVALID,
+    output wire                      M_AXI_MCU_LSU_RREADY,
+    input  wire [3-1:0]              M_AXI_MCU_LSU_RID,
+    input  wire [              63:0] M_AXI_MCU_LSU_RDATA,
+    input  wire [               1:0] M_AXI_MCU_LSU_RRESP,
+    input  wire                      M_AXI_MCU_LSU_RLAST,
+
+    //-------------------------- IFU AXI signals--------------------------
+    // AXI Write Channels
+    output wire                      M_AXI_MCU_IFU_AWVALID,
+    input  wire                      M_AXI_MCU_IFU_AWREADY,
+    output wire [3-1:0]              M_AXI_MCU_IFU_AWID,
+    output wire [              31:0] M_AXI_MCU_IFU_AWADDR,
+    output wire [               3:0] M_AXI_MCU_IFU_AWREGION,
+    output wire [               7:0] M_AXI_MCU_IFU_AWLEN,
+    output wire [               2:0] M_AXI_MCU_IFU_AWSIZE,
+    output wire [               1:0] M_AXI_MCU_IFU_AWBURST,
+    output wire                      M_AXI_MCU_IFU_AWLOCK,
+    output wire [               3:0] M_AXI_MCU_IFU_AWCACHE,
+    output wire [               2:0] M_AXI_MCU_IFU_AWPROT,
+    output wire [               3:0] M_AXI_MCU_IFU_AWQOS,
+
+    output wire                      M_AXI_MCU_IFU_WVALID,
+    input  wire                      M_AXI_MCU_IFU_WREADY,
+    output wire [63:0]               M_AXI_MCU_IFU_WDATA,
+    output wire [ 7:0]               M_AXI_MCU_IFU_WSTRB,
+    output wire                      M_AXI_MCU_IFU_WLAST,
+
+    input  wire                      M_AXI_MCU_IFU_BVALID,
+    output wire                      M_AXI_MCU_IFU_BREADY,
+    input  wire [               1:0] M_AXI_MCU_IFU_BRESP,
+    input  wire [3-1:0]              M_AXI_MCU_IFU_BID,
+
+    // AXI Read Channels
+    output wire                      M_AXI_MCU_IFU_ARVALID,
+    input  wire                      M_AXI_MCU_IFU_ARREADY,
+    output wire [3-1:0]              M_AXI_MCU_IFU_ARID,
+    output wire [              31:0] M_AXI_MCU_IFU_ARADDR,
+    output wire [               3:0] M_AXI_MCU_IFU_ARREGION,
+    output wire [               7:0] M_AXI_MCU_IFU_ARLEN,
+    output wire [               2:0] M_AXI_MCU_IFU_ARSIZE,
+    output wire [               1:0] M_AXI_MCU_IFU_ARBURST,
+    output wire                      M_AXI_MCU_IFU_ARLOCK,
+    output wire [               3:0] M_AXI_MCU_IFU_ARCACHE,
+    output wire [               2:0] M_AXI_MCU_IFU_ARPROT,
+    output wire [               3:0] M_AXI_MCU_IFU_ARQOS,
+
+    input  wire                      M_AXI_MCU_IFU_RVALID,
+    output wire                      M_AXI_MCU_IFU_RREADY,
+    input  wire [3-1:0]              M_AXI_MCU_IFU_RID,
+    input  wire [              63:0] M_AXI_MCU_IFU_RDATA,
+    input  wire [               1:0] M_AXI_MCU_IFU_RRESP,
+    input  wire                      M_AXI_MCU_IFU_RLAST,
+
+    //-------------------------- SB AXI signals--------------------------
+    // AXI Write Channels
+    output wire                     sb_axi_awvalid,
+    input  wire                     sb_axi_awready,
+    output wire [1-1:0]             sb_axi_awid,
+    output wire [             31:0] sb_axi_awaddr,
+    output wire [              3:0] sb_axi_awregion,
+    output wire [              7:0] sb_axi_awlen,
+    output wire [              2:0] sb_axi_awsize,
+    output wire [              1:0] sb_axi_awburst,
+    output wire                     sb_axi_awlock,
+    output wire [              3:0] sb_axi_awcache,
+    output wire [              2:0] sb_axi_awprot,
+    output wire [              3:0] sb_axi_awqos,
+
+    output wire                     sb_axi_wvalid,
+    input  wire                     sb_axi_wready,
+    output wire [63:0]              sb_axi_wdata,
+    output wire [ 7:0]              sb_axi_wstrb,
+    output wire                     sb_axi_wlast,
+
+    input  wire                     sb_axi_bvalid,
+    output wire                     sb_axi_bready,
+    input  wire [              1:0] sb_axi_bresp,
+    input  wire [1-1:0]             sb_axi_bid,
+
+    // AXI Read Channels
+    output wire                     sb_axi_arvalid,
+    input  wire                     sb_axi_arready,
+    output wire [1-1:0]             sb_axi_arid,
+    output wire [             31:0] sb_axi_araddr,
+    output wire [              3:0] sb_axi_arregion,
+    output wire [              7:0] sb_axi_arlen,
+    output wire [              2:0] sb_axi_arsize,
+    output wire [              1:0] sb_axi_arburst,
+    output wire                     sb_axi_arlock,
+    output wire [              3:0] sb_axi_arcache,
+    output wire [              2:0] sb_axi_arprot,
+    output wire [              3:0] sb_axi_arqos,
+
+    input  wire                     sb_axi_rvalid,
+    output wire                     sb_axi_rready,
+    input  wire [1-1:0]             sb_axi_rid,
+    input  wire [             63:0] sb_axi_rdata,
+    input  wire [              1:0] sb_axi_rresp,
+    input  wire                     sb_axi_rlast,
+
+    //-------------------------- DMA AXI signals--------------------------
+    // AXI Write Channels
+    input  wire                      S_AXI_MCU_DMA_AWVALID,
+    output wire                      S_AXI_MCU_DMA_AWREADY,
+    input  wire [1-1:0]              S_AXI_MCU_DMA_AWID,
+    input  wire [              31:0] S_AXI_MCU_DMA_AWADDR,
+    input  wire [               2:0] S_AXI_MCU_DMA_AWSIZE,
+    input  wire [               2:0] S_AXI_MCU_DMA_AWPROT,
+    input  wire [               7:0] S_AXI_MCU_DMA_AWLEN,
+    input  wire [               1:0] S_AXI_MCU_DMA_AWBURST,
+
+
+    input  wire                      S_AXI_MCU_DMA_WVALID,
+    output wire                      S_AXI_MCU_DMA_WREADY,
+    input  wire [63:0]               S_AXI_MCU_DMA_WDATA,
+    input  wire [ 7:0]               S_AXI_MCU_DMA_WSTRB,
+    input  wire                      S_AXI_MCU_DMA_WLAST,
+
+    output wire                      S_AXI_MCU_DMA_BVALID,
+    input  wire                      S_AXI_MCU_DMA_BREADY,
+    output wire [               1:0] S_AXI_MCU_DMA_BRESP,
+    output wire [1-1:0]              S_AXI_MCU_DMA_BID,
+
+    // AXI Read CHANNELS
+    input  wire                      S_AXI_MCU_DMA_ARVALID,
+    output wire                      S_AXI_MCU_DMA_ARREADY,
+    input  wire [1-1:0]              S_AXI_MCU_DMA_ARID,
+    input  wire [              31:0] S_AXI_MCU_DMA_ARADDR,
+    input  wire [               2:0] S_AXI_MCU_DMA_ARSIZE,
+    input  wire [               2:0] S_AXI_MCU_DMA_ARPROT,
+    input  wire [               7:0] S_AXI_MCU_DMA_ARLEN,
+    input  wire [               1:0] S_AXI_MCU_DMA_ARBURST,
+
+    output wire                      S_AXI_MCU_DMA_RVALID,
+    input  wire                      S_AXI_MCU_DMA_RREADY,
+    output wire [1-1:0]              S_AXI_MCU_DMA_RID,
+    output wire [              63:0] S_AXI_MCU_DMA_RDATA,
+    output wire [               1:0] S_AXI_MCU_DMA_RRESP,
+    output wire                      S_AXI_MCU_DMA_RLAST
+
+);
+
         logic                       rst_l;
         logic                       porst_l;
-        logic [mcu_pt.PIC_TOTAL_INT:1]  ext_int;
+        logic [31:1]  ext_int;
         logic                       nmi_int;
         logic                       timer_int;
         logic                       soft_int;
@@ -83,42 +258,13 @@ module caliptra_ss_top_fpga (
         logic        [31:0]         reset_vector;
         logic        [31:0]         nmi_vector;
         logic        [31:1]         jtag_id;
-// TODO: Are these used?
-        logic        [31:0]         ic_haddr        ;
-        logic        [2:0]          ic_hburst       ;
-        logic                       ic_hmastlock    ;
-        logic        [3:0]          ic_hprot        ;
-        logic        [2:0]          ic_hsize        ;
-        logic        [1:0]          ic_htrans       ;
-        logic                       ic_hwrite       ;
-        logic        [63:0]         ic_hrdata       ;
-        logic                       ic_hready       ;
-        logic                       ic_hresp        ;
-
-        logic        [31:0]         lsu_haddr       ;
-        logic        [2:0]          lsu_hburst      ;
-        logic                       lsu_hmastlock   ;
-        logic        [3:0]          lsu_hprot       ;
-        logic        [2:0]          lsu_hsize       ;
-        logic        [1:0]          lsu_htrans      ;
-        logic                       lsu_hwrite      ;
-        logic        [63:0]         lsu_hrdata      ;
-        logic        [63:0]         lsu_hwdata      ;
-        logic                       lsu_hready      ;
-        logic                       lsu_hresp        ;
-
-        logic        [31:0]         sb_haddr        ;
-        logic        [2:0]          sb_hburst       ;
-        logic                       sb_hmastlock    ;
-        logic        [3:0]          sb_hprot        ;
-        logic        [2:0]          sb_hsize        ;
-        logic        [1:0]          sb_htrans       ;
-        logic                       sb_hwrite       ;
-
-        logic        [63:0]         sb_hrdata       ;
-        logic        [63:0]         sb_hwdata       ;
-        logic                       sb_hready       ;
-        logic                       sb_hresp        ;
+initial begin
+            jtag_id[31:28] = 4'b1;
+            jtag_id[27:12] = '0;
+            jtag_id[11:1]  = 11'h45;
+            reset_vector = 0;//`MCU_RV_RESET_VEC;
+            nmi_vector   = 32'hee000000;
+end
 
         logic        [31:0]         trace_rv_i_insn_ip;
         logic        [31:0]         trace_rv_i_address_ip;
@@ -161,618 +307,15 @@ module caliptra_ss_top_fpga (
         logic [11:0]                wb_csr_dest;
         logic [31:0]                wb_csr_data;
 
-    `ifdef MCU_RV_BUILD_AXI4
-       //-------------------------- LSU AXI signals--------------------------
-       // AXI Write Channels
-        wire                        lsu_axi_awvalid;
-        wire                        lsu_axi_awready;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_awid;
-        wire [31:0]                 lsu_axi_awaddr;
-        wire [3:0]                  lsu_axi_awregion;
-        wire [7:0]                  lsu_axi_awlen;
-        wire [2:0]                  lsu_axi_awsize;
-        wire [1:0]                  lsu_axi_awburst;
-        wire                        lsu_axi_awlock;
-        wire [3:0]                  lsu_axi_awcache;
-        wire [2:0]                  lsu_axi_awprot;
-        wire [3:0]                  lsu_axi_awqos;
 
-        wire                        lsu_axi_wvalid;
-        wire                        lsu_axi_wready;
-        wire [63:0]                 lsu_axi_wdata;
-        wire [7:0]                  lsu_axi_wstrb;
-        wire                        lsu_axi_wlast;
-
-        wire                        lsu_axi_bvalid;
-        wire                        lsu_axi_bready;
-        wire [1:0]                  lsu_axi_bresp;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_bid;
-
-        // AXI Read Channels
-        wire                        lsu_axi_arvalid;
-        wire                        lsu_axi_arready;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_arid;
-        wire [31:0]                 lsu_axi_araddr;
-        wire [3:0]                  lsu_axi_arregion;
-        wire [7:0]                  lsu_axi_arlen;
-        wire [2:0]                  lsu_axi_arsize;
-        wire [1:0]                  lsu_axi_arburst;
-        wire                        lsu_axi_arlock;
-        wire [3:0]                  lsu_axi_arcache;
-        wire [2:0]                  lsu_axi_arprot;
-        wire [3:0]                  lsu_axi_arqos;
-
-        wire                        lsu_axi_rvalid;
-        wire                        lsu_axi_rready;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_rid;
-        wire [63:0]                 lsu_axi_rdata;
-        wire [1:0]                  lsu_axi_rresp;
-        wire                        lsu_axi_rlast;
-
-        //-------------------------- IFU AXI signals--------------------------
-        // AXI Write Channels
-        wire                        ifu_axi_awvalid;
-        wire                        ifu_axi_awready;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_awid;
-        wire [31:0]                 ifu_axi_awaddr;
-        wire [3:0]                  ifu_axi_awregion;
-        wire [7:0]                  ifu_axi_awlen;
-        wire [2:0]                  ifu_axi_awsize;
-        wire [1:0]                  ifu_axi_awburst;
-        wire                        ifu_axi_awlock;
-        wire [3:0]                  ifu_axi_awcache;
-        wire [2:0]                  ifu_axi_awprot;
-        wire [3:0]                  ifu_axi_awqos;
-
-        wire                        ifu_axi_wvalid;
-        wire                        ifu_axi_wready;
-        wire [63:0]                 ifu_axi_wdata;
-        wire [7:0]                  ifu_axi_wstrb;
-        wire                        ifu_axi_wlast;
-
-        wire                        ifu_axi_bvalid;
-        wire                        ifu_axi_bready;
-        wire [1:0]                  ifu_axi_bresp;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_bid;
-
-        // AXI Read Channels
-        wire                        ifu_axi_arvalid;
-        wire                        ifu_axi_arready;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_arid;
-        wire [31:0]                 ifu_axi_araddr;
-        wire [3:0]                  ifu_axi_arregion;
-        wire [7:0]                  ifu_axi_arlen;
-        wire [2:0]                  ifu_axi_arsize;
-        wire [1:0]                  ifu_axi_arburst;
-        wire                        ifu_axi_arlock;
-        wire [3:0]                  ifu_axi_arcache;
-        wire [2:0]                  ifu_axi_arprot;
-        wire [3:0]                  ifu_axi_arqos;
-
-        wire                        ifu_axi_rvalid;
-        wire                        ifu_axi_rready;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_rid;
-        wire [63:0]                 ifu_axi_rdata;
-        wire [1:0]                  ifu_axi_rresp;
-        wire                        ifu_axi_rlast;
-
-        //-------------------------- SB AXI signals--------------------------
-        // AXI Write Channels
-        wire                        sb_axi_awvalid;
-        wire                        sb_axi_awready;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_awid;
-        wire [31:0]                 sb_axi_awaddr;
-        wire [3:0]                  sb_axi_awregion;
-        wire [7:0]                  sb_axi_awlen;
-        wire [2:0]                  sb_axi_awsize;
-        wire [1:0]                  sb_axi_awburst;
-        wire                        sb_axi_awlock;
-        wire [3:0]                  sb_axi_awcache;
-        wire [2:0]                  sb_axi_awprot;
-        wire [3:0]                  sb_axi_awqos;
-
-        wire                        sb_axi_wvalid;
-        wire                        sb_axi_wready;
-        wire [63:0]                 sb_axi_wdata;
-        wire [7:0]                  sb_axi_wstrb;
-        wire                        sb_axi_wlast;
-
-        wire                        sb_axi_bvalid;
-        wire                        sb_axi_bready;
-        wire [1:0]                  sb_axi_bresp;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_bid;
-
-        // AXI Read Channels
-        wire                        sb_axi_arvalid;
-        wire                        sb_axi_arready;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_arid;
-        wire [31:0]                 sb_axi_araddr;
-        wire [3:0]                  sb_axi_arregion;
-        wire [7:0]                  sb_axi_arlen;
-        wire [2:0]                  sb_axi_arsize;
-        wire [1:0]                  sb_axi_arburst;
-        wire                        sb_axi_arlock;
-        wire [3:0]                  sb_axi_arcache;
-        wire [2:0]                  sb_axi_arprot;
-        wire [3:0]                  sb_axi_arqos;
-
-        wire                        sb_axi_rvalid;
-        wire                        sb_axi_rready;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_rid;
-        wire [63:0]                 sb_axi_rdata;
-        wire [1:0]                  sb_axi_rresp;
-        wire                        sb_axi_rlast;
-
-       //-------------------------- DMA AXI signals--------------------------
-       // AXI Write Channels
-        wire                        dma_axi_awvalid;
-        wire                        dma_axi_awready;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_awid;
-        wire [31:0]                 dma_axi_awaddr;
-        wire [2:0]                  dma_axi_awsize;
-        wire [2:0]                  dma_axi_awprot;
-        wire [7:0]                  dma_axi_awlen;
-        wire [1:0]                  dma_axi_awburst;
-
-
-        wire                        dma_axi_wvalid;
-        wire                        dma_axi_wready;
-        wire [63:0]                 dma_axi_wdata;
-        wire [7:0]                  dma_axi_wstrb;
-        wire                        dma_axi_wlast;
-
-        wire                        dma_axi_bvalid;
-        wire                        dma_axi_bready;
-        wire [1:0]                  dma_axi_bresp;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_bid;
-
-        // AXI Read Channels
-        wire                        dma_axi_arvalid;
-        wire                        dma_axi_arready;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_arid;
-        wire [31:0]                 dma_axi_araddr;
-        wire [2:0]                  dma_axi_arsize;
-        wire [2:0]                  dma_axi_arprot;
-        wire [7:0]                  dma_axi_arlen;
-        wire [1:0]                  dma_axi_arburst;
-
-        wire                        dma_axi_rvalid;
-        wire                        dma_axi_rready;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_rid;
-        wire [63:0]                 dma_axi_rdata;
-        wire [1:0]                  dma_axi_rresp;
-        wire                        dma_axi_rlast;
-
-        wire                        lmem_axi_arvalid;
-        wire                        lmem_axi_arready;
-
-        wire                        lmem_axi_rvalid;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lmem_axi_rid;
-        wire [1:0]                  lmem_axi_rresp;
-        wire [63:0]                 lmem_axi_rdata;
-        wire                        lmem_axi_rlast;
-        wire                        lmem_axi_rready;
-
-        wire                        lmem_axi_awvalid;
-        wire                        lmem_axi_awready;
-
-        wire                        lmem_axi_wvalid;
-        wire                        lmem_axi_wready;
-
-        wire [1:0]                  lmem_axi_bresp;
-        wire                        lmem_axi_bvalid;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lmem_axi_bid;
-        wire                        lmem_axi_bready;
-
-    `endif
         mcu_el2_mem_if                  mcu_el2_mem_export ();
-        // el2_mem_if                  caliptra_el2_mem_export (); // TODO: Never used
 
-        logic [mcu_pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_wr_fdata;
-        logic [mcu_pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_fdout;
-        logic [mcu_pt.DCCM_NUM_BANKS-1:0][mcu_pt.DCCM_FDATA_WIDTH-1:0] dccm_wr_fdata_bank;
-        logic [mcu_pt.DCCM_NUM_BANKS-1:0][mcu_pt.DCCM_FDATA_WIDTH-1:0] dccm_bank_fdout;
-
+        logic [4-1:0][38:0]         iccm_bank_wr_fdata;
+        logic [4-1:0][38:0]         iccm_bank_fdout;
+        logic [4-1:0][39-1:0]       dccm_wr_fdata_bank;
+        logic [4-1:0][39-1:0]       dccm_bank_fdout;
 
 
-        //=================== BEGIN CALIPTRA_TOP_TB ========================
-
-        logic                       cptra_pwrgood;
-        logic                       cptra_rst_b;
-        logic                       BootFSM_BrkPoint;
-        logic                       scan_mode;
-
-        logic [`CLP_OBF_KEY_DWORDS-1:0][31:0]          cptra_obf_key;
-        
-        logic [0:`CLP_OBF_UDS_DWORDS-1][31:0]          cptra_uds_rand;
-        logic [0:`CLP_OBF_FE_DWORDS-1][31:0]           cptra_fe_rand;
-        logic [0:`CLP_OBF_KEY_DWORDS-1][31:0]          cptra_obf_key_tb;
-
-        //jtag interface
-        logic                      cptra_jtag_tck;    // JTAG clk
-        logic                      cptra_jtag_tms;    // JTAG TMS
-        logic                      cptra_jtag_tdi;    // JTAG tdi
-        logic                      cptra_jtag_trst_n; // JTAG Reset
-        logic                      cptra_jtag_tdo;    // JTAG TDO
-        logic                      cptra_jtag_tdoEn;  // JTAG TDO enable
-
-        // AXI Interface
-        axi_if #(
-            .AW(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
-            .DW(32),
-            .IW(16 - 3),
-            .UW(16)
-        ) m_axi_bfm_if (.clk(core_clk), .rst_n(cptra_rst_b));
-
-        axi_if #(
-            .AW(32),
-            .DW(32),
-            .IW(16),
-            .UW(16)
-        ) m_axi_if (.clk(core_clk), .rst_n(cptra_rst_b));
-
-        // AXI Interface
-        axi_if #(
-            .AW(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
-            .DW(32),
-            .IW(16),
-            .UW(16)
-        ) s_axi_if (.clk(core_clk), .rst_n(cptra_rst_b));
-
-        axi_if #(
-            .AW(32),
-            .DW(32),
-            .IW(16 + 3),
-            .UW(16)
-        ) axi_sram_if (.clk(core_clk), .rst_n(cptra_rst_b));
-
-        // QSPI Interface
-        logic                                qspi_clk;
-        logic [`CALIPTRA_QSPI_CS_WIDTH-1:0]  qspi_cs_n;
-        wire  [`CALIPTRA_QSPI_IO_WIDTH-1:0]  qspi_data;
-        logic [`CALIPTRA_QSPI_IO_WIDTH-1:0]  qspi_data_host_to_device, qspi_data_device_to_host;
-        logic [`CALIPTRA_QSPI_IO_WIDTH-1:0]  qspi_data_host_to_device_en;
-
-    `ifdef CALIPTRA_INTERNAL_UART
-        logic uart_loopback;
-    `endif
-
-        logic ready_for_fuses;
-        logic ready_for_fw_push;
-        logic mailbox_data_avail;
-        logic mbox_sram_cs;
-        logic mbox_sram_we;
-        logic [14:0] mbox_sram_addr;
-        logic [39-1:0] mbox_sram_wdata;
-        logic [39-1:0] mbox_sram_rdata;
-
-        logic imem_cs;
-        logic [`CALIPTRA_IMEM_ADDR_WIDTH-1:0] imem_addr;
-        logic [`CALIPTRA_IMEM_DATA_WIDTH-1:0] imem_rdata;
-
-        //device lifecycle
-        security_state_t security_state;
-
-        ras_test_ctrl_t ras_test_ctrl;
-        logic [63:0] generic_input_wires;
-        logic        etrng_req;
-        logic  [3:0] itrng_data;
-        logic        itrng_valid;
-
-        logic cptra_error_fatal;
-        logic cptra_error_non_fatal;
-
-        //Interrupt flags
-        logic int_flag;
-        logic cycleCnt_smpl_en;
-
-        //Reset flags
-        logic assert_hard_rst_flag;
-        logic deassert_hard_rst_flag;
-        logic assert_rst_flag_from_service;
-        logic deassert_rst_flag_from_service;
-
-        el2_mem_if el2_mem_export ();
-
-       //=========================================================================-
-       // DUT instance
-       //=========================================================================-
-        caliptra_top caliptra_top_dut (
-            .cptra_pwrgood              (cptra_pwrgood),
-            .cptra_rst_b                (cptra_rst_b),
-            .clk                        (core_clk),
-
-            .cptra_obf_key              (cptra_obf_key),
-
-            .jtag_tck   (cptra_jtag_tck   ),
-            .jtag_tdi   (cptra_jtag_tdi   ),
-            .jtag_tms   (cptra_jtag_tms   ),
-            .jtag_trst_n(cptra_jtag_trst_n),
-            .jtag_tdo   (cptra_jtag_tdo   ),
-            .jtag_tdoEn (cptra_jtag_tdoEn ),
-            
-            //SoC AXI Interface
-            .s_axi_w_if(s_axi_if.w_sub),
-            .s_axi_r_if(s_axi_if.r_sub),
-
-            //AXI DMA Interface
-            .m_axi_w_if(m_axi_if.w_mgr),
-            .m_axi_r_if(m_axi_if.r_mgr),
-
-            .qspi_clk_o (qspi_clk),
-            .qspi_cs_no (qspi_cs_n),
-            .qspi_d_i   (qspi_data_device_to_host),
-            .qspi_d_o   (qspi_data_host_to_device),
-            .qspi_d_en_o(qspi_data_host_to_device_en),
-
-        `ifdef CALIPTRA_INTERNAL_UART
-            .uart_tx(uart_loopback),
-            .uart_rx(uart_loopback),
-        `endif
-
-            .el2_mem_export(el2_mem_export.veer_sram_src),
-
-            .ready_for_fuses(ready_for_fuses),
-            .ready_for_fw_push(ready_for_fw_push),
-            .ready_for_runtime(),
-
-            .mbox_sram_cs(mbox_sram_cs),
-            .mbox_sram_we(mbox_sram_we),
-            .mbox_sram_addr(mbox_sram_addr),
-            .mbox_sram_wdata(mbox_sram_wdata),
-            .mbox_sram_rdata(mbox_sram_rdata),
-                
-            .imem_cs(imem_cs),
-            .imem_addr(imem_addr),
-            .imem_rdata(imem_rdata),
-
-            .mailbox_data_avail(mailbox_data_avail),
-            .mailbox_flow_done(),
-            .BootFSM_BrkPoint(BootFSM_BrkPoint),
-
-            .recovery_data_avail(1'b1/*TODO*/),
-
-            //SoC Interrupts
-            .cptra_error_fatal    (cptra_error_fatal    ),
-            .cptra_error_non_fatal(cptra_error_non_fatal),
-
-        `ifdef CALIPTRA_INTERNAL_TRNG
-            .etrng_req             (etrng_req),
-            .itrng_data            (itrng_data),
-            .itrng_valid           (itrng_valid),
-        `else
-            .etrng_req             (),
-            .itrng_data            (4'b0),
-            .itrng_valid           (1'b0),
-        `endif
-
-            .generic_input_wires(generic_input_wires),
-            .generic_output_wires(),
-
-            .security_state(security_state),
-            .scan_mode     (scan_mode)
-        );
-
-
-        caliptra_top_sva sva();
-
-        //=================== END CALIPTRA_TOP_TB ========================
-
-        logic s_axi_if_rd_is_upper_dw_latched;
-        logic s_axi_if_wr_is_upper_dw_latched;
-        // AXI Interconnect connections
-        assign s_axi_if.awvalid                      = axi_interconnect.sintf_arr[3].AWVALID;
-        assign s_axi_if.awaddr                       = axi_interconnect.sintf_arr[3].AWADDR;
-        assign s_axi_if.awid                         = axi_interconnect.sintf_arr[3].AWID;
-        assign s_axi_if.awlen                        = axi_interconnect.sintf_arr[3].AWLEN;
-        assign s_axi_if.awsize                       = axi_interconnect.sintf_arr[3].AWSIZE;
-        assign s_axi_if.awburst                      = axi_interconnect.sintf_arr[3].AWBURST;
-        assign s_axi_if.awlock                       = axi_interconnect.sintf_arr[3].AWLOCK;
-        assign s_axi_if.awuser                       = axi_interconnect.sintf_arr[3].AWUSER;
-        assign axi_interconnect.sintf_arr[3].AWREADY = s_axi_if.awready;
-        // FIXME this is a gross hack
-        always@(posedge core_clk or negedge rst_l)
-            if (!rst_l)
-                s_axi_if_wr_is_upper_dw_latched <= 0;
-            else if (s_axi_if.awvalid && s_axi_if.awready)
-                s_axi_if_wr_is_upper_dw_latched <= s_axi_if.awaddr[2] && (s_axi_if.awsize < 3);
-        `CALIPTRA_ASSERT(CPTRA_AXI_WR_32BIT, (s_axi_if.awvalid && s_axi_if.awready) -> (s_axi_if.awsize < 3), core_clk, !rst_l)
-
-        assign s_axi_if.wvalid                       = axi_interconnect.sintf_arr[3].WVALID;
-        assign s_axi_if.wdata                        = axi_interconnect.sintf_arr[3].WDATA >> (s_axi_if_wr_is_upper_dw_latched ? 32 : 0);
-        assign s_axi_if.wstrb                        = axi_interconnect.sintf_arr[3].WSTRB >> (s_axi_if_wr_is_upper_dw_latched ? 4 : 0);
-        assign s_axi_if.wlast                        = axi_interconnect.sintf_arr[3].WLAST;
-
-        assign axi_interconnect.sintf_arr[3].WREADY  = s_axi_if.wready;
-
-        assign axi_interconnect.sintf_arr[3].BVALID  = s_axi_if.bvalid;
-        assign axi_interconnect.sintf_arr[3].BRESP   = s_axi_if.bresp;
-        assign axi_interconnect.sintf_arr[3].BID     = s_axi_if.bid;
-        assign s_axi_if.bready                       = axi_interconnect.sintf_arr[3].BREADY;
-
-        assign s_axi_if.arvalid                      = axi_interconnect.sintf_arr[3].ARVALID;
-        assign s_axi_if.araddr                       = axi_interconnect.sintf_arr[3].ARADDR;
-        assign s_axi_if.arid                         = axi_interconnect.sintf_arr[3].ARID;
-        assign s_axi_if.arlen                        = axi_interconnect.sintf_arr[3].ARLEN;
-        assign s_axi_if.arsize                       = axi_interconnect.sintf_arr[3].ARSIZE;
-        assign s_axi_if.arburst                      = axi_interconnect.sintf_arr[3].ARBURST;
-        assign s_axi_if.arlock                       = axi_interconnect.sintf_arr[3].ARLOCK;
-        assign s_axi_if.aruser                       = axi_interconnect.sintf_arr[3].ARUSER;
-        assign axi_interconnect.sintf_arr[3].ARREADY = s_axi_if.arready;
-        // FIXME this is a gross hack
-        always@(posedge core_clk or negedge rst_l)
-            if (!rst_l)
-                s_axi_if_rd_is_upper_dw_latched <= 0;
-            else if (s_axi_if.arvalid && s_axi_if.arready)
-                s_axi_if_rd_is_upper_dw_latched <= s_axi_if.araddr[2] && (s_axi_if.arsize < 3);
-        `CALIPTRA_ASSERT(CPTRA_AXI_RD_32BIT, (s_axi_if.arvalid && s_axi_if.arready) -> (s_axi_if.arsize < 3), core_clk, !rst_l)
-
-        assign axi_interconnect.sintf_arr[3].RVALID  = s_axi_if.rvalid;
-        assign axi_interconnect.sintf_arr[3].RDATA   = 64'(s_axi_if.rdata) << (s_axi_if_rd_is_upper_dw_latched ? 32 : 0);
-        assign axi_interconnect.sintf_arr[3].RRESP   = s_axi_if.rresp;
-        assign axi_interconnect.sintf_arr[3].RID     = s_axi_if.rid;
-        assign axi_interconnect.sintf_arr[3].RLAST   = s_axi_if.rlast;
-        assign s_axi_if.rready                       = axi_interconnect.sintf_arr[3].RREADY;
-        
-        // -- CALIPTRA SRAM 
-        // AXI Interconnect connections
-        assign axi_sram_if.awvalid                     = axi_interconnect.sintf_arr[4].AWVALID;
-        assign axi_sram_if.awaddr                      = axi_interconnect.sintf_arr[4].AWADDR;
-        assign axi_sram_if.awid                        = axi_interconnect.sintf_arr[4].AWID;
-        assign axi_sram_if.awlen                       = axi_interconnect.sintf_arr[4].AWLEN;
-        assign axi_sram_if.awsize                      = axi_interconnect.sintf_arr[4].AWSIZE;
-        assign axi_sram_if.awburst                     = axi_interconnect.sintf_arr[4].AWBURST;
-        assign axi_sram_if.awlock                      = axi_interconnect.sintf_arr[4].AWLOCK;
-        assign axi_sram_if.awuser                      = axi_interconnect.sintf_arr[4].AWUSER;
-        assign axi_interconnect.sintf_arr[4].AWREADY   = axi_sram_if.awready;
-
-        assign axi_sram_if.wvalid                      = axi_interconnect.sintf_arr[4].WVALID;
-        assign axi_sram_if.wdata                       = axi_interconnect.sintf_arr[4].WDATA;
-        assign axi_sram_if.wstrb                       = axi_interconnect.sintf_arr[4].WSTRB;
-        assign axi_sram_if.wlast                       = axi_interconnect.sintf_arr[4].WLAST;
-        assign axi_interconnect.sintf_arr[4].WREADY    = axi_sram_if.wready;
-
-        assign axi_interconnect.sintf_arr[4].BVALID    = axi_sram_if.bvalid;
-        assign axi_interconnect.sintf_arr[4].BRESP     = axi_sram_if.bresp;
-        assign axi_interconnect.sintf_arr[4].BID       = axi_sram_if.bid;
-        assign axi_sram_if.bready                      = axi_interconnect.sintf_arr[4].BREADY;
-
-        assign axi_sram_if.arvalid                     = axi_interconnect.sintf_arr[4].ARVALID;
-        assign axi_sram_if.araddr                      = axi_interconnect.sintf_arr[4].ARADDR;
-        assign axi_sram_if.arid                        = axi_interconnect.sintf_arr[4].ARID;
-        assign axi_sram_if.arlen                       = axi_interconnect.sintf_arr[4].ARLEN;
-        assign axi_sram_if.arsize                      = axi_interconnect.sintf_arr[4].ARSIZE;
-        assign axi_sram_if.arburst                     = axi_interconnect.sintf_arr[4].ARBURST;
-        assign axi_sram_if.arlock                      = axi_interconnect.sintf_arr[4].ARLOCK;
-        assign axi_sram_if.aruser                      = axi_interconnect.sintf_arr[4].ARUSER;
-        assign axi_interconnect.sintf_arr[4].ARREADY   = axi_sram_if.arready;
-
-        assign axi_interconnect.sintf_arr[4].RVALID    = axi_sram_if.rvalid;
-        assign axi_interconnect.sintf_arr[4].RDATA     = axi_sram_if.rdata;
-        assign axi_interconnect.sintf_arr[4].RRESP     = axi_sram_if.rresp;
-        assign axi_interconnect.sintf_arr[4].RID       = axi_sram_if.rid;
-        assign axi_interconnect.sintf_arr[4].RLAST     = axi_sram_if.rlast;
-        assign axi_sram_if.rready                      = axi_interconnect.sintf_arr[4].RREADY;
-        
-
-
-        // AXI Interconnect connections
-        assign axi_interconnect.mintf_arr[2].AWVALID = '0;
-        assign axi_interconnect.mintf_arr[2].AWADDR  = '0;
-        assign axi_interconnect.mintf_arr[2].AWID    = '0;
-        assign axi_interconnect.mintf_arr[2].AWLEN   = '0;
-        assign axi_interconnect.mintf_arr[2].AWSIZE  = '0;
-        assign axi_interconnect.mintf_arr[2].AWBURST = '0;
-        assign axi_interconnect.mintf_arr[2].AWLOCK  = '0;
-        assign axi_interconnect.mintf_arr[2].AWUSER  = '0;
-//        assign something.awready    = axi_interconnect.mintf_arr[2].AWREADY;
-        
-        assign axi_interconnect.mintf_arr[2].WVALID = '0;
-        assign axi_interconnect.mintf_arr[2].WDATA  = '0;
-        assign axi_interconnect.mintf_arr[2].WSTRB  = '0;
-        assign axi_interconnect.mintf_arr[2].WLAST  = '0;
-//        assign something.wready    = axi_interconnect.mintf_arr[2].WREADY;
-        
-//        assign something.bvalid = axi_interconnect.mintf_arr[2].BVALID;
-//        assign something.bresp  = axi_interconnect.mintf_arr[2].BRESP;
-//        assign something.bid    = axi_interconnect.mintf_arr[2].BID;
-        assign axi_interconnect.mintf_arr[2].BREADY = '0;
-
-        assign axi_interconnect.mintf_arr[2].ARVALID = '0;
-        assign axi_interconnect.mintf_arr[2].ARADDR  = '0;
-        assign axi_interconnect.mintf_arr[2].ARID    = '0;
-        assign axi_interconnect.mintf_arr[2].ARLEN   = '0;
-        assign axi_interconnect.mintf_arr[2].ARSIZE  = '0;
-        assign axi_interconnect.mintf_arr[2].ARBURST = '0;
-        assign axi_interconnect.mintf_arr[2].ARLOCK  = '0;
-        assign axi_interconnect.mintf_arr[2].ARUSER  = '0;
-//        assign something.arready    = axi_interconnect.mintf_arr[2].ARREADY;
-        
-//        assign something.rvalid = axi_interconnect.mintf_arr[2].RVALID;
-//        assign something.rdata  = axi_interconnect.mintf_arr[2].RDATA;
-//        assign something.rresp  = axi_interconnect.mintf_arr[2].RRESP;
-//        assign something.rid    = axi_interconnect.mintf_arr[2].RID;
-//        assign something.rlast  = axi_interconnect.mintf_arr[2].RLAST;
-        assign axi_interconnect.mintf_arr[2].RREADY = '0;
-
-        // AXI Interconnect connections
-        assign axi_interconnect.mintf_arr[3].AWVALID = m_axi_if.awvalid;
-        assign axi_interconnect.mintf_arr[3].AWADDR  = m_axi_if.awaddr;
-        assign axi_interconnect.mintf_arr[3].AWID    = m_axi_if.awid;
-        assign axi_interconnect.mintf_arr[3].AWLEN   = m_axi_if.awlen;
-        assign axi_interconnect.mintf_arr[3].AWSIZE  = m_axi_if.awsize;
-        assign axi_interconnect.mintf_arr[3].AWBURST = m_axi_if.awburst;
-        assign axi_interconnect.mintf_arr[3].AWLOCK  = m_axi_if.awlock;
-        assign axi_interconnect.mintf_arr[3].AWUSER  = m_axi_if.awuser;
-        assign m_axi_if.awready                      = axi_interconnect.mintf_arr[3].AWREADY;
-
-        assign axi_interconnect.mintf_arr[3].WVALID  = m_axi_if.wvalid;
-        assign axi_interconnect.mintf_arr[3].WDATA   = m_axi_if.wdata;
-        assign axi_interconnect.mintf_arr[3].WSTRB   = m_axi_if.wstrb;
-        assign axi_interconnect.mintf_arr[3].WLAST   = m_axi_if.wlast;
-        assign m_axi_if.wready                       = axi_interconnect.mintf_arr[3].WREADY;
-
-        assign m_axi_if.bvalid                       = axi_interconnect.mintf_arr[3].BVALID;
-        assign m_axi_if.bresp                        = axi_interconnect.mintf_arr[3].BRESP;
-        assign m_axi_if.bid                          = axi_interconnect.mintf_arr[3].BID;
-        assign axi_interconnect.mintf_arr[3].BREADY  = m_axi_if.bready;
-
-        assign axi_interconnect.mintf_arr[3].ARVALID = m_axi_if.arvalid;
-        assign axi_interconnect.mintf_arr[3].ARADDR  = m_axi_if.araddr;
-        assign axi_interconnect.mintf_arr[3].ARID    = m_axi_if.arid;
-        assign axi_interconnect.mintf_arr[3].ARLEN   = m_axi_if.arlen;
-        assign axi_interconnect.mintf_arr[3].ARSIZE  = m_axi_if.arsize;
-        assign axi_interconnect.mintf_arr[3].ARBURST = m_axi_if.arburst;
-        assign axi_interconnect.mintf_arr[3].ARLOCK  = m_axi_if.arlock;
-        assign axi_interconnect.mintf_arr[3].ARUSER  = m_axi_if.aruser;
-        assign m_axi_if.arready                      = axi_interconnect.mintf_arr[3].ARREADY;
-
-        assign m_axi_if.rvalid                       = axi_interconnect.mintf_arr[3].RVALID;
-        assign m_axi_if.rdata                        = axi_interconnect.mintf_arr[3].RDATA;
-        assign m_axi_if.rresp                        = axi_interconnect.mintf_arr[3].RRESP;
-        assign m_axi_if.rid                          = axi_interconnect.mintf_arr[3].RID;
-        assign m_axi_if.rlast                        = axi_interconnect.mintf_arr[3].RLAST;
-        assign axi_interconnect.mintf_arr[3].RREADY  = m_axi_if.rready;
-
-        // AXI Interconnect connections
-        assign axi_interconnect.mintf_arr[4].AWVALID  = m_axi_bfm_if.awvalid;
-        assign axi_interconnect.mintf_arr[4].AWADDR   = m_axi_bfm_if.awaddr;
-        assign axi_interconnect.mintf_arr[4].AWID     = m_axi_bfm_if.awid;
-        assign axi_interconnect.mintf_arr[4].AWLEN    = m_axi_bfm_if.awlen;
-        assign axi_interconnect.mintf_arr[4].AWSIZE   = m_axi_bfm_if.awsize;
-        assign axi_interconnect.mintf_arr[4].AWBURST  = m_axi_bfm_if.awburst;
-        assign axi_interconnect.mintf_arr[4].AWLOCK   = m_axi_bfm_if.awlock;
-        assign axi_interconnect.mintf_arr[4].AWUSER   = m_axi_bfm_if.awuser;
-        assign m_axi_bfm_if.awready                   = axi_interconnect.mintf_arr[4].AWREADY;
-
-        assign axi_interconnect.mintf_arr[4].WVALID   = m_axi_bfm_if.wvalid;
-        assign axi_interconnect.mintf_arr[4].WDATA    = m_axi_bfm_if.wdata;
-        assign axi_interconnect.mintf_arr[4].WSTRB    = m_axi_bfm_if.wstrb;
-        assign axi_interconnect.mintf_arr[4].WLAST    = m_axi_bfm_if.wlast;
-        assign m_axi_bfm_if.wready                    = axi_interconnect.mintf_arr[4].WREADY;
-
-        assign m_axi_bfm_if.bvalid                    = axi_interconnect.mintf_arr[4].BVALID;
-        assign m_axi_bfm_if.bresp                     = axi_interconnect.mintf_arr[4].BRESP;
-        assign m_axi_bfm_if.bid                       = axi_interconnect.mintf_arr[4].BID;
-        assign axi_interconnect.mintf_arr[4].BREADY   = m_axi_bfm_if.bready;
-
-        assign axi_interconnect.mintf_arr[4].ARVALID  = m_axi_bfm_if.arvalid;
-        assign axi_interconnect.mintf_arr[4].ARADDR   = m_axi_bfm_if.araddr;
-        assign axi_interconnect.mintf_arr[4].ARID     = m_axi_bfm_if.arid;
-        assign axi_interconnect.mintf_arr[4].ARLEN    = m_axi_bfm_if.arlen;
-        assign axi_interconnect.mintf_arr[4].ARSIZE   = m_axi_bfm_if.arsize;
-        assign axi_interconnect.mintf_arr[4].ARBURST  = m_axi_bfm_if.arburst;
-        assign axi_interconnect.mintf_arr[4].ARLOCK   = m_axi_bfm_if.arlock;
-        assign axi_interconnect.mintf_arr[4].ARUSER   = m_axi_bfm_if.aruser;
-        assign m_axi_bfm_if.arready                   = axi_interconnect.mintf_arr[4].ARREADY;
-
-        assign m_axi_bfm_if.rvalid                    = axi_interconnect.mintf_arr[4].RVALID;
-        assign m_axi_bfm_if.rdata                     = axi_interconnect.mintf_arr[4].RDATA;
-        assign m_axi_bfm_if.rresp                     = axi_interconnect.mintf_arr[4].RRESP;
-        assign m_axi_bfm_if.rid                       = axi_interconnect.mintf_arr[4].RID;
-        assign m_axi_bfm_if.rlast                     = axi_interconnect.mintf_arr[4].RLAST;
-        assign axi_interconnect.mintf_arr[4].RREADY   = m_axi_bfm_if.rready;
-        
 
        //=========================================================================-
        // RTL instance
@@ -791,96 +334,96 @@ module caliptra_ss_top_fpga (
         //-------------------------- LSU AXI signals--------------------------
         // // AXI Write Channels
 
-        .lsu_axi_awvalid        (axi_interconnect.mintf_arr[0].AWVALID),
-        .lsu_axi_awready        (axi_interconnect.mintf_arr[0].AWREADY),
-        .lsu_axi_awid           (axi_interconnect.mintf_arr[0].AWID),
-        .lsu_axi_awaddr         (axi_interconnect.mintf_arr[0].AWADDR),
-        .lsu_axi_awregion       (axi_interconnect.mintf_arr[0].AWREGION),
-        .lsu_axi_awlen          (axi_interconnect.mintf_arr[0].AWLEN),
-        .lsu_axi_awsize         (axi_interconnect.mintf_arr[0].AWSIZE),
-        .lsu_axi_awburst        (axi_interconnect.mintf_arr[0].AWBURST),
-        .lsu_axi_awlock         (axi_interconnect.mintf_arr[0].AWLOCK),
-        .lsu_axi_awcache        (axi_interconnect.mintf_arr[0].AWCACHE),
-        .lsu_axi_awprot         (axi_interconnect.mintf_arr[0].AWPROT),
-        .lsu_axi_awqos          (axi_interconnect.mintf_arr[0].AWQOS),
+        .lsu_axi_awvalid        (M_AXI_MCU_LSU_AWVALID),
+        .lsu_axi_awready        (M_AXI_MCU_LSU_AWREADY),
+        .lsu_axi_awid           (M_AXI_MCU_LSU_AWID),
+        .lsu_axi_awaddr         (M_AXI_MCU_LSU_AWADDR),
+        .lsu_axi_awregion       (M_AXI_MCU_LSU_AWREGION),
+        .lsu_axi_awlen          (M_AXI_MCU_LSU_AWLEN),
+        .lsu_axi_awsize         (M_AXI_MCU_LSU_AWSIZE),
+        .lsu_axi_awburst        (M_AXI_MCU_LSU_AWBURST),
+        .lsu_axi_awlock         (M_AXI_MCU_LSU_AWLOCK),
+        .lsu_axi_awcache        (M_AXI_MCU_LSU_AWCACHE),
+        .lsu_axi_awprot         (M_AXI_MCU_LSU_AWPROT),
+        .lsu_axi_awqos          (M_AXI_MCU_LSU_AWQOS),
 
-        .lsu_axi_wvalid         (axi_interconnect.mintf_arr[0].WVALID),
-        .lsu_axi_wready         (axi_interconnect.mintf_arr[0].WREADY),
-        .lsu_axi_wdata          (axi_interconnect.mintf_arr[0].WDATA),
-        .lsu_axi_wstrb          (axi_interconnect.mintf_arr[0].WSTRB),
-        .lsu_axi_wlast          (axi_interconnect.mintf_arr[0].WLAST),
+        .lsu_axi_wvalid         (M_AXI_MCU_LSU_WVALID),
+        .lsu_axi_wready         (M_AXI_MCU_LSU_WREADY),
+        .lsu_axi_wdata          (M_AXI_MCU_LSU_WDATA),
+        .lsu_axi_wstrb          (M_AXI_MCU_LSU_WSTRB),
+        .lsu_axi_wlast          (M_AXI_MCU_LSU_WLAST),
 
-        .lsu_axi_bvalid         (axi_interconnect.mintf_arr[0].BVALID),
-        .lsu_axi_bready         (axi_interconnect.mintf_arr[0].BREADY),
-        .lsu_axi_bresp          (axi_interconnect.mintf_arr[0].BRESP),
-        .lsu_axi_bid            (axi_interconnect.mintf_arr[0].BID),
+        .lsu_axi_bvalid         (M_AXI_MCU_LSU_BVALID),
+        .lsu_axi_bready         (M_AXI_MCU_LSU_BREADY),
+        .lsu_axi_bresp          (M_AXI_MCU_LSU_BRESP),
+        .lsu_axi_bid            (M_AXI_MCU_LSU_BID),
 
-        .lsu_axi_arvalid        (axi_interconnect.mintf_arr[0].ARVALID),
-        .lsu_axi_arready        (axi_interconnect.mintf_arr[0].ARREADY),
-        .lsu_axi_arid           (axi_interconnect.mintf_arr[0].ARID),
-        .lsu_axi_araddr         (axi_interconnect.mintf_arr[0].ARADDR),
-        .lsu_axi_arregion       (axi_interconnect.mintf_arr[0].ARREGION),
-        .lsu_axi_arlen          (axi_interconnect.mintf_arr[0].ARLEN),
-        .lsu_axi_arsize         (axi_interconnect.mintf_arr[0].ARSIZE),
-        .lsu_axi_arburst        (axi_interconnect.mintf_arr[0].ARBURST),
-        .lsu_axi_arlock         (axi_interconnect.mintf_arr[0].ARLOCK),
-        .lsu_axi_arcache        (axi_interconnect.mintf_arr[0].ARCACHE),
-        .lsu_axi_arprot         (axi_interconnect.mintf_arr[0].ARPROT),
-        .lsu_axi_arqos          (axi_interconnect.mintf_arr[0].ARQOS),
+        .lsu_axi_arvalid        (M_AXI_MCU_LSU_ARVALID),
+        .lsu_axi_arready        (M_AXI_MCU_LSU_ARREADY),
+        .lsu_axi_arid           (M_AXI_MCU_LSU_ARID),
+        .lsu_axi_araddr         (M_AXI_MCU_LSU_ARADDR),
+        .lsu_axi_arregion       (M_AXI_MCU_LSU_ARREGION),
+        .lsu_axi_arlen          (M_AXI_MCU_LSU_ARLEN),
+        .lsu_axi_arsize         (M_AXI_MCU_LSU_ARSIZE),
+        .lsu_axi_arburst        (M_AXI_MCU_LSU_ARBURST),
+        .lsu_axi_arlock         (M_AXI_MCU_LSU_ARLOCK),
+        .lsu_axi_arcache        (M_AXI_MCU_LSU_ARCACHE),
+        .lsu_axi_arprot         (M_AXI_MCU_LSU_ARPROT),
+        .lsu_axi_arqos          (M_AXI_MCU_LSU_ARQOS),
 
-        .lsu_axi_rvalid         (axi_interconnect.mintf_arr[0].RVALID),
-        .lsu_axi_rready         (axi_interconnect.mintf_arr[0].RREADY),
-        .lsu_axi_rid            (axi_interconnect.mintf_arr[0].RID),
-        .lsu_axi_rdata          (axi_interconnect.mintf_arr[0].RDATA),
-        .lsu_axi_rresp          (axi_interconnect.mintf_arr[0].RRESP),
-        .lsu_axi_rlast          (axi_interconnect.mintf_arr[0].RLAST),
+        .lsu_axi_rvalid         (M_AXI_MCU_LSU_RVALID),
+        .lsu_axi_rready         (M_AXI_MCU_LSU_RREADY),
+        .lsu_axi_rid            (M_AXI_MCU_LSU_RID),
+        .lsu_axi_rdata          (M_AXI_MCU_LSU_RDATA),
+        .lsu_axi_rresp          (M_AXI_MCU_LSU_RRESP),
+        .lsu_axi_rlast          (M_AXI_MCU_LSU_RLAST),
 
         //-------------------------- IFU AXI signals--------------------------
         // AXI Write Channels
 
-        .ifu_axi_awvalid        ( axi_interconnect.mintf_arr[1].AWVALID ),
-        .ifu_axi_awready        ( axi_interconnect.mintf_arr[1].AWREADY ),
-        .ifu_axi_awid           ( axi_interconnect.mintf_arr[1].AWID    ),
-        .ifu_axi_awaddr         ( axi_interconnect.mintf_arr[1].AWADDR  ),
-        .ifu_axi_awregion       ( axi_interconnect.mintf_arr[1].AWREGION),
-        .ifu_axi_awlen          ( axi_interconnect.mintf_arr[1].AWLEN   ),
-        .ifu_axi_awsize         ( axi_interconnect.mintf_arr[1].AWSIZE  ),
-        .ifu_axi_awburst        ( axi_interconnect.mintf_arr[1].AWBURST ),
-        .ifu_axi_awlock         ( axi_interconnect.mintf_arr[1].AWLOCK  ),
-        .ifu_axi_awcache        ( axi_interconnect.mintf_arr[1].AWCACHE ),
-        .ifu_axi_awprot         ( axi_interconnect.mintf_arr[1].AWPROT  ),
-        .ifu_axi_awqos          ( axi_interconnect.mintf_arr[1].AWQOS   ),
+        .ifu_axi_awvalid        ( M_AXI_MCU_IFU_AWVALID ),
+        .ifu_axi_awready        ( M_AXI_MCU_IFU_AWREADY ),
+        .ifu_axi_awid           ( M_AXI_MCU_IFU_AWID    ),
+        .ifu_axi_awaddr         ( M_AXI_MCU_IFU_AWADDR  ),
+        .ifu_axi_awregion       ( M_AXI_MCU_IFU_AWREGION),
+        .ifu_axi_awlen          ( M_AXI_MCU_IFU_AWLEN   ),
+        .ifu_axi_awsize         ( M_AXI_MCU_IFU_AWSIZE  ),
+        .ifu_axi_awburst        ( M_AXI_MCU_IFU_AWBURST ),
+        .ifu_axi_awlock         ( M_AXI_MCU_IFU_AWLOCK  ),
+        .ifu_axi_awcache        ( M_AXI_MCU_IFU_AWCACHE ),
+        .ifu_axi_awprot         ( M_AXI_MCU_IFU_AWPROT  ),
+        .ifu_axi_awqos          ( M_AXI_MCU_IFU_AWQOS   ),
 
-        .ifu_axi_wvalid         ( axi_interconnect.mintf_arr[1].WVALID  ),
-        .ifu_axi_wready         ( axi_interconnect.mintf_arr[1].WREADY  ),
-        .ifu_axi_wdata          ( axi_interconnect.mintf_arr[1].WDATA   ),
-        .ifu_axi_wstrb          ( axi_interconnect.mintf_arr[1].WSTRB   ),
-        .ifu_axi_wlast          ( axi_interconnect.mintf_arr[1].WLAST   ),
+        .ifu_axi_wvalid         ( M_AXI_MCU_IFU_WVALID  ),
+        .ifu_axi_wready         ( M_AXI_MCU_IFU_WREADY  ),
+        .ifu_axi_wdata          ( M_AXI_MCU_IFU_WDATA   ),
+        .ifu_axi_wstrb          ( M_AXI_MCU_IFU_WSTRB   ),
+        .ifu_axi_wlast          ( M_AXI_MCU_IFU_WLAST   ),
 
-        .ifu_axi_bvalid         ( axi_interconnect.mintf_arr[1].BVALID  ),
-        .ifu_axi_bready         ( axi_interconnect.mintf_arr[1].BREADY  ),
-        .ifu_axi_bresp          ( axi_interconnect.mintf_arr[1].BRESP   ),
-        .ifu_axi_bid            ( axi_interconnect.mintf_arr[1].BID     ),
+        .ifu_axi_bvalid         ( M_AXI_MCU_IFU_BVALID  ),
+        .ifu_axi_bready         ( M_AXI_MCU_IFU_BREADY  ),
+        .ifu_axi_bresp          ( M_AXI_MCU_IFU_BRESP   ),
+        .ifu_axi_bid            ( M_AXI_MCU_IFU_BID     ),
 
-        .ifu_axi_arvalid        ( axi_interconnect.mintf_arr[1].ARVALID ),
-        .ifu_axi_arready        ( axi_interconnect.mintf_arr[1].ARREADY ),
-        .ifu_axi_arid           ( axi_interconnect.mintf_arr[1].ARID    ),
-        .ifu_axi_araddr         ( axi_interconnect.mintf_arr[1].ARADDR  ),
-        .ifu_axi_arlen          ( axi_interconnect.mintf_arr[1].ARLEN   ),
-        .ifu_axi_arsize         ( axi_interconnect.mintf_arr[1].ARSIZE  ),
-        .ifu_axi_arburst        ( axi_interconnect.mintf_arr[1].ARBURST ),
-        .ifu_axi_arlock         ( axi_interconnect.mintf_arr[1].ARLOCK  ),
-        .ifu_axi_arcache        ( axi_interconnect.mintf_arr[1].ARCACHE ),
-        .ifu_axi_arprot         ( axi_interconnect.mintf_arr[1].ARPROT  ),
-        .ifu_axi_arqos          ( axi_interconnect.mintf_arr[1].ARQOS   ),
-        .ifu_axi_arregion       ( axi_interconnect.mintf_arr[1].ARREGION),
+        .ifu_axi_arvalid        ( M_AXI_MCU_IFU_ARVALID ),
+        .ifu_axi_arready        ( M_AXI_MCU_IFU_ARREADY ),
+        .ifu_axi_arid           ( M_AXI_MCU_IFU_ARID    ),
+        .ifu_axi_araddr         ( M_AXI_MCU_IFU_ARADDR  ),
+        .ifu_axi_arlen          ( M_AXI_MCU_IFU_ARLEN   ),
+        .ifu_axi_arsize         ( M_AXI_MCU_IFU_ARSIZE  ),
+        .ifu_axi_arburst        ( M_AXI_MCU_IFU_ARBURST ),
+        .ifu_axi_arlock         ( M_AXI_MCU_IFU_ARLOCK  ),
+        .ifu_axi_arcache        ( M_AXI_MCU_IFU_ARCACHE ),
+        .ifu_axi_arprot         ( M_AXI_MCU_IFU_ARPROT  ),
+        .ifu_axi_arqos          ( M_AXI_MCU_IFU_ARQOS   ),
+        .ifu_axi_arregion       ( M_AXI_MCU_IFU_ARREGION),
 
-        .ifu_axi_rvalid         ( axi_interconnect.mintf_arr[1].RVALID  ),
-        .ifu_axi_rready         ( axi_interconnect.mintf_arr[1].RREADY  ),
-        .ifu_axi_rid            ( axi_interconnect.mintf_arr[1].RID     ),
-        .ifu_axi_rdata          ( axi_interconnect.mintf_arr[1].RDATA   ),
-        .ifu_axi_rresp          ( axi_interconnect.mintf_arr[1].RRESP   ),
-        .ifu_axi_rlast          ( axi_interconnect.mintf_arr[1].RLAST   ),
+        .ifu_axi_rvalid         ( M_AXI_MCU_IFU_RVALID  ),
+        .ifu_axi_rready         ( M_AXI_MCU_IFU_RREADY  ),
+        .ifu_axi_rid            ( M_AXI_MCU_IFU_RID     ),
+        .ifu_axi_rdata          ( M_AXI_MCU_IFU_RDATA   ),
+        .ifu_axi_rresp          ( M_AXI_MCU_IFU_RRESP   ),
+        .ifu_axi_rlast          ( M_AXI_MCU_IFU_RLAST   ),
 
         //-------------------------- SB AXI signals--------------------------
         // AXI Write Channels
@@ -931,41 +474,41 @@ module caliptra_ss_top_fpga (
 
         //-------------------------- DMA AXI signals--------------------------
         // AXI Write Channels
-        .dma_axi_awvalid        (axi_interconnect.sintf_arr[2].AWVALID),
-        .dma_axi_awready        (axi_interconnect.sintf_arr[2].AWREADY),
-        .dma_axi_awid           (axi_interconnect.sintf_arr[2].AWID),
-        .dma_axi_awaddr         (axi_interconnect.sintf_arr[2].AWADDR),
-        .dma_axi_awsize         (axi_interconnect.sintf_arr[2].AWSIZE),
-        .dma_axi_awprot         (axi_interconnect.sintf_arr[2].AWPROT),
-        .dma_axi_awlen          (axi_interconnect.sintf_arr[2].AWLEN),
-        .dma_axi_awburst        (axi_interconnect.sintf_arr[2].AWBURST),
+        .dma_axi_awvalid        (S_AXI_MCU_DMA_AWVALID),
+        .dma_axi_awready        (S_AXI_MCU_DMA_AWREADY),
+        .dma_axi_awid           (S_AXI_MCU_DMA_AWID),
+        .dma_axi_awaddr         (S_AXI_MCU_DMA_AWADDR),
+        .dma_axi_awsize         (S_AXI_MCU_DMA_AWSIZE),
+        .dma_axi_awprot         (S_AXI_MCU_DMA_AWPROT),
+        .dma_axi_awlen          (S_AXI_MCU_DMA_AWLEN),
+        .dma_axi_awburst        (S_AXI_MCU_DMA_AWBURST),
 
-        .dma_axi_wvalid         (axi_interconnect.sintf_arr[2].WVALID),
-        .dma_axi_wready         (axi_interconnect.sintf_arr[2].WREADY),
-        .dma_axi_wdata          (axi_interconnect.sintf_arr[2].WDATA),
-        .dma_axi_wstrb          (axi_interconnect.sintf_arr[2].WSTRB),
-        .dma_axi_wlast          (axi_interconnect.sintf_arr[2].WLAST),
+        .dma_axi_wvalid         (S_AXI_MCU_DMA_WVALID),
+        .dma_axi_wready         (S_AXI_MCU_DMA_WREADY),
+        .dma_axi_wdata          (S_AXI_MCU_DMA_WDATA),
+        .dma_axi_wstrb          (S_AXI_MCU_DMA_WSTRB),
+        .dma_axi_wlast          (S_AXI_MCU_DMA_WLAST),
 
-        .dma_axi_bvalid         (axi_interconnect.sintf_arr[2].BVALID),
-        .dma_axi_bready         (axi_interconnect.sintf_arr[2].BREADY),
-        .dma_axi_bresp          (axi_interconnect.sintf_arr[2].BRESP),
-        .dma_axi_bid            (axi_interconnect.sintf_arr[2].BID),
+        .dma_axi_bvalid         (S_AXI_MCU_DMA_BVALID),
+        .dma_axi_bready         (S_AXI_MCU_DMA_BREADY),
+        .dma_axi_bresp          (S_AXI_MCU_DMA_BRESP),
+        .dma_axi_bid            (S_AXI_MCU_DMA_BID),
 
-        .dma_axi_arvalid        (axi_interconnect.sintf_arr[2].ARVALID),
-        .dma_axi_arready        (axi_interconnect.sintf_arr[2].ARREADY),
-        .dma_axi_arid           (axi_interconnect.sintf_arr[2].ARID),
-        .dma_axi_araddr         (axi_interconnect.sintf_arr[2].ARADDR),
-        .dma_axi_arsize         (axi_interconnect.sintf_arr[2].ARSIZE),
-        .dma_axi_arprot         (axi_interconnect.sintf_arr[2].ARPROT),
-        .dma_axi_arlen          (axi_interconnect.sintf_arr[2].ARLEN),
-        .dma_axi_arburst        (axi_interconnect.sintf_arr[2].ARBURST),
+        .dma_axi_arvalid        (S_AXI_MCU_DMA_ARVALID),
+        .dma_axi_arready        (S_AXI_MCU_DMA_ARREADY),
+        .dma_axi_arid           (S_AXI_MCU_DMA_ARID),
+        .dma_axi_araddr         (S_AXI_MCU_DMA_ARADDR),
+        .dma_axi_arsize         (S_AXI_MCU_DMA_ARSIZE),
+        .dma_axi_arprot         (S_AXI_MCU_DMA_ARPROT),
+        .dma_axi_arlen          (S_AXI_MCU_DMA_ARLEN),
+        .dma_axi_arburst        (S_AXI_MCU_DMA_ARBURST),
 
-        .dma_axi_rvalid         (axi_interconnect.sintf_arr[2].RVALID),
-        .dma_axi_rready         (axi_interconnect.sintf_arr[2].RREADY),
-        .dma_axi_rid            (axi_interconnect.sintf_arr[2].RID),
-        .dma_axi_rdata          (axi_interconnect.sintf_arr[2].RDATA),
-        .dma_axi_rresp          (axi_interconnect.sintf_arr[2].RRESP),
-        .dma_axi_rlast          (axi_interconnect.sintf_arr[2].RLAST),
+        .dma_axi_rvalid         (S_AXI_MCU_DMA_RVALID),
+        .dma_axi_rready         (S_AXI_MCU_DMA_RREADY),
+        .dma_axi_rid            (S_AXI_MCU_DMA_RID),
+        .dma_axi_rdata          (S_AXI_MCU_DMA_RDATA),
+        .dma_axi_rresp          (S_AXI_MCU_DMA_RRESP),
+        .dma_axi_rlast          (S_AXI_MCU_DMA_RLAST),
 
         .timer_int              ( timer_int ),
         .soft_int               ( soft_int ),
