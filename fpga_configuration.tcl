@@ -244,7 +244,10 @@ set_property -dict [list \
 
 # Add AXI Interconnect
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0
-set_property CONFIG.NUM_MI {3} [get_bd_cells axi_interconnect_0]
+set_property -dict [list \
+  CONFIG.NUM_MI {5} \
+  CONFIG.NUM_SI {3} \
+] [get_bd_cells axi_interconnect_0]
 
 if {$APB} {
   # Add AXI APB Bridge for Caliptra 1.x
@@ -263,12 +266,16 @@ set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells axi_bram_ctrl_0]
 # Create reset block
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
 
+# Create SS
+create_bd_cell -type ip -vlnv design:user:caliptra_ss_package_top:1.0 caliptra_ss_package_0
+
 # Move blocks around on the block diagram. This step is optional.
 set_property location {1 177 345} [get_bd_cells zynq_ultra_ps_e_0]
 set_property location {2 696 373} [get_bd_cells axi_interconnect_0]
 set_property location {2 707 654} [get_bd_cells proc_sys_reset_0]
 set_property location {3 1151 617} [get_bd_cells axi_bram_ctrl_0]
 set_property location {4 1335 456} [get_bd_cells caliptra_package_top_0]
+set_property location {3 1169 408} [get_bd_cells caliptra_ss_package_0]
 
 # Create interface connections
 if {$APB} {
@@ -293,6 +300,21 @@ connect_bd_net [get_bd_pins axi_bram_ctrl_0/s_axi_aclk] [get_bd_pins zynq_ultra_
 connect_bd_net [get_bd_pins axi_bram_ctrl_0/s_axi_aresetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 connect_bd_net [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
 connect_bd_net [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+
+# New connections for SS
+connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins caliptra_ss_package_0/S_AXI_CALIPTRA]
+connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M04_AXI] [get_bd_intf_pins caliptra_ss_package_0/S_AXI_MCU_DMA]
+connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/M_AXI_MCU_IFU] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S01_AXI]
+connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/M_AXI_MCU_LSU] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S02_AXI]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins axi_interconnect_0/S01_ARESETN]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins axi_interconnect_0/S02_ARESETN]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins axi_interconnect_0/M03_ARESETN]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins axi_interconnect_0/M04_ARESETN]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/S01_ACLK]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/S02_ACLK]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M03_ACLK]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M04_ACLK]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins caliptra_ss_package_0/core_clk]
 
 # Create address segments
 assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
