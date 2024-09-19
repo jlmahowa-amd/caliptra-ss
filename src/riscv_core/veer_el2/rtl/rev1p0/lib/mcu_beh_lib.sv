@@ -234,7 +234,7 @@ module mcu_rvdffpcie #( parameter WIDTH=31 )
 endmodule
 
 // format: { LEFT, EXTRA }
-// LEFT # of bits will be done with mcu_rvdffie, all else EXTRA with rvdffe
+// LEFT # of bits will be done with mcu_rvdffie, all else EXTRA with mcu_rvdffe
 module mcu_rvdfflie #( parameter WIDTH=16, LEFT=8 )
    (
      input  logic [WIDTH-1:0] din,
