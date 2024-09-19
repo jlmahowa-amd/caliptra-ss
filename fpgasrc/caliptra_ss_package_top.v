@@ -1,6 +1,9 @@
 
 module caliptra_ss_package_top (
     input wire core_clk,
+    input wire rst_l,
+    input wire porst_l,
+    /*
     // Caliptra AXI Interface
     input  wire [31:0] S_AXI_CALIPTRA_AWADDR,
     input  wire [1:0] S_AXI_CALIPTRA_AWBURST,
@@ -39,7 +42,7 @@ module caliptra_ss_package_top (
     output wire S_AXI_CALIPTRA_RLAST,
     output wire S_AXI_CALIPTRA_RVALID,
     input  wire S_AXI_CALIPTRA_RREADY,
-
+*/
     //-------------------------- LSU AXI signals--------------------------
     // AXI Write Channels
     output wire                      M_AXI_MCU_LSU_AWVALID,
@@ -185,7 +188,7 @@ module caliptra_ss_package_top (
     // AXI Write Channels
     input  wire                      S_AXI_MCU_DMA_AWVALID,
     output wire                      S_AXI_MCU_DMA_AWREADY,
-    input  wire [1-1:0]              S_AXI_MCU_DMA_AWID,
+    input  wire [5-1:0]              S_AXI_MCU_DMA_AWID,
     input  wire [              31:0] S_AXI_MCU_DMA_AWADDR,
     input  wire [               2:0] S_AXI_MCU_DMA_AWSIZE,
     input  wire [               2:0] S_AXI_MCU_DMA_AWPROT,
@@ -202,12 +205,12 @@ module caliptra_ss_package_top (
     output wire                      S_AXI_MCU_DMA_BVALID,
     input  wire                      S_AXI_MCU_DMA_BREADY,
     output wire [               1:0] S_AXI_MCU_DMA_BRESP,
-    output wire [1-1:0]              S_AXI_MCU_DMA_BID,
+    output wire [5-1:0]              S_AXI_MCU_DMA_BID,
 
     // AXI Read CHANNELS
     input  wire                      S_AXI_MCU_DMA_ARVALID,
     output wire                      S_AXI_MCU_DMA_ARREADY,
-    input  wire [1-1:0]              S_AXI_MCU_DMA_ARID,
+    input  wire [5-1:0]              S_AXI_MCU_DMA_ARID,
     input  wire [              31:0] S_AXI_MCU_DMA_ARADDR,
     input  wire [               2:0] S_AXI_MCU_DMA_ARSIZE,
     input  wire [               2:0] S_AXI_MCU_DMA_ARPROT,
@@ -216,7 +219,7 @@ module caliptra_ss_package_top (
 
     output wire                      S_AXI_MCU_DMA_RVALID,
     input  wire                      S_AXI_MCU_DMA_RREADY,
-    output wire [1-1:0]              S_AXI_MCU_DMA_RID,
+    output wire [5-1:0]              S_AXI_MCU_DMA_RID,
     output wire [              63:0] S_AXI_MCU_DMA_RDATA,
     output wire [               1:0] S_AXI_MCU_DMA_RRESP,
     output wire                      S_AXI_MCU_DMA_RLAST

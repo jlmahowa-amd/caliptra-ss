@@ -22,8 +22,6 @@
 //======================================================================
 
 module ecc_top
-    import ecc_defines_pkg::*;
-    import ecc_reg_pkg::*;
     import kv_defines_pkg::*;
     #(
     parameter AHB_ADDR_WIDTH = 32,
@@ -55,6 +53,8 @@ module ecc_top
     input kv_wr_resp_t kv_wr_resp,   
     //PCR Signing
     input pcr_signing_t pcr_signing_data,
+
+    output logic busy_o,
 
     output logic error_intr,
     output logic notif_intr,

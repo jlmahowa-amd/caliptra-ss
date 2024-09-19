@@ -13,7 +13,7 @@ file mkdir $sspackageDir
 # Defaults:
 set BUILD FALSE
 set GUI   FALSE
-set JTAG  FALSE
+set JTAG  TRUE
 set ITRNG TRUE
 set CG_EN FALSE
 set RTL_VERSION latest
@@ -302,7 +302,7 @@ connect_bd_net [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins zynq_ultra
 connect_bd_net [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 
 # New connections for SS
-connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins caliptra_ss_package_0/S_AXI_CALIPTRA]
+#connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins caliptra_ss_package_0/S_AXI_CALIPTRA]
 connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M04_AXI] [get_bd_intf_pins caliptra_ss_package_0/S_AXI_MCU_DMA]
 connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/M_AXI_MCU_IFU] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S01_AXI]
 connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/M_AXI_MCU_LSU] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S02_AXI]
@@ -315,6 +315,9 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_intercon
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M03_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M04_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins caliptra_ss_package_0/core_clk]
+# Should hook these up to the FPGA wrapper registers
+connect_bd_net [get_bd_pins caliptra_ss_package_0/porst_l] [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/rst_l] [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0]
 
 # Create address segments
 assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
@@ -334,6 +337,7 @@ if {$JTAG} {
   add_files -fileset constrs_1 $fpgaDir/fpgasrc/jtag_constraints.xdc
 } else {
   # Tie off JTAG inputs
+  # TODO: This is broken
   create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
   connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_in]
 }

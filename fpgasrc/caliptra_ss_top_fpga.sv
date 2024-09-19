@@ -12,20 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-`define DRAM(bk) caliptra_ss_top.mcu_top_i.dccm_loop[bk].ram.ram_core
-`define MCU_RV_LSU_BUS_TAG_local 1
-`default_nettype none
+//`default_nettype none
 
 //`include "common_defines.sv"
-`include "config_defines.svh"
+//`include "config_defines.svh"
 `include "caliptra_reg_defines.svh"
-`include "caliptra_macros.svh"
+//`include "caliptra_macros.svh"
 
 `include "config_defines_mcu.svh"
-//`include "mcu_common_defines.vh"
+`include "mcu_common_defines.vh"
+//import mcu_el2_pkg::*;
 
 module caliptra_ss_top_fpga (
     input bit core_clk,
+    input bit rst_l,
+    input bit porst_l,
+    /*
     // Caliptra AXI Interface
     input  wire [31:0] S_AXI_CALIPTRA_AWADDR,
     input  wire [1:0] S_AXI_CALIPTRA_AWBURST,
@@ -64,7 +66,7 @@ module caliptra_ss_top_fpga (
     output wire S_AXI_CALIPTRA_RLAST,
     output wire S_AXI_CALIPTRA_RVALID,
     input  wire S_AXI_CALIPTRA_RREADY,
-
+*/
     //-------------------------- LSU AXI signals--------------------------
     // AXI Write Channels
     output wire                      M_AXI_MCU_LSU_AWVALID,
@@ -248,8 +250,6 @@ module caliptra_ss_top_fpga (
 
 );
 
-        logic                       rst_l;
-        logic                       porst_l;
         logic [31:1]  ext_int;
         logic                       nmi_int;
         logic                       timer_int;
@@ -283,11 +283,6 @@ end
         logic                       o_cpu_run_ack;
 
 
-        logic        [63:0]         dma_hrdata       ;
-        logic        [63:0]         dma_hwdata       ;
-        logic                       dma_hready       ;
-        logic                       dma_hresp        ;
-
         logic                       mpc_debug_halt_req;
         logic                       mpc_debug_run_req;
         logic                       mpc_reset_run_req;
@@ -295,26 +290,7 @@ end
         logic                       mpc_debug_run_ack;
         logic                       debug_brkpt_status;
 
-
-        wire                        dma_hready_out;
-        int                         commit_count;
-
-        logic                       wb_valid;
-        logic [4:0]                 wb_dest;
-        logic [31:0]                wb_data;
-
-        logic                       wb_csr_valid;
-        logic [11:0]                wb_csr_dest;
-        logic [31:0]                wb_csr_data;
-
-
-        mcu_el2_mem_if                  mcu_el2_mem_export ();
-
-        logic [4-1:0][38:0]         iccm_bank_wr_fdata;
-        logic [4-1:0][38:0]         iccm_bank_fdout;
-        logic [4-1:0][39-1:0]       dccm_wr_fdata_bank;
-        logic [4-1:0][39-1:0]       dccm_bank_fdout;
-
+        mcu_el2_mem_if              mcu_el2_mem_export ();
 
 
        //=========================================================================-
@@ -594,93 +570,422 @@ end
     );
 
 
-    //=========================================================================-
-    // AXI MEM instance
-    //=========================================================================-
+localparam DCCM_SIZE        = 14'h0010 ;
+localparam DCCM_NUM_BANKS   = 9'h004;
+localparam DCCM_DATA_WIDTH  = 10'h020 ;
+localparam DCCM_FDATA_WIDTH = 10'h027;
+localparam DCCM_BYTE_WIDTH  = 7'h04;
+localparam DCCM_INDEX_BITS  = 8'h0A;
+localparam DCCM_INDEX_DEPTH = ((DCCM_SIZE)*1024)/((DCCM_BYTE_WIDTH)*(DCCM_NUM_BANKS));
+localparam ICCM_SIZE        = 14'h0080;
+localparam ICCM_NUM_BANKS   = 9'h004;
+localparam ICCM_INDEX_BITS  = 8'h0D;
 
+//////////////////////////////////////////////////////
+// DCCM
+//
+    `define EL2_LOCAL_DCCM_RAM_TEST_PORTS   .TEST1   (1'b0   ), \
+                                            .RME     (1'b0   ), \
+                                            .RM      (4'b0000), \
+                                            .LS      (1'b0   ), \
+                                            .DS      (1'b0   ), \
+                                            .SD      (1'b0   ), \
+                                            .TEST_RNM(1'b0   ), \
+                                            .BC1     (1'b0   ), \
+                                            .BC2     (1'b0   ), \
 
-    axi_slv #(.TAGW(7)) imem(
+    for (genvar i=0; i<DCCM_NUM_BANKS; i++) begin: dccm_loop
 
-        .aclk           (core_clk),
-        .rst_l          (rst_l),
+        if (DCCM_INDEX_DEPTH == 32768) begin : dccm
+            mcu_ram_32768x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 16384) begin : dccm
+            mcu_ram_16384x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 8192) begin : dccm
+            mcu_ram_8192x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 4096) begin : dccm
+            mcu_ram_4096x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 3072) begin : dccm
+            mcu_ram_3072x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 2048) begin : dccm
+            mcu_ram_2048x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 1024) begin : dccm
+            mcu_ram_1024x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 512) begin : dccm
+            mcu_ram_512x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 256) begin : dccm
+            mcu_ram_256x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+        else if (DCCM_INDEX_DEPTH == 128) begin : dccm
+            mcu_ram_128x39  dccm_bank (
+                                    // Primary ports
+                                    .ME(mcu_el2_mem_export.dccm_clken[i]),
+                                    .CLK(mcu_el2_mem_export.clk),
+                                    .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
+                                    .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
+                                    .D(mcu_el2_mem_export.dccm_wr_data_bank[i]),
+                                    .Q(mcu_el2_mem_export.dccm_bank_dout[i]   ),
+                                    .ROP ( ),
+                                    // These are used by SoC
+                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    .*
+                                    );
+        end
+    end : dccm_loop
 
-        .arvalid        (axi_interconnect.sintf_arr[0].ARVALID),
-        .arready        (axi_interconnect.sintf_arr[0].ARREADY),
-        .araddr         (axi_interconnect.sintf_arr[0].ARADDR),
-        .arid           (axi_interconnect.sintf_arr[0].ARID),
-        .arlen          (axi_interconnect.sintf_arr[0].ARLEN),
-        .arburst        (axi_interconnect.sintf_arr[0].ARBURST),
-        .arsize         (axi_interconnect.sintf_arr[0].ARSIZE),
+//////////////////////////////////////////////////////
+// ICCM
+//
 
-        .rvalid         (axi_interconnect.sintf_arr[0].RVALID),
-        .rready         (axi_interconnect.sintf_arr[0].RREADY),
-        .rdata          (axi_interconnect.sintf_arr[0].RDATA),
-        .rresp          (axi_interconnect.sintf_arr[0].RRESP),
-        .rid            (axi_interconnect.sintf_arr[0].RID),
-        .rlast          (axi_interconnect.sintf_arr[0].RLAST),
+for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
 
-        .awvalid        (axi_interconnect.sintf_arr[0].AWVALID),
-        .awready        (axi_interconnect.sintf_arr[0].AWREADY),
-        .awaddr         (axi_interconnect.sintf_arr[0].AWADDR),
-        .awid           (axi_interconnect.sintf_arr[0].AWID),
-        .awlen          (axi_interconnect.sintf_arr[0].AWLEN),
-        .awburst        (axi_interconnect.sintf_arr[0].AWBURST),
-        .awsize         (axi_interconnect.sintf_arr[0].AWSIZE),
+    if (ICCM_INDEX_BITS == 6 ) begin : iccm
+                mcu_ram_64x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-        .wdata          (axi_interconnect.sintf_arr[0].WDATA),
-        .wstrb          (axi_interconnect.sintf_arr[0].WSTRB),
-        .wvalid         (axi_interconnect.sintf_arr[0].WVALID),
-        .wready         (axi_interconnect.sintf_arr[0].WREADY),
+                                        );
+        end // block: iccm
 
-        .bvalid         (axi_interconnect.sintf_arr[0].BVALID),
-        .bready         (axi_interconnect.sintf_arr[0].BREADY),
-        .bresp          (axi_interconnect.sintf_arr[0].BRESP),
-        .bid            (axi_interconnect.sintf_arr[0].BID)
+    else if (ICCM_INDEX_BITS == 7 ) begin : iccm
+                mcu_ram_128x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-    );
+                                        );
+        end // block: iccm
 
-// TODO: Replace with axi memory?
-    //axi_slv #(.TAGW(`MCU_RV_LSU_BUS_TAG)) lmem(
-    // -- Addtional 3 required for QVIP Interconnect
-    // `MCU_RV_LSU_BUS_TAG + 3
-    axi_slv #(.TAGW(7)) lmem(
-        .aclk(core_clk),
-        .rst_l(rst_l),
+        else if (ICCM_INDEX_BITS == 8 ) begin : iccm
+                mcu_ram_256x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-        .arvalid        (axi_interconnect.sintf_arr[1].ARVALID),
-        .arready        (axi_interconnect.sintf_arr[1].ARREADY),
-        .araddr         (axi_interconnect.sintf_arr[1].ARADDR),
-        .arid           (axi_interconnect.sintf_arr[1].ARID),
-        .arlen          (axi_interconnect.sintf_arr[1].ARLEN),
-        .arburst        (axi_interconnect.sintf_arr[1].ARBURST),
-        .arsize         (axi_interconnect.sintf_arr[1].ARSIZE),
+                                        );
+        end // block: iccm
+        else if (ICCM_INDEX_BITS == 9 ) begin : iccm
+                mcu_ram_512x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-        .rvalid         (axi_interconnect.sintf_arr[1].RVALID),
-        .rready         (axi_interconnect.sintf_arr[1].RREADY),
-        .rdata          (axi_interconnect.sintf_arr[1].RDATA),
-        .rresp          (axi_interconnect.sintf_arr[1].RRESP),
-        .rid            (axi_interconnect.sintf_arr[1].RID),
-        .rlast          (axi_interconnect.sintf_arr[1].RLAST),
+                                        );
+        end // block: iccm
+        else if (ICCM_INDEX_BITS == 10 ) begin : iccm
+                mcu_ram_1024x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-        .awvalid        (axi_interconnect.sintf_arr[1].AWVALID),
-        .awready        (axi_interconnect.sintf_arr[1].AWREADY),
-        .awaddr         (axi_interconnect.sintf_arr[1].AWADDR),
-        .awid           (axi_interconnect.sintf_arr[1].AWID),
-        .awlen          (axi_interconnect.sintf_arr[1].AWLEN),
-        .awburst        (axi_interconnect.sintf_arr[1].AWBURST),
-        .awsize         (axi_interconnect.sintf_arr[1].AWSIZE),
+                                        );
+        end // block: iccm
+        else if (ICCM_INDEX_BITS == 11 ) begin : iccm
+                mcu_ram_2048x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-        .wdata          (axi_interconnect.sintf_arr[1].WDATA),
-        .wstrb          (axi_interconnect.sintf_arr[1].WSTRB),
-        .wvalid         (axi_interconnect.sintf_arr[1].WVALID),
-        .wready         (axi_interconnect.sintf_arr[1].WREADY),
+                                        );
+        end // block: iccm
+        else if (ICCM_INDEX_BITS == 12 ) begin : iccm
+                mcu_ram_4096x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-        .bvalid         (axi_interconnect.sintf_arr[1].BVALID),
-        .bready         (axi_interconnect.sintf_arr[1].BREADY),
-        .bresp          (axi_interconnect.sintf_arr[1].BRESP),
-        .bid            (axi_interconnect.sintf_arr[1].BID)
+                                        );
+        end // block: iccm
+        else if (ICCM_INDEX_BITS == 13 ) begin : iccm
+                mcu_ram_8192x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
-    );
+                                        );
+        end // block: iccm
+        else if (ICCM_INDEX_BITS == 14 ) begin : iccm
+                mcu_ram_16384x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
 
+                                        );
+        end // block: iccm
+        else begin : iccm
+                mcu_ram_32768x39 iccm_bank (
+                                        // Primary ports
+                                        .CLK(mcu_el2_mem_export.clk),
+                                        .ME(mcu_el2_mem_export.iccm_clken[i]),
+                                        .WE(mcu_el2_mem_export.iccm_wren_bank[i]),
+                                        .ADR(mcu_el2_mem_export.iccm_addr_bank[i]),
+                                        .D(mcu_el2_mem_export.iccm_bank_wr_data[i]),
+                                        .Q(mcu_el2_mem_export.iccm_bank_dout[i]),
+                                        .ROP ( ),
+                                        // These are used by SoC
+                                        .TEST1    (1'b0   ),
+                                        .RME      (1'b0   ),
+                                        .RM       (4'b0000),
+                                        .LS       (1'b0   ),
+                                        .DS       (1'b0   ),
+                                        .SD       (1'b0   ) ,
+                                        .TEST_RNM (1'b0   ),
+                                        .BC1      (1'b0   ),
+                                        .BC2      (1'b0   )
+
+                                        );
+        end // block: iccm
+end : iccm_loop
 
 endmodule

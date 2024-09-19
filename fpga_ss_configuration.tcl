@@ -14,7 +14,7 @@
 set caliptrartlDir $fpgaDir/caliptra-rtl
 set ssrtlDir $fpgaDir
 
-set VERILOG_OPTIONS {TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE TEC_MCU_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4}
+set VERILOG_OPTIONS {TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg MCU_RV_FPGA_OPTIMIZE TEC_MCU_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4}
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 
 #start_gui
@@ -36,7 +36,7 @@ add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*.sv ]
 add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*/*.sv ]
 add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*/*.v ]
 
-
+if {0} {
 # Add VEER Headers
 add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_param.vh
 add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/pic_map_auto.h
@@ -68,6 +68,7 @@ remove_files [ glob $caliptrartlDir/src/keyvault/rtl/kv_reg.sv ]
 
 # Remove ECDSA top
 remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_top.sv ]
+}
 
 # MCU
 add_files [ glob $ssrtlDir/src/mcu/rtl/*.svh ]
