@@ -1640,7 +1640,7 @@ assign ic_debug_tag_wr_en[mcu_pt.ICACHE_NUM_WAYS-1:0] = {mcu_pt.ICACHE_NUM_WAYS{
 
 assign ic_debug_ict_array_sel_in      =  ic_debug_rd_en & ic_debug_tag_array ;
 
-rvdff_fpga #(01+mcu_pt.ICACHE_NUM_WAYS) ifu_debug_sel_ff (.*, .clk (debug_c1_clk),
+mcu_rvdff_fpga #(01+mcu_pt.ICACHE_NUM_WAYS) ifu_debug_sel_ff (.*, .clk (debug_c1_clk),
                     .clken(debug_c1_clken), .rawclk(clk),
                     .din ({ic_debug_ict_array_sel_in,
                            ic_debug_way[mcu_pt.ICACHE_NUM_WAYS-1:0]

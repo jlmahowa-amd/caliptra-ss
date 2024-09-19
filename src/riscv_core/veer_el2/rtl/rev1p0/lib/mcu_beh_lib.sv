@@ -188,7 +188,7 @@ else begin : genblock
 `ifdef MCU_RV_FPGA_OPTIMIZE
       mcu_rvdffs #(WIDTH) dff ( .* );
 `else
-      rvclkhdr clkhdr ( .* );
+      mcu_rvclkhdr clkhdr ( .* );
       mcu_rvdff #(WIDTH) dff (.*, .clk(l1clk));
 `endif
 
@@ -362,7 +362,7 @@ module mcu_rvdffie #( parameter WIDTH=1, OVERRIDE=0 )
 `ifdef MCU_RV_FPGA_OPTIMIZE
       mcu_rvdffs #(WIDTH) dff ( .* );
 `else
-      rvclkhdr clkhdr ( .* );
+      mcu_rvclkhdr clkhdr ( .* );
       mcu_rvdff #(WIDTH) dff (.*, .clk(l1clk));
 `endif
 

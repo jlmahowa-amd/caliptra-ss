@@ -250,7 +250,7 @@ import mcu_el2_pkg::*;
     logic [mcu_pt.ICACHE_NUM_WAYS-1:0][mcu_pt.ICACHE_BANKS_WAY-1:0]                                 any_addr_match_up;
 
 `define mcu_el2_IC_DATA_SRAM(depth,width)                                                                               \
-           ram_``depth``x``width ic_bank_sb_way_data (                                                               \
+           mcu_ram_``depth``x``width ic_bank_sb_way_data (                                                               \
                                      .ME(ic_bank_way_clken_final_up[i][k]),                                          \
                                      .WE (ic_b_sb_wren[k][i]),                                                       \
                                      .D  (ic_sb_wr_data[k][``width-1:0]),                                            \
@@ -401,7 +401,7 @@ if (mcu_pt.ICACHE_BYPASS_ENABLE == 1) begin \
 // SRAM macros
 
 `define mcu_el2_PACKED_IC_DATA_SRAM(depth,width,waywidth)                                                                                                 \
-            ram_be_``depth``x``width  ic_bank_sb_way_data (                                                                                           \
+            mcu_ram_be_``depth``x``width  ic_bank_sb_way_data (                                                                                           \
                             .CLK   (clk),                                                                                                             \
                             .WE    (|ic_b_sb_wren[k]),                                                    // OR of all the ways in the bank           \
                             .WEM   (ic_b_sb_bit_en_vec[k]),                                               // 284 bits of bit enables                  \
@@ -959,7 +959,7 @@ end // block: OTHERS
     logic [mcu_pt.ICACHE_NUM_WAYS-1:0]        ic_tag_clken_final;
 
       `define mcu_el2_IC_TAG_SRAM(depth,width)                                                                                                      \
-                                  ram_``depth``x``width  ic_way_tag (                                                                           \
+                                  mcu_ram_``depth``x``width  ic_way_tag (                                                                           \
                                 .ME(ic_tag_clken_final[i]),                                                                                     \
                                 .WE (ic_tag_wren_q[i]),                                                                                         \
                                 .D  (ic_tag_wr_data[``width-1:0]),                                                                              \
@@ -1161,7 +1161,7 @@ end // block: OTHERS
     logic                                ic_tag_clken_final;
 
 `define mcu_el2_IC_TAG_PACKED_SRAM(depth,width)                                                               \
-                  ram_be_``depth``x``width  ic_way_tag (                                                   \
+                  mcu_ram_be_``depth``x``width  ic_way_tag (                                                   \
                                 .ME  ( ic_tag_clken_final),                                                \
                                 .WE  (|ic_tag_wren_q[mcu_pt.ICACHE_NUM_WAYS-1:0]),                             \
                                 .WEM (ic_tag_wren_biten_vec[``width-1:0]),                                 \
