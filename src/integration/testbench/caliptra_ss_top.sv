@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-`define DRAM(bk) caliptra_ss_top.mcu_top_i.dccm_loop[bk].ram.ram_core
+//`define MCU_DRAM(bk) caliptra_ss_top.mcu_top_i.dccm_loop[bk].ram.ram_core
 `define MCU_RV_LSU_BUS_TAG_local 1
 `default_nettype none
 
@@ -24,7 +24,7 @@
 module caliptra_ss_top
     import tb_top_pkg::*;
 #(
-    `include "mcu_el2_param.vh"
+    `include "css_mcu0_el2_param.vh"
 ) (
     `ifdef VERILATOR
     input bit [31:0]            mem_signature_begin,
@@ -53,7 +53,7 @@ import caliptra_top_tb_pkg::*;
     `endif
         logic                       rst_l;
         logic                       porst_l;
-        logic [mcu_pt.PIC_TOTAL_INT:1]  ext_int;
+        logic [pt.PIC_TOTAL_INT:1]  ext_int;
         logic                       nmi_int;
         logic                       timer_int;
         logic                       soft_int;
@@ -148,7 +148,7 @@ import caliptra_top_tb_pkg::*;
        // AXI Write Channels
         wire                        lsu_axi_awvalid;
         wire                        lsu_axi_awready;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_awid;
+        wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_awid;
         wire [31:0]                 lsu_axi_awaddr;
         wire [3:0]                  lsu_axi_awregion;
         wire [7:0]                  lsu_axi_awlen;
@@ -168,12 +168,12 @@ import caliptra_top_tb_pkg::*;
         wire                        lsu_axi_bvalid;
         wire                        lsu_axi_bready;
         wire [1:0]                  lsu_axi_bresp;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_bid;
+        wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_bid;
 
         // AXI Read Channels
         wire                        lsu_axi_arvalid;
         wire                        lsu_axi_arready;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_arid;
+        wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_arid;
         wire [31:0]                 lsu_axi_araddr;
         wire [3:0]                  lsu_axi_arregion;
         wire [7:0]                  lsu_axi_arlen;
@@ -186,7 +186,7 @@ import caliptra_top_tb_pkg::*;
 
         wire                        lsu_axi_rvalid;
         wire                        lsu_axi_rready;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lsu_axi_rid;
+        wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_rid;
         wire [63:0]                 lsu_axi_rdata;
         wire [1:0]                  lsu_axi_rresp;
         wire                        lsu_axi_rlast;
@@ -195,7 +195,7 @@ import caliptra_top_tb_pkg::*;
         // AXI Write Channels
         wire                        ifu_axi_awvalid;
         wire                        ifu_axi_awready;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_awid;
+        wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_awid;
         wire [31:0]                 ifu_axi_awaddr;
         wire [3:0]                  ifu_axi_awregion;
         wire [7:0]                  ifu_axi_awlen;
@@ -215,12 +215,12 @@ import caliptra_top_tb_pkg::*;
         wire                        ifu_axi_bvalid;
         wire                        ifu_axi_bready;
         wire [1:0]                  ifu_axi_bresp;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_bid;
+        wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_bid;
 
         // AXI Read Channels
         wire                        ifu_axi_arvalid;
         wire                        ifu_axi_arready;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_arid;
+        wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_arid;
         wire [31:0]                 ifu_axi_araddr;
         wire [3:0]                  ifu_axi_arregion;
         wire [7:0]                  ifu_axi_arlen;
@@ -233,7 +233,7 @@ import caliptra_top_tb_pkg::*;
 
         wire                        ifu_axi_rvalid;
         wire                        ifu_axi_rready;
-        wire [`MCU_RV_IFU_BUS_TAG-1:0]  ifu_axi_rid;
+        wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_rid;
         wire [63:0]                 ifu_axi_rdata;
         wire [1:0]                  ifu_axi_rresp;
         wire                        ifu_axi_rlast;
@@ -242,7 +242,7 @@ import caliptra_top_tb_pkg::*;
         // AXI Write Channels
         wire                        sb_axi_awvalid;
         wire                        sb_axi_awready;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_awid;
+        wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_awid;
         wire [31:0]                 sb_axi_awaddr;
         wire [3:0]                  sb_axi_awregion;
         wire [7:0]                  sb_axi_awlen;
@@ -262,12 +262,12 @@ import caliptra_top_tb_pkg::*;
         wire                        sb_axi_bvalid;
         wire                        sb_axi_bready;
         wire [1:0]                  sb_axi_bresp;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_bid;
+        wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_bid;
 
         // AXI Read Channels
         wire                        sb_axi_arvalid;
         wire                        sb_axi_arready;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_arid;
+        wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_arid;
         wire [31:0]                 sb_axi_araddr;
         wire [3:0]                  sb_axi_arregion;
         wire [7:0]                  sb_axi_arlen;
@@ -280,7 +280,7 @@ import caliptra_top_tb_pkg::*;
 
         wire                        sb_axi_rvalid;
         wire                        sb_axi_rready;
-        wire [`MCU_RV_SB_BUS_TAG-1:0]   sb_axi_rid;
+        wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_rid;
         wire [63:0]                 sb_axi_rdata;
         wire [1:0]                  sb_axi_rresp;
         wire                        sb_axi_rlast;
@@ -289,7 +289,7 @@ import caliptra_top_tb_pkg::*;
        // AXI Write Channels
         wire                        dma_axi_awvalid;
         wire                        dma_axi_awready;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_awid;
+        wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_awid;
         wire [31:0]                 dma_axi_awaddr;
         wire [2:0]                  dma_axi_awsize;
         wire [2:0]                  dma_axi_awprot;
@@ -306,12 +306,12 @@ import caliptra_top_tb_pkg::*;
         wire                        dma_axi_bvalid;
         wire                        dma_axi_bready;
         wire [1:0]                  dma_axi_bresp;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_bid;
+        wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_bid;
 
         // AXI Read Channels
         wire                        dma_axi_arvalid;
         wire                        dma_axi_arready;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_arid;
+        wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_arid;
         wire [31:0]                 dma_axi_araddr;
         wire [2:0]                  dma_axi_arsize;
         wire [2:0]                  dma_axi_arprot;
@@ -320,7 +320,7 @@ import caliptra_top_tb_pkg::*;
 
         wire                        dma_axi_rvalid;
         wire                        dma_axi_rready;
-        wire [`MCU_RV_DMA_BUS_TAG-1:0]  dma_axi_rid;
+        wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_rid;
         wire [63:0]                 dma_axi_rdata;
         wire [1:0]                  dma_axi_rresp;
         wire                        dma_axi_rlast;
@@ -329,7 +329,7 @@ import caliptra_top_tb_pkg::*;
         wire                        lmem_axi_arready;
 
         wire                        lmem_axi_rvalid;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lmem_axi_rid;
+        wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lmem_axi_rid;
         wire [1:0]                  lmem_axi_rresp;
         wire [63:0]                 lmem_axi_rdata;
         wire                        lmem_axi_rlast;
@@ -343,7 +343,7 @@ import caliptra_top_tb_pkg::*;
 
         wire [1:0]                  lmem_axi_bresp;
         wire                        lmem_axi_bvalid;
-        wire [`MCU_RV_LSU_BUS_TAG-1:0]  lmem_axi_bid;
+        wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lmem_axi_bid;
         wire                        lmem_axi_bready;
 
     `endif
@@ -351,17 +351,17 @@ import caliptra_top_tb_pkg::*;
         mcu_el2_mem_if                  mcu_el2_mem_export ();
         el2_mem_if                  caliptra_el2_mem_export ();        
 
-        logic [mcu_pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_wr_fdata;
-        logic [mcu_pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_fdout;
-        logic [mcu_pt.DCCM_NUM_BANKS-1:0][mcu_pt.DCCM_FDATA_WIDTH-1:0] dccm_wr_fdata_bank;
-        logic [mcu_pt.DCCM_NUM_BANKS-1:0][mcu_pt.DCCM_FDATA_WIDTH-1:0] dccm_bank_fdout;
+        logic [pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_wr_fdata;
+        logic [pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_fdout;
+        logic [pt.DCCM_NUM_BANKS-1:0][pt.DCCM_FDATA_WIDTH-1:0] dccm_wr_fdata_bank;
+        logic [pt.DCCM_NUM_BANKS-1:0][pt.DCCM_FDATA_WIDTH-1:0] dccm_bank_fdout;
 
         tb_top_pkg::veer_sram_error_injection_mode_t error_injection_mode;
 
-        `define DEC rvtop_wrapper.rvtop.veer.dec
+        `define MCU_DEC rvtop_wrapper.rvtop.veer.dec
 
 
-        assign mailbox_write    = lmem.awvalid && (lmem.awaddr == 32'hD0580000) && rst_l;
+        assign mailbox_write    = lmem.awvalid && (lmem.awaddr == mem_mailbox) && rst_l;
         assign mailbox_data     = lmem.wdata;
 
         assign mailbox_data_val = mailbox_data[7:0] > 8'h5 && mailbox_data[7:0] < 8'h7f;
@@ -384,11 +384,11 @@ import caliptra_top_tb_pkg::*;
             // data[7:0] == 0x90 - clear all interrupt request signals
             if(mailbox_write && (mailbox_data[7:0] >= 8'h80 && mailbox_data[7:0] < 8'h84)) begin
                 if (mailbox_data[7:0] == 8'h80) begin
-                    if (mailbox_data[15:8] > 0 && mailbox_data[15:8] < mcu_pt.PIC_TOTAL_INT)
+                    if (mailbox_data[15:8] > 0 && mailbox_data[15:8] < pt.PIC_TOTAL_INT)
                         ext_int[mailbox_data[15:8]] <= 1'b0;
                 end
                 if (mailbox_data[7:0] == 8'h81) begin
-                    if (mailbox_data[15:8] > 0 && mailbox_data[15:8] < mcu_pt.PIC_TOTAL_INT)
+                    if (mailbox_data[15:8] > 0 && mailbox_data[15:8] < pt.PIC_TOTAL_INT)
                         ext_int[mailbox_data[15:8]] <= 1'b1;
                 end
                 if (mailbox_data[7:0] == 8'h82) begin
@@ -403,7 +403,7 @@ import caliptra_top_tb_pkg::*;
                 end
             end
             if(mailbox_write && (mailbox_data[7:0] == 8'h90)) begin
-                ext_int   <= {mcu_pt.PIC_TOTAL_INT-1{1'b0}};
+                ext_int   <= {pt.PIC_TOTAL_INT-1{1'b0}};
                 nmi_int   <= 1'b0;
                 timer_int <= 1'b0;
                 soft_int  <= 1'b0;
@@ -434,29 +434,29 @@ import caliptra_top_tb_pkg::*;
                 if (mem_signature_begin < mem_signature_end) begin
                     dump_signature();
                 end
+                // End Of test monitor
+                else if(mailbox_data[7:0] == 8'hff) begin
+                    $display("* TESTCASE PASSED");
+                    $display("\nFinished : minstret = %0d, mcycle = %0d", `MCU_DEC.tlu.minstretl[31:0],`MCU_DEC.tlu.mcyclel[31:0]);
+                    $display("See \"mcu_exec.log\" for execution trace with register updates..\n");
+                    $finish;
+                end
+                else if(mailbox_data[7:0] == 8'h1) begin
+                    $error("* TESTCASE FAILED");
+                    $finish;
+                end
             end
-            // // End Of test monitor
-            // if(mailbox_write && mailbox_data[7:0] == 8'hff) begin
-            //     $display("TEST_PASSED");
-            //     $display("\nFinished : minstret = %0d, mcycle = %0d", `DEC.tlu.minstretl[31:0],`DEC.tlu.mcyclel[31:0]);
-            //     $display("See \"mcu_exec.log\" for execution trace with register updates..\n");
-            //     $finish;
-            // end
-            // else if(mailbox_write && mailbox_data[7:0] == 8'h1) begin
-            //     $display("TEST_FAILED");
-            //     $finish;
-            // end
         end
 
 
         // trace monitor
         always @(posedge core_clk) begin
-            wb_valid      <= `DEC.dec_i0_wen_r;
-            wb_dest       <= `DEC.dec_i0_waddr_r;
-            wb_data       <= `DEC.dec_i0_wdata_r;
-            wb_csr_valid  <= `DEC.dec_csr_wen_r;
-            wb_csr_dest   <= `DEC.dec_csr_wraddr_r;
-            wb_csr_data   <= `DEC.dec_csr_wrdata_r;
+            wb_valid      <= `MCU_DEC.dec_i0_wen_r;
+            wb_dest       <= `MCU_DEC.dec_i0_waddr_r;
+            wb_data       <= `MCU_DEC.dec_i0_wdata_r;
+            wb_csr_valid  <= `MCU_DEC.dec_csr_wen_r;
+            wb_csr_dest   <= `MCU_DEC.dec_csr_wraddr_r;
+            wb_csr_data   <= `MCU_DEC.dec_csr_wrdata_r;
             if (trace_rv_i_valid_ip) begin
                $fwrite(tp,"%b,%h,%h,%0h,%0h,3,%b,%h,%h,%b\n", trace_rv_i_valid_ip, 0, trace_rv_i_address_ip,
                       0, trace_rv_i_insn_ip,trace_rv_i_exception_ip,trace_rv_i_ecause_ip,
@@ -471,13 +471,13 @@ import caliptra_top_tb_pkg::*;
                             dasm(trace_rv_i_insn_ip, trace_rv_i_address_ip, wb_dest & {5{wb_valid}}, wb_data)
                        );
             end
-            if(`DEC.dec_nonblock_load_wen) begin
-                $fwrite (el, "%10d : %32s=%h                ; nbL\n", cycleCnt, abi_reg[`DEC.dec_nonblock_load_waddr], `DEC.lsu_nonblock_load_data);
-                caliptra_ss_top.gpr[0][`DEC.dec_nonblock_load_waddr] = `DEC.lsu_nonblock_load_data;
+            if(`MCU_DEC.dec_nonblock_load_wen) begin
+                $fwrite (el, "%10d : %32s=%h                ; nbL\n", cycleCnt, abi_reg[`MCU_DEC.dec_nonblock_load_waddr], `MCU_DEC.lsu_nonblock_load_data);
+                caliptra_ss_top.gpr[0][`MCU_DEC.dec_nonblock_load_waddr] = `MCU_DEC.lsu_nonblock_load_data;
             end
-            if(`DEC.exu_div_wren) begin
-                $fwrite (el, "%10d : %32s=%h                ; nbD\n", cycleCnt, abi_reg[`DEC.div_waddr_wb], `DEC.exu_div_result);
-                caliptra_ss_top.gpr[0][`DEC.div_waddr_wb] = `DEC.exu_div_result;
+            if(`MCU_DEC.exu_div_wren) begin
+                $fwrite (el, "%10d : %32s=%h                ; nbD\n", cycleCnt, abi_reg[`MCU_DEC.div_waddr_wb], `MCU_DEC.exu_div_result);
+                caliptra_ss_top.gpr[0][`MCU_DEC.div_waddr_wb] = `MCU_DEC.exu_div_result;
             end
         end
 
@@ -516,7 +516,7 @@ import caliptra_top_tb_pkg::*;
             abi_reg[30] = "t5";
             abi_reg[31] = "t6";
 
-            ext_int     = {mcu_pt.PIC_TOTAL_INT-1{1'b0}};
+            ext_int     = {pt.PIC_TOTAL_INT-1{1'b0}};
             nmi_int     = 0;
             timer_int   = 0;
             soft_int    = 0;
@@ -525,7 +525,7 @@ import caliptra_top_tb_pkg::*;
             jtag_id[31:28] = 4'b1;
             jtag_id[27:12] = '0;
             jtag_id[11:1]  = 11'h45;
-            reset_vector = `MCU_RV_RESET_VEC;
+            reset_vector = `css_mcu0_RV_RESET_VEC;
             nmi_vector   = 32'hee000000;
 
             $readmemh("mcu_lmem.hex",     lmem.mem);
@@ -898,7 +898,7 @@ import caliptra_top_tb_pkg::*;
         assign s_axi_if.awlock                       = axi_interconnect.sintf_arr[3].AWLOCK;
         assign s_axi_if.awuser                       = axi_interconnect.sintf_arr[3].AWUSER;
         assign axi_interconnect.sintf_arr[3].AWREADY = s_axi_if.awready;
-        // FIXME this is a gross hack
+        // FIXME this is a gross hack for data width conversion
         always@(posedge core_clk or negedge rst_l)
             if (!rst_l)
                 s_axi_if_wr_is_upper_dw_latched <= 0;
@@ -927,7 +927,7 @@ import caliptra_top_tb_pkg::*;
         assign s_axi_if.arlock                       = axi_interconnect.sintf_arr[3].ARLOCK;
         assign s_axi_if.aruser                       = axi_interconnect.sintf_arr[3].ARUSER;
         assign axi_interconnect.sintf_arr[3].ARREADY = s_axi_if.arready;
-        // FIXME this is a gross hack
+        // FIXME this is a gross hack for data width conversion
         always@(posedge core_clk or negedge rst_l)
             if (!rst_l)
                 s_axi_if_rd_is_upper_dw_latched <= 0;
@@ -1102,6 +1102,12 @@ import caliptra_top_tb_pkg::*;
         assign axi_interconnect.mintf_arr[4].RREADY   = m_axi_bfm_if.rready;
         
 
+        logic [pt.LSU_BUS_TAG-1:0] fixme_lsu_axi_arid_req;
+        logic [pt.LSU_BUS_TAG-1:0] fixme_lsu_axi_arid_req_r [pt.LSU_BUS_TAG];
+        logic [pt.LSU_BUS_TAG-1:0] fixme_lsu_axi_awid_req;
+        logic [pt.LSU_BUS_TAG-1:0] fixme_lsu_axi_awid_req_r [pt.LSU_BUS_TAG];
+        assign axi_interconnect.mintf_arr[0].ARID[pt.LSU_BUS_TAG-1:0] = pt.LSU_BUS_TAG'(0);
+        assign axi_interconnect.mintf_arr[0].AWID[pt.LSU_BUS_TAG-1:0] = pt.LSU_BUS_TAG'(0);
        //=========================================================================-
        // RTL instance
        //=========================================================================-
@@ -1121,13 +1127,13 @@ import caliptra_top_tb_pkg::*;
 
         .lsu_axi_awvalid        (axi_interconnect.mintf_arr[0].AWVALID),
         .lsu_axi_awready        (axi_interconnect.mintf_arr[0].AWREADY),
-        .lsu_axi_awid           (axi_interconnect.mintf_arr[0].AWID),
-        .lsu_axi_awaddr         (axi_interconnect.mintf_arr[0].AWADDR),
+        .lsu_axi_awid           (fixme_lsu_axi_awid_req), /*FIXME*/
+        .lsu_axi_awaddr         (axi_interconnect.mintf_arr[0].AWADDR[31:0]),
         .lsu_axi_awregion       (axi_interconnect.mintf_arr[0].AWREGION),
         .lsu_axi_awlen          (axi_interconnect.mintf_arr[0].AWLEN),
         .lsu_axi_awsize         (axi_interconnect.mintf_arr[0].AWSIZE),
         .lsu_axi_awburst        (axi_interconnect.mintf_arr[0].AWBURST),
-        .lsu_axi_awlock         (axi_interconnect.mintf_arr[0].AWLOCK),
+        .lsu_axi_awlock         (axi_interconnect.mintf_arr[0].AWLOCK[0]),
         .lsu_axi_awcache        (axi_interconnect.mintf_arr[0].AWCACHE),
         .lsu_axi_awprot         (axi_interconnect.mintf_arr[0].AWPROT),
         .lsu_axi_awqos          (axi_interconnect.mintf_arr[0].AWQOS),
@@ -1141,24 +1147,24 @@ import caliptra_top_tb_pkg::*;
         .lsu_axi_bvalid         (axi_interconnect.mintf_arr[0].BVALID),
         .lsu_axi_bready         (axi_interconnect.mintf_arr[0].BREADY),
         .lsu_axi_bresp          (axi_interconnect.mintf_arr[0].BRESP),
-        .lsu_axi_bid            (axi_interconnect.mintf_arr[0].BID),
+        .lsu_axi_bid            (fixme_lsu_axi_awid_req_r[0]/*axi_interconnect.mintf_arr[0].BID[pt.LSU_BUS_TAG-1:0]*/), /*FIXME*/
 
         .lsu_axi_arvalid        (axi_interconnect.mintf_arr[0].ARVALID),
         .lsu_axi_arready        (axi_interconnect.mintf_arr[0].ARREADY),
-        .lsu_axi_arid           (axi_interconnect.mintf_arr[0].ARID),
-        .lsu_axi_araddr         (axi_interconnect.mintf_arr[0].ARADDR),
+        .lsu_axi_arid           (fixme_lsu_axi_arid_req), /*FIXME*/
+        .lsu_axi_araddr         (axi_interconnect.mintf_arr[0].ARADDR[31:0]),
         .lsu_axi_arregion       (axi_interconnect.mintf_arr[0].ARREGION),
         .lsu_axi_arlen          (axi_interconnect.mintf_arr[0].ARLEN),
         .lsu_axi_arsize         (axi_interconnect.mintf_arr[0].ARSIZE),
         .lsu_axi_arburst        (axi_interconnect.mintf_arr[0].ARBURST),
-        .lsu_axi_arlock         (axi_interconnect.mintf_arr[0].ARLOCK),
+        .lsu_axi_arlock         (axi_interconnect.mintf_arr[0].ARLOCK[0]),
         .lsu_axi_arcache        (axi_interconnect.mintf_arr[0].ARCACHE),
         .lsu_axi_arprot         (axi_interconnect.mintf_arr[0].ARPROT),
         .lsu_axi_arqos          (axi_interconnect.mintf_arr[0].ARQOS),
 
         .lsu_axi_rvalid         (axi_interconnect.mintf_arr[0].RVALID),
         .lsu_axi_rready         (axi_interconnect.mintf_arr[0].RREADY),
-        .lsu_axi_rid            (axi_interconnect.mintf_arr[0].RID),
+        .lsu_axi_rid            (fixme_lsu_axi_arid_req_r[0]/*axi_interconnect.mintf_arr[0].RID[pt.LSU_BUS_TAG-1:0]*/), /*FIXME*/
         .lsu_axi_rdata          (axi_interconnect.mintf_arr[0].RDATA),
         .lsu_axi_rresp          (axi_interconnect.mintf_arr[0].RRESP),
         .lsu_axi_rlast          (axi_interconnect.mintf_arr[0].RLAST),
@@ -1168,13 +1174,13 @@ import caliptra_top_tb_pkg::*;
 
         .ifu_axi_awvalid        ( axi_interconnect.mintf_arr[1].AWVALID ),
         .ifu_axi_awready        ( axi_interconnect.mintf_arr[1].AWREADY ),
-        .ifu_axi_awid           ( axi_interconnect.mintf_arr[1].AWID    ),
-        .ifu_axi_awaddr         ( axi_interconnect.mintf_arr[1].AWADDR  ),
+        .ifu_axi_awid           ( axi_interconnect.mintf_arr[1].AWID[pt.IFU_BUS_TAG-1:0]    ),
+        .ifu_axi_awaddr         ( axi_interconnect.mintf_arr[1].AWADDR[31:0]  ),
         .ifu_axi_awregion       ( axi_interconnect.mintf_arr[1].AWREGION),
         .ifu_axi_awlen          ( axi_interconnect.mintf_arr[1].AWLEN   ),
         .ifu_axi_awsize         ( axi_interconnect.mintf_arr[1].AWSIZE  ),
         .ifu_axi_awburst        ( axi_interconnect.mintf_arr[1].AWBURST ),
-        .ifu_axi_awlock         ( axi_interconnect.mintf_arr[1].AWLOCK  ),
+        .ifu_axi_awlock         ( axi_interconnect.mintf_arr[1].AWLOCK[0]  ),
         .ifu_axi_awcache        ( axi_interconnect.mintf_arr[1].AWCACHE ),
         .ifu_axi_awprot         ( axi_interconnect.mintf_arr[1].AWPROT  ),
         .ifu_axi_awqos          ( axi_interconnect.mintf_arr[1].AWQOS   ),
@@ -1188,16 +1194,16 @@ import caliptra_top_tb_pkg::*;
         .ifu_axi_bvalid         ( axi_interconnect.mintf_arr[1].BVALID  ),
         .ifu_axi_bready         ( axi_interconnect.mintf_arr[1].BREADY  ),
         .ifu_axi_bresp          ( axi_interconnect.mintf_arr[1].BRESP   ),
-        .ifu_axi_bid            ( axi_interconnect.mintf_arr[1].BID     ),
+        .ifu_axi_bid            ( axi_interconnect.mintf_arr[1].BID[pt.IFU_BUS_TAG-1:0]     ),
 
         .ifu_axi_arvalid        ( axi_interconnect.mintf_arr[1].ARVALID ),
         .ifu_axi_arready        ( axi_interconnect.mintf_arr[1].ARREADY ),
-        .ifu_axi_arid           ( axi_interconnect.mintf_arr[1].ARID    ),
-        .ifu_axi_araddr         ( axi_interconnect.mintf_arr[1].ARADDR  ),
+        .ifu_axi_arid           ( axi_interconnect.mintf_arr[1].ARID[pt.IFU_BUS_TAG-1:0]    ),
+        .ifu_axi_araddr         ( axi_interconnect.mintf_arr[1].ARADDR[31:0]  ),
         .ifu_axi_arlen          ( axi_interconnect.mintf_arr[1].ARLEN   ),
         .ifu_axi_arsize         ( axi_interconnect.mintf_arr[1].ARSIZE  ),
         .ifu_axi_arburst        ( axi_interconnect.mintf_arr[1].ARBURST ),
-        .ifu_axi_arlock         ( axi_interconnect.mintf_arr[1].ARLOCK  ),
+        .ifu_axi_arlock         ( axi_interconnect.mintf_arr[1].ARLOCK[0]  ),
         .ifu_axi_arcache        ( axi_interconnect.mintf_arr[1].ARCACHE ),
         .ifu_axi_arprot         ( axi_interconnect.mintf_arr[1].ARPROT  ),
         .ifu_axi_arqos          ( axi_interconnect.mintf_arr[1].ARQOS   ),
@@ -1205,7 +1211,7 @@ import caliptra_top_tb_pkg::*;
 
         .ifu_axi_rvalid         ( axi_interconnect.mintf_arr[1].RVALID  ),
         .ifu_axi_rready         ( axi_interconnect.mintf_arr[1].RREADY  ),
-        .ifu_axi_rid            ( axi_interconnect.mintf_arr[1].RID     ),
+        .ifu_axi_rid            ( axi_interconnect.mintf_arr[1].RID[pt.IFU_BUS_TAG-1:0]     ),
         .ifu_axi_rdata          ( axi_interconnect.mintf_arr[1].RDATA   ),
         .ifu_axi_rresp          ( axi_interconnect.mintf_arr[1].RRESP   ),
         .ifu_axi_rlast          ( axi_interconnect.mintf_arr[1].RLAST   ),
@@ -1261,8 +1267,8 @@ import caliptra_top_tb_pkg::*;
         // AXI Write Channels
         .dma_axi_awvalid        (axi_interconnect.sintf_arr[2].AWVALID),
         .dma_axi_awready        (axi_interconnect.sintf_arr[2].AWREADY),
-        .dma_axi_awid           (axi_interconnect.sintf_arr[2].AWID),
-        .dma_axi_awaddr         (axi_interconnect.sintf_arr[2].AWADDR),
+        .dma_axi_awid           (axi_interconnect.sintf_arr[2].AWID[pt.DMA_BUS_TAG-1:0]),
+        .dma_axi_awaddr         (axi_interconnect.sintf_arr[2].AWADDR[31:0]),
         .dma_axi_awsize         (axi_interconnect.sintf_arr[2].AWSIZE),
         .dma_axi_awprot         (axi_interconnect.sintf_arr[2].AWPROT),
         .dma_axi_awlen          (axi_interconnect.sintf_arr[2].AWLEN),
@@ -1277,12 +1283,12 @@ import caliptra_top_tb_pkg::*;
         .dma_axi_bvalid         (axi_interconnect.sintf_arr[2].BVALID),
         .dma_axi_bready         (axi_interconnect.sintf_arr[2].BREADY),
         .dma_axi_bresp          (axi_interconnect.sintf_arr[2].BRESP),
-        .dma_axi_bid            (axi_interconnect.sintf_arr[2].BID),
+        .dma_axi_bid            (axi_interconnect.sintf_arr[2].BID[pt.DMA_BUS_TAG-1:0]),
 
         .dma_axi_arvalid        (axi_interconnect.sintf_arr[2].ARVALID),
         .dma_axi_arready        (axi_interconnect.sintf_arr[2].ARREADY),
-        .dma_axi_arid           (axi_interconnect.sintf_arr[2].ARID),
-        .dma_axi_araddr         (axi_interconnect.sintf_arr[2].ARADDR),
+        .dma_axi_arid           (axi_interconnect.sintf_arr[2].ARID[pt.DMA_BUS_TAG-1:0]),
+        .dma_axi_araddr         (axi_interconnect.sintf_arr[2].ARADDR[31:0]),
         .dma_axi_arsize         (axi_interconnect.sintf_arr[2].ARSIZE),
         .dma_axi_arprot         (axi_interconnect.sintf_arr[2].ARPROT),
         .dma_axi_arlen          (axi_interconnect.sintf_arr[2].ARLEN),
@@ -1290,7 +1296,7 @@ import caliptra_top_tb_pkg::*;
 
         .dma_axi_rvalid         (axi_interconnect.sintf_arr[2].RVALID),
         .dma_axi_rready         (axi_interconnect.sintf_arr[2].RREADY),
-        .dma_axi_rid            (axi_interconnect.sintf_arr[2].RID),
+        .dma_axi_rid            (axi_interconnect.sintf_arr[2].RID[pt.DMA_BUS_TAG-1:0]),
         .dma_axi_rdata          (axi_interconnect.sintf_arr[2].RDATA),
         .dma_axi_rresp          (axi_interconnect.sintf_arr[2].RRESP),
         .dma_axi_rlast          (axi_interconnect.sintf_arr[2].RLAST),
@@ -1377,6 +1383,111 @@ import caliptra_top_tb_pkg::*;
         .dmi_uncore_rdata       ()
 
     );
+    assign axi_interconnect.mintf_arr[0].ARID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:pt.LSU_BUS_TAG] = '0;
+    assign axi_interconnect.mintf_arr[0].AWID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:pt.LSU_BUS_TAG] = '0;
+    assign axi_interconnect.mintf_arr[0].ARADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.mintf_arr[0].AWADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.mintf_arr[1].ARID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:pt.IFU_BUS_TAG] = '0;
+    assign axi_interconnect.mintf_arr[1].AWID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:pt.IFU_BUS_TAG] = '0;
+    assign axi_interconnect.mintf_arr[1].ARADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.mintf_arr[1].AWADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.sintf_arr[2].RID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:pt.DMA_BUS_TAG]  = '0;
+    assign axi_interconnect.sintf_arr[2].BID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:pt.DMA_BUS_TAG]  = '0;
+    assign axi_interconnect.sintf_arr[2].ARADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.sintf_arr[2].AWADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    // FIXME This hacky FIFO is to ensure the same AXI ID is used throughout a mailbox transfer.
+    //       We need an ability to deterministically use the same AXI ID from the VeeR executable
+    int ar_count;
+    int aw_count;
+    bit ar_hshake;
+    bit r_hshake;
+    bit aw_hshake;
+    bit b_hshake;
+    int r_ii, w_ii;
+    always_comb begin
+        ar_hshake = axi_interconnect.mintf_arr[0].ARVALID && axi_interconnect.mintf_arr[0].ARREADY;
+        r_hshake  = axi_interconnect.mintf_arr[0].RVALID && axi_interconnect.mintf_arr[0].RREADY;
+        aw_hshake = axi_interconnect.mintf_arr[0].AWVALID && axi_interconnect.mintf_arr[0].AWREADY;
+        b_hshake  = axi_interconnect.mintf_arr[0].BVALID && axi_interconnect.mintf_arr[0].BREADY;
+    end
+    always_ff@(posedge core_clk or negedge rst_l) begin
+        if (!rst_l) begin
+            fixme_lsu_axi_arid_req_r <= '{default:0};
+            fixme_lsu_axi_awid_req_r <= '{default:0};
+            ar_count <= 0;
+            aw_count <= 0;
+        end
+        else begin
+            case ({ar_hshake,r_hshake}) inside
+                2'b00: begin
+                    fixme_lsu_axi_arid_req_r <= fixme_lsu_axi_arid_req_r;
+                    ar_count <= ar_count;
+                end
+                2'b01: begin
+                    `CALIPTRA_ASSERT(FIXME_R, ar_count > 0, core_clk, !rst_l)
+                    for (r_ii = 0; r_ii < pt.LSU_BUS_TAG-1; r_ii++) begin
+                        if (r_ii < ar_count-1)       fixme_lsu_axi_arid_req_r[r_ii] <= fixme_lsu_axi_arid_req_r[r_ii+1]; // Shift down
+                        else if (r_ii >= ar_count-1) fixme_lsu_axi_arid_req_r[r_ii] <= '0;
+                    end
+                    if (ar_count == pt.LSU_BUS_TAG) fixme_lsu_axi_arid_req_r[pt.LSU_BUS_TAG-1] <= '0;
+                    ar_count <= ar_count - 1;
+                end
+                2'b10: begin
+                    for (r_ii = 0; r_ii < pt.LSU_BUS_TAG-1; r_ii++) begin
+                        if (r_ii < ar_count)       fixme_lsu_axi_arid_req_r[r_ii] <= fixme_lsu_axi_arid_req_r[r_ii];
+                        else if (r_ii == ar_count) fixme_lsu_axi_arid_req_r[r_ii] <= fixme_lsu_axi_arid_req;
+                        else if (r_ii > ar_count)  fixme_lsu_axi_arid_req_r[r_ii] <= '0;
+                    end
+                    if (ar_count == pt.LSU_BUS_TAG-1) fixme_lsu_axi_arid_req_r[pt.LSU_BUS_TAG-1] <= fixme_lsu_axi_arid_req;
+                    ar_count <= ar_count + 1;
+                end
+                2'b11: begin
+                    `CALIPTRA_ASSERT(FIXME_AR, ar_count > 0, core_clk, !rst_l)
+                    for (r_ii = 0; r_ii < pt.LSU_BUS_TAG-1; r_ii++) begin
+                        if (r_ii < ar_count-1)       fixme_lsu_axi_arid_req_r[r_ii] <= fixme_lsu_axi_arid_req_r[r_ii+1]; // Shift down
+                        else if (r_ii == ar_count-1) fixme_lsu_axi_arid_req_r[r_ii] <= fixme_lsu_axi_arid_req;
+                        else if (r_ii >= ar_count)   fixme_lsu_axi_arid_req_r[r_ii] <= '0;
+                    end
+                    if (ar_count == pt.LSU_BUS_TAG) fixme_lsu_axi_arid_req_r[pt.LSU_BUS_TAG-1] <= fixme_lsu_axi_arid_req;
+                    ar_count <= ar_count;
+                end
+            endcase
+            case ({aw_hshake,b_hshake}) inside
+                2'b00: begin
+                    fixme_lsu_axi_awid_req_r <= fixme_lsu_axi_awid_req_r;
+                    aw_count <= aw_count;
+                end
+                2'b01: begin
+                    `CALIPTRA_ASSERT(FIXME_B, aw_count > 0, core_clk, !rst_l)
+                    for (w_ii = 0; w_ii < pt.LSU_BUS_TAG-1; w_ii++) begin
+                        if (w_ii < aw_count-1)       fixme_lsu_axi_awid_req_r[w_ii] <= fixme_lsu_axi_awid_req_r[w_ii+1]; // Shift down
+                        else if (w_ii >= aw_count-1) fixme_lsu_axi_awid_req_r[w_ii] <= '0;
+                    end
+                    if (aw_count == pt.LSU_BUS_TAG) fixme_lsu_axi_awid_req_r[pt.LSU_BUS_TAG-1] <= '0;
+                    aw_count <= aw_count - 1;
+                end
+                2'b10: begin
+                    for (w_ii = 0; w_ii < pt.LSU_BUS_TAG-1; w_ii++) begin
+                        if (w_ii < aw_count)       fixme_lsu_axi_awid_req_r[w_ii] <= fixme_lsu_axi_awid_req_r[w_ii];
+                        else if (w_ii == aw_count) fixme_lsu_axi_awid_req_r[w_ii] <= fixme_lsu_axi_awid_req;
+                        else if (w_ii > aw_count)  fixme_lsu_axi_awid_req_r[w_ii] <= '0;
+                    end
+                    if (aw_count == pt.LSU_BUS_TAG-1) fixme_lsu_axi_awid_req_r[pt.LSU_BUS_TAG-1] <= fixme_lsu_axi_awid_req;
+                    aw_count <= aw_count + 1;
+                end
+                2'b11: begin
+                    `CALIPTRA_ASSERT(FIXME_AW, aw_count > 0, core_clk, !rst_l)
+                    for (w_ii = 0; w_ii < pt.LSU_BUS_TAG-1; w_ii++) begin
+                        if (w_ii < aw_count-1)       fixme_lsu_axi_awid_req_r[w_ii] <= fixme_lsu_axi_awid_req_r[w_ii+1]; // Shift down
+                        else if (w_ii == aw_count-1) fixme_lsu_axi_awid_req_r[w_ii] <= fixme_lsu_axi_awid_req;
+                        else if (w_ii >= aw_count)   fixme_lsu_axi_awid_req_r[w_ii] <= '0;
+                    end
+                    if (aw_count == pt.LSU_BUS_TAG) fixme_lsu_axi_awid_req_r[pt.LSU_BUS_TAG-1] <= fixme_lsu_axi_awid_req;
+                    aw_count <= aw_count;
+                end
+            endcase
+        end
+    end
 
 
     //=========================================================================-
@@ -1384,14 +1495,14 @@ import caliptra_top_tb_pkg::*;
     //=========================================================================-
 
 
-    axi_slv #(.TAGW(7)) imem(
+    axi_slv #(.TAGW(8)) imem(
 
         .aclk           (core_clk),
         .rst_l          (rst_l),
 
         .arvalid        (axi_interconnect.sintf_arr[0].ARVALID),
         .arready        (axi_interconnect.sintf_arr[0].ARREADY),
-        .araddr         (axi_interconnect.sintf_arr[0].ARADDR),
+        .araddr         (axi_interconnect.sintf_arr[0].ARADDR[31:0]),
         .arid           (axi_interconnect.sintf_arr[0].ARID),
         .arlen          (axi_interconnect.sintf_arr[0].ARLEN),
         .arburst        (axi_interconnect.sintf_arr[0].ARBURST),
@@ -1406,7 +1517,7 @@ import caliptra_top_tb_pkg::*;
 
         .awvalid        (axi_interconnect.sintf_arr[0].AWVALID),
         .awready        (axi_interconnect.sintf_arr[0].AWREADY),
-        .awaddr         (axi_interconnect.sintf_arr[0].AWADDR),
+        .awaddr         (axi_interconnect.sintf_arr[0].AWADDR[31:0]),
         .awid           (axi_interconnect.sintf_arr[0].AWID),
         .awlen          (axi_interconnect.sintf_arr[0].AWLEN),
         .awburst        (axi_interconnect.sintf_arr[0].AWBURST),
@@ -1423,19 +1534,21 @@ import caliptra_top_tb_pkg::*;
         .bid            (axi_interconnect.sintf_arr[0].BID)
 
     );
+    assign axi_interconnect.sintf_arr[0].ARADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.sintf_arr[0].AWADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
 
-    // defparam lmem.TAGW =`MCU_RV_LSU_BUS_TAG;
+    // defparam lmem.TAGW =`css_mcu0_RV_LSU_BUS_TAG;
 
-    //axi_slv #(.TAGW(`MCU_RV_LSU_BUS_TAG)) lmem(
+    //axi_slv #(.TAGW(`css_mcu0_RV_LSU_BUS_TAG)) lmem(
     // -- Addtional 3 required for QVIP Interconnect
-    // `MCU_RV_LSU_BUS_TAG + 3
-    axi_slv #(.TAGW(7)) lmem(
+    // `css_mcu0_RV_LSU_BUS_TAG + 3
+    axi_slv #(.TAGW(8)) lmem(
         .aclk(core_clk),
         .rst_l(rst_l),
 
         .arvalid        (axi_interconnect.sintf_arr[1].ARVALID),
         .arready        (axi_interconnect.sintf_arr[1].ARREADY),
-        .araddr         (axi_interconnect.sintf_arr[1].ARADDR),
+        .araddr         (axi_interconnect.sintf_arr[1].ARADDR[31:0]),
         .arid           (axi_interconnect.sintf_arr[1].ARID),
         .arlen          (axi_interconnect.sintf_arr[1].ARLEN),
         .arburst        (axi_interconnect.sintf_arr[1].ARBURST),
@@ -1450,7 +1563,7 @@ import caliptra_top_tb_pkg::*;
 
         .awvalid        (axi_interconnect.sintf_arr[1].AWVALID),
         .awready        (axi_interconnect.sintf_arr[1].AWREADY),
-        .awaddr         (axi_interconnect.sintf_arr[1].AWADDR),
+        .awaddr         (axi_interconnect.sintf_arr[1].AWADDR[31:0]),
         .awid           (axi_interconnect.sintf_arr[1].AWID),
         .awlen          (axi_interconnect.sintf_arr[1].AWLEN),
         .awburst        (axi_interconnect.sintf_arr[1].AWBURST),
@@ -1467,6 +1580,8 @@ import caliptra_top_tb_pkg::*;
         .bid            (axi_interconnect.sintf_arr[1].BID)
 
     );
+    assign axi_interconnect.sintf_arr[1].ARADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
+    assign axi_interconnect.sintf_arr[1].AWADDR[aaxi_pkg::AAXI_ADDR_WIDTH-1:32]           = 32'h0;
 
 task preload_iccm;
     bit[31:0] data;
@@ -1482,7 +1597,7 @@ task preload_iccm;
     `endif
     addr = 'hffff_fff0;
     saddr = {lmem.mem[addr+3],lmem.mem[addr+2],lmem.mem[addr+1],lmem.mem[addr]};
-    if ( (saddr < `MCU_RV_ICCM_SADR) || (saddr > `MCU_RV_ICCM_EADR)) return;
+    if ( (saddr < `css_mcu0_RV_ICCM_SADR) || (saddr > `css_mcu0_RV_ICCM_EADR)) return;
     `ifndef MCU_RV_ICCM_ENABLE
         $display("********************************************************");
         $display("ICCM preload: there is no ICCM in VeeR, terminating !!!");
@@ -1513,7 +1628,7 @@ task preload_dccm;
 
     addr = 'hffff_fff8;
     saddr = {lmem.mem[addr+3],lmem.mem[addr+2],lmem.mem[addr+1],lmem.mem[addr]};
-    if (saddr < `MCU_RV_DCCM_SADR || saddr > `MCU_RV_DCCM_EADR) return;
+    if (saddr < `css_mcu0_RV_DCCM_SADR || saddr > `css_mcu0_RV_DCCM_EADR) return;
     `ifndef MCU_RV_DCCM_ENABLE
         $display("********************************************************");
         $display("DCCM preload: there is no DCCM in VeeR, terminating !!!");
@@ -1533,11 +1648,11 @@ endtask
 
 
 `ifdef VERILATOR
-`define DRAM(bk) Gen_dccm_enable.dccm_loop[bk].ram.ram_core
-`define IRAM(bk) Gen_iccm_enable.iccm_loop[bk].iccm_bank.ram_core
+`define MCU_DRAM(bk) Gen_dccm_enable.dccm_loop[bk].ram.ram_core
+`define MCU_IRAM(bk) Gen_iccm_enable.iccm_loop[bk].iccm_bank.ram_core
 `else
-`define DRAM(bk) Gen_dccm_enable.dccm_loop[bk].dccm.dccm_bank.ram_core
-`define IRAM(bk) Gen_iccm_enable.iccm_loop[bk].iccm.iccm_bank.ram_core
+`define MCU_DRAM(bk) Gen_dccm_enable.dccm_loop[bk].dccm.dccm_bank.ram_core
+`define MCU_IRAM(bk) Gen_iccm_enable.iccm_loop[bk].iccm.iccm_bank.ram_core
 `endif
 
 
@@ -1546,19 +1661,19 @@ task slam_dccm_ram(input [31:0] addr, input[38:0] data);
     bank = get_dccm_bank(addr, indx);
     `ifdef MCU_RV_DCCM_ENABLE
     case(bank)
-    0: `DRAM(0)[indx] = data;
-    1: `DRAM(1)[indx] = data;
+    0: `MCU_DRAM(0)[indx] = data;
+    1: `MCU_DRAM(1)[indx] = data;
     `ifdef MCU_RV_DCCM_NUM_BANKS_4
-    2: `DRAM(2)[indx] = data;
-    3: `DRAM(3)[indx] = data;
+    2: `MCU_DRAM(2)[indx] = data;
+    3: `MCU_DRAM(3)[indx] = data;
     `endif
     `ifdef MCU_RV_DCCM_NUM_BANKS_8
-    2: `DRAM(2)[indx] = data;
-    3: `DRAM(3)[indx] = data;
-    4: `DRAM(4)[indx] = data;
-    5: `DRAM(5)[indx] = data;
-    6: `DRAM(6)[indx] = data;
-    7: `DRAM(7)[indx] = data;
+    2: `MCU_DRAM(2)[indx] = data;
+    3: `MCU_DRAM(3)[indx] = data;
+    4: `MCU_DRAM(4)[indx] = data;
+    5: `MCU_DRAM(5)[indx] = data;
+    6: `MCU_DRAM(6)[indx] = data;
+    7: `MCU_DRAM(7)[indx] = data;
     `endif
     endcase
     `endif
@@ -1572,36 +1687,36 @@ task slam_iccm_ram( input[31:0] addr, input[38:0] data);
     bank = get_iccm_bank(addr, idx);
     `ifdef MCU_RV_ICCM_ENABLE
     case(bank) // {
-      0: `IRAM(0)[idx] = data;
-      1: `IRAM(1)[idx] = data;
+      0: `MCU_IRAM(0)[idx] = data;
+      1: `MCU_IRAM(1)[idx] = data;
      `ifdef MCU_RV_ICCM_NUM_BANKS_4
-      2: `IRAM(2)[idx] = data;
-      3: `IRAM(3)[idx] = data;
+      2: `MCU_IRAM(2)[idx] = data;
+      3: `MCU_IRAM(3)[idx] = data;
      `endif
      `ifdef MCU_RV_ICCM_NUM_BANKS_8
-      2: `IRAM(2)[idx] = data;
-      3: `IRAM(3)[idx] = data;
-      4: `IRAM(4)[idx] = data;
-      5: `IRAM(5)[idx] = data;
-      6: `IRAM(6)[idx] = data;
-      7: `IRAM(7)[idx] = data;
+      2: `MCU_IRAM(2)[idx] = data;
+      3: `MCU_IRAM(3)[idx] = data;
+      4: `MCU_IRAM(4)[idx] = data;
+      5: `MCU_IRAM(5)[idx] = data;
+      6: `MCU_IRAM(6)[idx] = data;
+      7: `MCU_IRAM(7)[idx] = data;
      `endif
 
      `ifdef MCU_RV_ICCM_NUM_BANKS_16
-      2: `IRAM(2)[idx] = data;
-      3: `IRAM(3)[idx] = data;
-      4: `IRAM(4)[idx] = data;
-      5: `IRAM(5)[idx] = data;
-      6: `IRAM(6)[idx] = data;
-      7: `IRAM(7)[idx] = data;
-      8: `IRAM(8)[idx] = data;
-      9: `IRAM(9)[idx] = data;
-      10: `IRAM(10)[idx] = data;
-      11: `IRAM(11)[idx] = data;
-      12: `IRAM(12)[idx] = data;
-      13: `IRAM(13)[idx] = data;
-      14: `IRAM(14)[idx] = data;
-      15: `IRAM(15)[idx] = data;
+      2: `MCU_IRAM(2)[idx] = data;
+      3: `MCU_IRAM(3)[idx] = data;
+      4: `MCU_IRAM(4)[idx] = data;
+      5: `MCU_IRAM(5)[idx] = data;
+      6: `MCU_IRAM(6)[idx] = data;
+      7: `MCU_IRAM(7)[idx] = data;
+      8: `MCU_IRAM(8)[idx] = data;
+      9: `MCU_IRAM(9)[idx] = data;
+      10: `MCU_IRAM(10)[idx] = data;
+      11: `MCU_IRAM(11)[idx] = data;
+      12: `MCU_IRAM(12)[idx] = data;
+      13: `MCU_IRAM(13)[idx] = data;
+      14: `MCU_IRAM(14)[idx] = data;
+      15: `MCU_IRAM(15)[idx] = data;
      `endif
     endcase // }
     `endif
@@ -1609,32 +1724,32 @@ endtask
 
 task init_iccm;
     `ifdef MCU_RV_ICCM_ENABLE
-        `IRAM(0) = '{default:39'h0};
-        `IRAM(1) = '{default:39'h0};
+        `MCU_IRAM(0) = '{default:39'h0};
+        `MCU_IRAM(1) = '{default:39'h0};
     `ifdef MCU_RV_ICCM_NUM_BANKS_4
-        `IRAM(2) = '{default:39'h0};
-        `IRAM(3) = '{default:39'h0};
+        `MCU_IRAM(2) = '{default:39'h0};
+        `MCU_IRAM(3) = '{default:39'h0};
     `endif
     `ifdef MCU_RV_ICCM_NUM_BANKS_8
-        `IRAM(4) = '{default:39'h0};
-        `IRAM(5) = '{default:39'h0};
-        `IRAM(6) = '{default:39'h0};
-        `IRAM(7) = '{default:39'h0};
+        `MCU_IRAM(4) = '{default:39'h0};
+        `MCU_IRAM(5) = '{default:39'h0};
+        `MCU_IRAM(6) = '{default:39'h0};
+        `MCU_IRAM(7) = '{default:39'h0};
     `endif
 
     `ifdef MCU_RV_ICCM_NUM_BANKS_16
-        `IRAM(4) = '{default:39'h0};
-        `IRAM(5) = '{default:39'h0};
-        `IRAM(6) = '{default:39'h0};
-        `IRAM(7) = '{default:39'h0};
-        `IRAM(8) = '{default:39'h0};
-        `IRAM(9) = '{default:39'h0};
-        `IRAM(10) = '{default:39'h0};
-        `IRAM(11) = '{default:39'h0};
-        `IRAM(12) = '{default:39'h0};
-        `IRAM(13) = '{default:39'h0};
-        `IRAM(14) = '{default:39'h0};
-        `IRAM(15) = '{default:39'h0};
+        `MCU_IRAM(4) = '{default:39'h0};
+        `MCU_IRAM(5) = '{default:39'h0};
+        `MCU_IRAM(6) = '{default:39'h0};
+        `MCU_IRAM(7) = '{default:39'h0};
+        `MCU_IRAM(8) = '{default:39'h0};
+        `MCU_IRAM(9) = '{default:39'h0};
+        `MCU_IRAM(10) = '{default:39'h0};
+        `MCU_IRAM(11) = '{default:39'h0};
+        `MCU_IRAM(12) = '{default:39'h0};
+        `MCU_IRAM(13) = '{default:39'h0};
+        `MCU_IRAM(14) = '{default:39'h0};
+        `MCU_IRAM(15) = '{default:39'h0};
      `endif
     `endif
 endtask
@@ -1654,29 +1769,29 @@ endfunction
 
 function int get_dccm_bank(input[31:0] addr,  output int bank_idx);
     `ifdef MCU_RV_DCCM_NUM_BANKS_2
-        bank_idx = int'(addr[`MCU_RV_DCCM_BITS-1:3]);
+        bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:3]);
         return int'( addr[2]);
     `elsif MCU_RV_DCCM_NUM_BANKS_4
-        bank_idx = int'(addr[`MCU_RV_DCCM_BITS-1:4]);
+        bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:4]);
         return int'(addr[3:2]);
     `elsif MCU_RV_DCCM_NUM_BANKS_8
-        bank_idx = int'(addr[`MCU_RV_DCCM_BITS-1:5]);
+        bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:5]);
         return int'( addr[4:2]);
     `endif
 endfunction
 
 function int get_iccm_bank(input[31:0] addr,  output int bank_idx);
     `ifdef MCU_RV_DCCM_NUM_BANKS_2
-        bank_idx = int'(addr[`MCU_RV_DCCM_BITS-1:3]);
+        bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:3]);
         return int'( addr[2]);
     `elsif MCU_RV_ICCM_NUM_BANKS_4
-        bank_idx = int'(addr[`MCU_RV_ICCM_BITS-1:4]);
+        bank_idx = int'(addr[`css_mcu0_RV_ICCM_BITS-1:4]);
         return int'(addr[3:2]);
     `elsif MCU_RV_ICCM_NUM_BANKS_8
-        bank_idx = int'(addr[`MCU_RV_ICCM_BITS-1:5]);
+        bank_idx = int'(addr[`css_mcu0_RV_ICCM_BITS-1:5]);
         return int'( addr[4:2]);
     `elsif MCU_RV_ICCM_NUM_BANKS_16
-        bank_idx = int'(addr[`MCU_RV_ICCM_BITS-1:6]);
+        bank_idx = int'(addr[`css_mcu0_RV_ICCM_BITS-1:6]);
         return int'( addr[5:2]);
     `endif
 endfunction
@@ -1694,25 +1809,25 @@ task dump_signature ();
 
             // From DCCM
     `ifdef MCU_RV_DCCM_ENABLE
-            if (i >= `MCU_RV_DCCM_SADR && i < `MCU_RV_DCCM_EADR) begin
+            if (i >= `css_mcu0_RV_DCCM_SADR && i < `css_mcu0_RV_DCCM_EADR) begin
                 bit[38:0] data;
                 int bank, indx;
                 bank = get_dccm_bank(i, indx);
 
                 case (bank)
-                0: data = `DRAM(0)[indx];
-                1: data = `DRAM(1)[indx];
+                0: data = `MCU_DRAM(0)[indx];
+                1: data = `MCU_DRAM(1)[indx];
                 `ifdef MCU_RV_DCCM_NUM_BANKS_4
-                2: data = `DRAM(2)[indx];
-                3: data = `DRAM(3)[indx];
+                2: data = `MCU_DRAM(2)[indx];
+                3: data = `MCU_DRAM(3)[indx];
                 `endif
                 `ifdef MCU_RV_DCCM_NUM_BANKS_8
-                2: data = `DRAM(2)[indx];
-                3: data = `DRAM(3)[indx];
-                4: data = `DRAM(4)[indx];
-                5: data = `DRAM(5)[indx];
-                6: data = `DRAM(6)[indx];
-                7: data = `DRAM(7)[indx];
+                2: data = `MCU_DRAM(2)[indx];
+                3: data = `MCU_DRAM(3)[indx];
+                4: data = `MCU_DRAM(4)[indx];
+                5: data = `MCU_DRAM(5)[indx];
+                6: data = `MCU_DRAM(6)[indx];
+                7: data = `MCU_DRAM(7)[indx];
                 `endif
                 endcase
 
@@ -1736,8 +1851,8 @@ endtask
 //////////////////////////////////////////////////////
 // DCCM
 //
-if (mcu_pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
-    `define EL2_LOCAL_DCCM_RAM_TEST_PORTS   .TEST1   (1'b0   ), \
+if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
+    `define MCU_LOCAL_DCCM_RAM_TEST_PORTS   .TEST1   (1'b0   ), \
                                             .RME     (1'b0   ), \
                                             .RM      (4'b0000), \
                                             .LS      (1'b0   ), \
@@ -1747,27 +1862,24 @@ if (mcu_pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                             .BC1     (1'b0   ), \
                                             .BC2     (1'b0   ), \
 
-    logic [mcu_pt.DCCM_NUM_BANKS-1:0] [mcu_pt.DCCM_FDATA_WIDTH-1:0] dccm_wdata_bitflip;
+    logic [pt.DCCM_NUM_BANKS-1:0] [pt.DCCM_FDATA_WIDTH-1:0] dccm_wdata_bitflip;
     int ii;
-    localparam DCCM_INDEX_DEPTH = ((mcu_pt.DCCM_SIZE)*1024)/((mcu_pt.DCCM_BYTE_WIDTH)*(mcu_pt.DCCM_NUM_BANKS));  // Depth of memory bank
+    localparam DCCM_INDEX_DEPTH = ((pt.DCCM_SIZE)*1024)/((pt.DCCM_BYTE_WIDTH)*(pt.DCCM_NUM_BANKS));  // Depth of memory bank
     // 8 Banks, 16KB each (2048 x 72)
     always_ff @(mcu_el2_mem_export.clk) begin : inject_dccm_ecc_error
         if (~error_injection_mode.dccm_single_bit_error && ~error_injection_mode.dccm_double_bit_error) begin
             dccm_wdata_bitflip <= '{default:0};
         end else if (mcu_el2_mem_export.dccm_clken & mcu_el2_mem_export.dccm_wren_bank) begin
-            for (ii=0; ii<mcu_pt.DCCM_NUM_BANKS; ii++) begin: dccm_bitflip_injection_loop
+            for (ii=0; ii<pt.DCCM_NUM_BANKS; ii++) begin: dccm_bitflip_injection_loop
                 dccm_wdata_bitflip[ii] <= get_bitflip_mask(error_injection_mode.dccm_double_bit_error);
             end
         end
     end
-    for (genvar i=0; i<mcu_pt.DCCM_NUM_BANKS; i++) begin: dccm_loop
-        // --- new --- assign dccm_wr_fdata_bank[i][mcu_pt.DCCM_DATA_WIDTH-1:0] = mcu_el2_mem_export.dccm_wr_data_bank[i];
-        // --- new --- assign dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:mcu_pt.DCCM_DATA_WIDTH] = mcu_el2_mem_export.dccm_wr_ecc_bank[i];
-        // --- new --- assign mcu_el2_mem_export.dccm_bank_dout[i] = dccm_bank_fdout[i][31:0];
-        // --- new --- assign mcu_el2_mem_export.dccm_bank_ecc[i] = dccm_bank_fdout[i][38:32];
-        //assign mcu_el2_mem_export.dccm_wr_data_bank[i] = dccm_wr_fdata_bank[i][mcu_pt.DCCM_DATA_WIDTH-1:0];
-        //assign mcu_el2_mem_export.dccm_wr_ecc_bank[i] = dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:mcu_pt.DCCM_DATA_WIDTH];
-        //assign dccm_bank_fdout[i] = {mcu_el2_mem_export.dccm_bank_ecc[i], mcu_el2_mem_export.dccm_bank_dout[i]};
+    for (genvar i=0; i<pt.DCCM_NUM_BANKS; i++) begin: dccm_loop
+
+        assign dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0] = {mcu_el2_mem_export.dccm_wr_ecc_bank[i], mcu_el2_mem_export.dccm_wr_data_bank[i]} ^ dccm_wdata_bitflip[i];
+        assign mcu_el2_mem_export.dccm_bank_dout[i] = dccm_bank_fdout[i][31:0];
+        assign mcu_el2_mem_export.dccm_bank_ecc[i] = dccm_bank_fdout[i][38:32];
 
     `ifdef VERILATOR
 
@@ -1777,162 +1889,162 @@ if (mcu_pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
     `else
 
         if (DCCM_INDEX_DEPTH == 32768) begin : dccm
-            ram_32768x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_32768x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 16384) begin : dccm
-            ram_16384x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_16384x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 8192) begin : dccm
-            ram_8192x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_8192x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 4096) begin : dccm
-            ram_4096x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_4096x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 3072) begin : dccm
-            ram_3072x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_3072x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 2048) begin : dccm
-            ram_2048x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_2048x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 1024) begin : dccm
-            ram_1024x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_1024x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 512) begin : dccm
-            ram_512x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_512x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 256) begin : dccm
-            ram_256x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_256x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 128) begin : dccm
-            ram_128x39  dccm_bank (
+	 	 	 	 css_mcu0_ram_128x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
                                     .WE(mcu_el2_mem_export.dccm_wren_bank[i]),
                                     .ADR(mcu_el2_mem_export.dccm_addr_bank[i]),
-                                    .D(dccm_wr_fdata_bank[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
-                                    .Q(dccm_bank_fdout[i][mcu_pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .D(dccm_wr_fdata_bank[i][pt.DCCM_FDATA_WIDTH-1:0]),
+                                    .Q(dccm_bank_fdout[i][pt.DCCM_FDATA_WIDTH-1:0]),
                                     .ROP ( ),
                                     // These are used by SoC
-                                    `EL2_LOCAL_DCCM_RAM_TEST_PORTS
+                                    `MCU_LOCAL_DCCM_RAM_TEST_PORTS
                                     .*
                                     );
         end
@@ -1943,20 +2055,20 @@ end :Gen_dccm_enable
 //////////////////////////////////////////////////////
 // ICCM
 //
-if (mcu_pt.ICCM_ENABLE) begin : Gen_iccm_enable
+if (pt.ICCM_ENABLE) begin : Gen_iccm_enable
 
-logic [mcu_pt.ICCM_NUM_BANKS-1:0] [38:0] iccm_wdata_bitflip;
+logic [pt.ICCM_NUM_BANKS-1:0] [38:0] iccm_wdata_bitflip;
 int jj;
 always_ff @(mcu_el2_mem_export.clk) begin : inject_iccm_ecc_error
     if (~error_injection_mode.iccm_single_bit_error && ~error_injection_mode.iccm_double_bit_error) begin
         iccm_wdata_bitflip <= '{default:0};
     end else if (mcu_el2_mem_export.iccm_clken & mcu_el2_mem_export.iccm_wren_bank) begin
-        for (jj=0; jj<mcu_pt.ICCM_NUM_BANKS; jj++) begin: iccm_bitflip_injection_loop
+        for (jj=0; jj<pt.ICCM_NUM_BANKS; jj++) begin: iccm_bitflip_injection_loop
             iccm_wdata_bitflip[jj] <= get_bitflip_mask(error_injection_mode.iccm_double_bit_error);
         end
     end
 end
-for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
+for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
     // -- new --- assign iccm_bank_wr_fdata[i][31:0] = mcu_el2_mem_export.iccm_bank_wr_data[i];
     // -- new --- assign iccm_bank_wr_fdata[i][38:32] = mcu_el2_mem_export.iccm_bank_wr_ecc[i];
     // -- new --- assign mcu_el2_mem_export.iccm_bank_dout[i] = iccm_bank_fdout[i][31:0];
@@ -1967,7 +2079,7 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
     `ifdef VERILATOR
 
-    el2_ram #(.depth(1<<mcu_pt.ICCM_INDEX_BITS), .width(39)) iccm_bank (
+    el2_ram #(.depth(1<<pt.ICCM_INDEX_BITS), .width(39)) iccm_bank (
                                         // Primary ports
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
                                         .CLK(mcu_el2_mem_export.clk),
@@ -1990,8 +2102,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
     `else
 
-        if (mcu_pt.ICCM_INDEX_BITS == 6 ) begin : iccm
-                ram_64x39 iccm_bank (
+        if (pt.ICCM_INDEX_BITS == 6 ) begin : iccm
+	 	 	 	 css_mcu0_ram_64x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2014,8 +2126,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
 
-    else if (mcu_pt.ICCM_INDEX_BITS == 7 ) begin : iccm
-                ram_128x39 iccm_bank (
+    else if (pt.ICCM_INDEX_BITS == 7 ) begin : iccm
+	 	 	 	 css_mcu0_ram_128x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2038,8 +2150,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
 
-        else if (mcu_pt.ICCM_INDEX_BITS == 8 ) begin : iccm
-                ram_256x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 8 ) begin : iccm
+	 	 	 	 css_mcu0_ram_256x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2061,8 +2173,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
                                         );
         end // block: iccm
-        else if (mcu_pt.ICCM_INDEX_BITS == 9 ) begin : iccm
-                ram_512x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 9 ) begin : iccm
+	 	 	 	 css_mcu0_ram_512x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2084,8 +2196,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
                                         );
         end // block: iccm
-        else if (mcu_pt.ICCM_INDEX_BITS == 10 ) begin : iccm
-                ram_1024x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 10 ) begin : iccm
+	 	 	 	 css_mcu0_ram_1024x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2107,8 +2219,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
                                         );
         end // block: iccm
-        else if (mcu_pt.ICCM_INDEX_BITS == 11 ) begin : iccm
-                ram_2048x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 11 ) begin : iccm
+	 	 	 	 css_mcu0_ram_2048x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2130,8 +2242,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
                                         );
         end // block: iccm
-        else if (mcu_pt.ICCM_INDEX_BITS == 12 ) begin : iccm
-                ram_4096x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 12 ) begin : iccm
+	 	 	 	 css_mcu0_ram_4096x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2153,8 +2265,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
                                         );
         end // block: iccm
-        else if (mcu_pt.ICCM_INDEX_BITS == 13 ) begin : iccm
-                ram_8192x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 13 ) begin : iccm
+	 	 	 	 css_mcu0_ram_8192x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2176,8 +2288,8 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
 
                                         );
         end // block: iccm
-        else if (mcu_pt.ICCM_INDEX_BITS == 14 ) begin : iccm
-                ram_16384x39 iccm_bank (
+        else if (pt.ICCM_INDEX_BITS == 14 ) begin : iccm
+	 	 	 	 css_mcu0_ram_16384x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -2200,7 +2312,7 @@ for (genvar i=0; i<mcu_pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else begin : iccm
-                ram_32768x39 iccm_bank (
+	 	 	 	 css_mcu0_ram_32768x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
