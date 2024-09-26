@@ -14,7 +14,7 @@
 set caliptrartlDir $fpgaDir/caliptra-rtl
 set ssrtlDir $fpgaDir
 
-set VERILOG_OPTIONS {TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg MCU_RV_FPGA_OPTIMIZE TEC_MCU_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4}
+set VERILOG_OPTIONS {TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4}
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 
 #start_gui
@@ -26,15 +26,15 @@ set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 # Add ss RTL
 #add_files [ glob $ssrtlDir/ ]
 # Add MCU VEER Headers
-add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/mcu_el2_param.vh
-add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/pic_map_auto.h
-add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/mcu_el2_pdef.vh
-add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/mcu_common_defines.vh
-add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*/*.svh ]
+#add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/mcu_el2_param.vh
+add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/defines/pic_map_auto.h
+add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/defines/css_mcu0_el2_pdef.vh
+add_files $ssrtlDir/src/riscv_core/veer_el2/rtl/defines/css_mcu0_common_defines.vh
+add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/include/*.svh ]
 # Add MCU VEER sources
-add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*.sv ]
-add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*/*.sv ]
-add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/rev1p0/*/*.v ]
+add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*.sv ]
+add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*/*.sv ]
+add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*/*.v ]
 
 if {0} {
 # Add VEER Headers

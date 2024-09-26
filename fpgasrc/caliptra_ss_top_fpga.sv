@@ -20,7 +20,7 @@
 //`include "caliptra_macros.svh"
 
 `include "config_defines_mcu.svh"
-`include "mcu_common_defines.vh"
+`include "css_mcu0_common_defines.vh"
 //import mcu_el2_pkg::*;
 
 module caliptra_ss_top_fpga (
@@ -290,7 +290,7 @@ end
         logic                       mpc_debug_run_ack;
         logic                       debug_brkpt_status;
 
-        mcu_el2_mem_if              mcu_el2_mem_export ();
+        css_mcu0_el2_mem_if              mcu_el2_mem_export ();
 
 
        //=========================================================================-
@@ -597,7 +597,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
     for (genvar i=0; i<DCCM_NUM_BANKS; i++) begin: dccm_loop
 
         if (DCCM_INDEX_DEPTH == 32768) begin : dccm
-            mcu_ram_32768x39  dccm_bank (
+            css_mcu0_ram_32768x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -612,7 +612,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 16384) begin : dccm
-            mcu_ram_16384x39  dccm_bank (
+            css_mcu0_ram_16384x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -627,7 +627,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 8192) begin : dccm
-            mcu_ram_8192x39  dccm_bank (
+            css_mcu0_ram_8192x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -642,7 +642,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 4096) begin : dccm
-            mcu_ram_4096x39  dccm_bank (
+            css_mcu0_ram_4096x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -657,7 +657,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 3072) begin : dccm
-            mcu_ram_3072x39  dccm_bank (
+            css_mcu0_ram_3072x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -672,7 +672,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 2048) begin : dccm
-            mcu_ram_2048x39  dccm_bank (
+            css_mcu0_ram_2048x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -687,7 +687,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 1024) begin : dccm
-            mcu_ram_1024x39  dccm_bank (
+            css_mcu0_ram_1024x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -702,7 +702,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 512) begin : dccm
-            mcu_ram_512x39  dccm_bank (
+            css_mcu0_ram_512x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -717,7 +717,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 256) begin : dccm
-            mcu_ram_256x39  dccm_bank (
+            css_mcu0_ram_256x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -732,7 +732,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 128) begin : dccm
-            mcu_ram_128x39  dccm_bank (
+            css_mcu0_ram_128x39  dccm_bank (
                                     // Primary ports
                                     .ME(mcu_el2_mem_export.dccm_clken[i]),
                                     .CLK(mcu_el2_mem_export.clk),
@@ -755,7 +755,7 @@ localparam ICCM_INDEX_BITS  = 8'h0D;
 for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
 
     if (ICCM_INDEX_BITS == 6 ) begin : iccm
-                mcu_ram_64x39 iccm_bank (
+                css_mcu0_ram_64x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -779,7 +779,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
         end // block: iccm
 
     else if (ICCM_INDEX_BITS == 7 ) begin : iccm
-                mcu_ram_128x39 iccm_bank (
+                css_mcu0_ram_128x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -803,7 +803,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
         end // block: iccm
 
         else if (ICCM_INDEX_BITS == 8 ) begin : iccm
-                mcu_ram_256x39 iccm_bank (
+                css_mcu0_ram_256x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -826,7 +826,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else if (ICCM_INDEX_BITS == 9 ) begin : iccm
-                mcu_ram_512x39 iccm_bank (
+                css_mcu0_ram_512x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -849,7 +849,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else if (ICCM_INDEX_BITS == 10 ) begin : iccm
-                mcu_ram_1024x39 iccm_bank (
+                css_mcu0_ram_1024x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -872,7 +872,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else if (ICCM_INDEX_BITS == 11 ) begin : iccm
-                mcu_ram_2048x39 iccm_bank (
+                css_mcu0_ram_2048x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -895,7 +895,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else if (ICCM_INDEX_BITS == 12 ) begin : iccm
-                mcu_ram_4096x39 iccm_bank (
+                css_mcu0_ram_4096x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -918,7 +918,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else if (ICCM_INDEX_BITS == 13 ) begin : iccm
-                mcu_ram_8192x39 iccm_bank (
+                css_mcu0_ram_8192x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -941,7 +941,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else if (ICCM_INDEX_BITS == 14 ) begin : iccm
-                mcu_ram_16384x39 iccm_bank (
+                css_mcu0_ram_16384x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),
@@ -964,7 +964,7 @@ for (genvar i=0; i<ICCM_NUM_BANKS; i++) begin: iccm_loop
                                         );
         end // block: iccm
         else begin : iccm
-                mcu_ram_32768x39 iccm_bank (
+                css_mcu0_ram_32768x39 iccm_bank (
                                         // Primary ports
                                         .CLK(mcu_el2_mem_export.clk),
                                         .ME(mcu_el2_mem_export.iccm_clken[i]),

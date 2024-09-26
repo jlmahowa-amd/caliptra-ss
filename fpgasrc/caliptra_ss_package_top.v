@@ -228,6 +228,7 @@ module caliptra_ss_package_top (
 caliptra_ss_top_fpga ss_wrapper (
     
     .core_clk(core_clk),
+/*
     // Caliptra AXI Interface
     .S_AXI_CALIPTRA_AWADDR(S_AXI_CALIPTRA_AWADDR),
     .S_AXI_CALIPTRA_AWBURST(S_AXI_CALIPTRA_AWBURST),
@@ -266,7 +267,7 @@ caliptra_ss_top_fpga ss_wrapper (
     .S_AXI_CALIPTRA_RLAST(S_AXI_CALIPTRA_RLAST),
     .S_AXI_CALIPTRA_RVALID(S_AXI_CALIPTRA_RVALID),
     .S_AXI_CALIPTRA_RREADY(S_AXI_CALIPTRA_RREADY),
-
+*/
     //-------------------------- LSU AXI signals--------------------------
     // AXI Write Channels
     .M_AXI_MCU_LSU_AWVALID(M_AXI_MCU_LSU_AWVALID),

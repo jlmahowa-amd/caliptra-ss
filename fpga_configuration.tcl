@@ -372,3 +372,5 @@ if {$BUILD} {
   set_property BITSTREAM.CONFIG.USR_ACCESS 0x$VERSION [current_design]
   write_bitstream -bin_file $outputDir/caliptra_fpga
 }
+
+start_gui

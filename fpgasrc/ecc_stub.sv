@@ -60,5 +60,14 @@ module ecc_top
     output logic notif_intr,
     input  logic debugUnlock_or_scan_mode_switch
 );
-// Empty for stub
+// Drive zero on output signals
+assign hresp_o = 0;
+assign hreadyout_o = 0;
+assign hrdata_o = 0;
+assign kv_read = 0;
+assign kv_write = 0;
+assign busy_o = 0;
+assign error_intr = 0;
+assign notif_intr = 0;
+
 endmodule
