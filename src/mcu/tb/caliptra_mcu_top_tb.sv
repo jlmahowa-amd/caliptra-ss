@@ -1141,8 +1141,19 @@ caliptra_mcu_top caliptra_mcu_top_dut (
 
     .security_state(security_state),
     .scan_mode     (scan_mode),
+
+    // I3C Interface
+`ifdef VERILATOR
+    .scl_i(),
+    .sda_i(),
+    .scl_o(),
+    .sda_o(),
+    .sel_od_pp_o()
+`else
+    // I3C bus IO
     .i3c_scl_io(),
     .i3c_sda_io()
+`endif
 );
 
 

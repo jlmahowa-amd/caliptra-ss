@@ -108,8 +108,18 @@ module caliptra_mcu_top
     input security_state_t             security_state,
     input logic                        scan_mode,
 
-    inout logic                        i3c_scl_io,
-    inout logic                        i3c_sda_io
+    // I3C Interface
+`ifdef VERILATOR
+    input  logic scl_i,
+    input  logic sda_i,
+    output logic scl_o,
+    output logic sda_o,
+    output logic sel_od_pp_o
+`else
+    // I3C bus IO
+    inout  logic i3c_scl_io,
+    inout  logic i3c_sda_io
+`endif
 );
 
     `include "mcu_common_defines.vh"
@@ -1026,11 +1036,11 @@ i3c_wrapper #(
     .hrdata_o    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hrdata),
 
 `ifdef VERILATOR
-    .scl_i(),
-    .sda_i(),
-    .scl_o(),
-    .sda_o(),
-    .sel_od_pp_o()
+    .scl_i(scl_i),
+    .sda_i(sda_i),
+    .scl_o(scl_o),
+    .sda_o(sda_o),
+    .sel_od_pp_o(sel_od_pp_o)
 `else
     // I3C bus IO
     .i3c_scl_io(i3c_scl_io),
