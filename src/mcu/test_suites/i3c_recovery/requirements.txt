@@ -1,0 +1,2 @@
+cocotb==1.8.1
+cocotb-AHB @ git+https://github.com/antmicro/cocotb-ahb@799e0de182fdc9a7ae7dc83c0ad4dfba353341e9

@@ -369,6 +369,11 @@ I3C_SW_DIR = $(I3C_ROOT)/sw
 $(I3C_ROOT)/sw/I3CCSR.h:
 	$(MAKE) -f $(I3C_ROOT)/Makefile config
 
+i3c-recovery: $(I3C_ROOT)/sw/I3CCSR.h
+	TESTNAME=i3c_recovery \
+	TEST_DIR=$(CALIPTRA_SS)/src/mcu/test_suites/i3c_recovery \
+	$(MAKE) -f ${CALIPTRA_SS}/tools/scripts/Makefile ms-sw-test
+
 i3c-test: $(I3C_ROOT)/sw/I3CCSR.h
 	TESTNAME=smoke_test_i3c \
 	TEST_DIR=$(CALIPTRA_SS)/src/mcu/test_suites/smoke_test_i3c \
