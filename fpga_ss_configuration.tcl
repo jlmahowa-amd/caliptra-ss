@@ -14,7 +14,7 @@
 set caliptrartlDir $fpgaDir/caliptra-rtl
 set ssrtlDir $fpgaDir
 
-set VERILOG_OPTIONS {TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4}
+lappend VERILOG_OPTIONS TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE css_mcu0_TEC_RV_ICG=css_mcu0_clockhdr TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 
 #start_gui

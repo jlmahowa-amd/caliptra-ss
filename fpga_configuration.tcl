@@ -269,6 +269,16 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
 # Create SS
 create_bd_cell -type ip -vlnv design:user:caliptra_ss_package_top:1.0 caliptra_ss_package_0
 
+# TODO: Cleanup
+# Add memory for SS
+create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 ss_imem_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 ss_imem_bram_ctrl_1
+set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells ss_imem_bram_ctrl_1]
+connect_bd_intf_net [get_bd_intf_pins ss_imem_bram_ctrl_1/BRAM_PORTA] [get_bd_intf_pins ss_imem_0/BRAM_PORTA]
+connect_bd_net [get_bd_pins ss_imem_bram_ctrl_1/s_axi_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+connect_bd_net [get_bd_pins ss_imem_bram_ctrl_1/s_axi_aresetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+connect_bd_intf_net [get_bd_intf_pins ss_imem_bram_ctrl_1/S_AXI] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M03_AXI]
+
 # Move blocks around on the block diagram. This step is optional.
 set_property location {1 177 345} [get_bd_cells zynq_ultra_ps_e_0]
 set_property location {2 696 373} [get_bd_cells axi_interconnect_0]
@@ -316,12 +326,13 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_intercon
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M04_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins caliptra_ss_package_0/core_clk]
 # Should hook these up to the FPGA wrapper registers
-connect_bd_net [get_bd_pins caliptra_ss_package_0/porst_l] [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0]
-connect_bd_net [get_bd_pins caliptra_ss_package_0/rst_l] [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/porst_l] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/rst_l] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 
 # Create address segments
 assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
 assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
 if {$APB} {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
 } else {

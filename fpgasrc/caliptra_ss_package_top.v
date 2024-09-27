@@ -228,6 +228,8 @@ module caliptra_ss_package_top (
 caliptra_ss_top_fpga ss_wrapper (
     
     .core_clk(core_clk),
+    .rst_l(rst_l),
+    .porst_l(porst_l),
 /*
     // Caliptra AXI Interface
     .S_AXI_CALIPTRA_AWADDR(S_AXI_CALIPTRA_AWADDR),
