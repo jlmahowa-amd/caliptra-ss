@@ -38,17 +38,19 @@ endif
 # Define test name
 TESTNAME ?= iccm_lock
 CALIPTRA_DIR = $(CALIPTRA_ROOT)/src/integration/test_suites
-TEST_DIR = $(CALIPTRA_SS)/src/integration/test_suites/$(TESTNAME)
+TEST_DIR ?= $(CALIPTRA_SS)/src/integration/test_suites/$(TESTNAME)
 HEX_DIR = $(CALIPTRA_SS)/src/integration/test_suites/hex
 INCLUDES_DIR = $(CALIPTRA_SS)/src/integration/test_suites/includes
 TBDIR = $(CALIPTRA_SS)/src/integration/tb
 RISCV_HW_IF_DIR = $(CALIPTRA_SS)/src/integration/test_suites/libs/riscv_hw_if
-#ISR_DIR    = $(CALIPTRA_SS)/src/integration/test_suites/libs/caliptra_isr FIXME for MCU
+ISR_DIR = $(CALIPTRA_SS)/src/integration/test_suites/libs/caliptra_isr
 PRINTF_DIR = $(CALIPTRA_SS)/src/integration/test_suites/libs/printf
 SOC_IFC_DIR = $(CALIPTRA_DIR)/libs/soc_ifc
 CALIPTRA_RTL = $(CALIPTRA_ROOT)/src/integration/rtl
+I3C_ROOT = $(CALIPTRA_SS)/third_party/i3c-core
 DUT ?= caliptra_mcu_top_tb
 
+export I3C_ROOT
 # Determine test directory
 #ifneq (,$(wildcard $(TBDIR)/tests/$(TEST)))
 #  TEST_DIR = $(TBDIR)/tests/$(TEST)
@@ -66,15 +68,18 @@ DUT ?= caliptra_mcu_top_tb
 # 		  soc_ifc \
 # 		  clk_gate \
 # 		  wdt
-# COMP_LIBS := $(foreach name, $(COMP_LIB_NAMES), $(CALIPTRA_SS)/src/integration/test_suites/libs/$(name))
-HEADER_FILES := $(CALIPTRA_RTL)/caliptra_reg.h \
+# COMP_LIBS := $(foreach name, $(COMP_LIB_NAMES), $(CALIPTRA_ROOT)/src/integration/test_suites/libs/$(name))
+HEADER_FILES := $(CALIPTRA_SS)/src/mcu/rtl/caliptra_reg.h \
+		$(INCLUDES_DIR)/caliptra_defines.h \
+		$(INCLUDES_DIR)/defines.h \
+		$(I3C_ROOT)/sw/I3CCSR.h \
 		$(RISCV_HW_IF_DIR)/riscv_hw_if.h \
 		$(wildcard $(TEST_DIR)/*.h) \
 		$(SOC_IFC_DIR)/soc_ifc.h \
-		$(PRINTF_DIR)/printf.h
-#		$(ISR_DIR)/riscv-csr.h \
-#		$(ISR_DIR)/riscv-interrupts.h \
-#		$(ISR_DIR)/veer-csr.h
+		$(PRINTF_DIR)/printf.h \
+		$(ISR_DIR)/riscv-csr.h \
+		$(ISR_DIR)/riscv-interrupts.h \
+		$(ISR_DIR)/veer-csr.h
 
 #$(foreach comp_lib, $(COMP_LIBS), $(wildcard $(comp_lib)/*.h))
 #$(CALIPTRA_SS)/src/integration/rtl/caliptra_reg.h
@@ -188,8 +193,8 @@ VERILATOR_MAKE_FLAGS = OPT_FAST="-Os"
 TB_DPI_SRCS = jtagdpi/jtagdpi.c \
               tcp_server/tcp_server.c
 
-TB_DPI_INCS := $(addprefix -I$(CALIPTRA_SS)/src/integration/test_suites/libs/,$(dir $(TB_DPI_SRCS)))
-TB_DPI_SRCS := $(addprefix $(CALIPTRA_SS)/src/integration/test_suites/libs/,$(TB_DPI_SRCS))
+TB_DPI_INCS := $(addprefix -I$(CALIPTRA_SS)/src/mcu/test_suites/libs/,$(dir $(TB_DPI_SRCS)))
+TB_DPI_SRCS := $(addprefix $(CALIPTRA_SS)/src/mcu/test_suites/libs/,$(TB_DPI_SRCS))
 
 # Testbench sources
 TB_VERILATOR_SRCS = $(TBDIR)/test_$(DUT).cpp $(TB_DPI_SRCS)
@@ -218,7 +223,7 @@ CFLAGS += $(TB_DPI_INCS)
 all: clean verilator
 
 clean:
-	rm -rf *.log *.s *.hex *.dis *.size *.tbl irun* vcs* simv* .map *.map snapshots \
+	rm -rf *.log *.s *.hex *.dis *.size *.tbl irun* vcs* simv* .map *.map \
 	verilator* *.exe obj* *.o ucli.key vc_hdrs.h csrc *.csv work \
 	dataset.asdb  library.cfg vsimsa.cfg  riviera-build wave.asdb sim.vcd \
 	*.h
@@ -358,11 +363,26 @@ mcu_program.hex: $(OFILE_CRT) $(OFILES) $(LINK)
 
 endif
 
+############ I3C Core helpers ######################################
+I3C_SW_DIR = $(I3C_ROOT)/sw
+
+$(I3C_ROOT)/sw/I3CCSR.h:
+	$(MAKE) -f $(I3C_ROOT)/Makefile config
+
+i3c-test: $(I3C_ROOT)/sw/I3CCSR.h
+	TESTNAME=smoke_test_i3c \
+	TEST_DIR=$(CALIPTRA_SS)/src/mcu/test_suites/smoke_test_i3c \
+	TBDIR=$(CALIPTRA_SS)/src/mcu/tb \
+	$(MAKE) -f ${CALIPTRA_SS}/tools/scripts/Makefile ms-sw-test
+
+ms-sw-test:
+	TESTNAME=$(TESTNAME) $(MAKE) -f ${CALIPTRA_SS}/tools/scripts/Makefile verilator
+
 # $(GCC_PREFIX)-cpp $(includes) -I$(TEST_DIR)  $<  > $*.cpp.s
 
 help:
 	@echo Make sure the environment variable RV_ROOT is set.
-	@echo Possible targets: verilator vcs irun vlog riviera help clean all verilator-build irun-build vcs-build riviera-build program.hex
+	@echo Possible targets: verilator vcs irun vlog riviera help clean all verilator-build irun-build vcs-build riviera-build program.hex ms-sw-test i3c-test
 
 .PHONY: help clean clean_fw verilator vcs irun vlog riviera
 

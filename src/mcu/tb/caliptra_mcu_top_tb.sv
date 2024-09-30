@@ -14,7 +14,7 @@
 //
 `default_nettype none
 
-`include "mcu_common_defines.sv"
+`include "mcu_common_defines.vh"
 `include "config_defines.svh"
 `include "caliptra_reg_defines.svh"
 `include "caliptra_macros.svh"
@@ -1140,7 +1140,9 @@ caliptra_mcu_top caliptra_mcu_top_dut (
     .generic_output_wires(),
 
     .security_state(security_state),
-    .scan_mode     (scan_mode)
+    .scan_mode     (scan_mode),
+    .i3c_scl_io(),
+    .i3c_sda_io()
 );
 
 

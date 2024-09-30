@@ -106,10 +106,13 @@ module caliptra_mcu_top
     output logic [63:0]                generic_output_wires,
 
     input security_state_t             security_state,
-    input logic                        scan_mode
+    input logic                        scan_mode,
+
+    inout logic                        i3c_scl_io,
+    inout logic                        i3c_sda_io
 );
 
-    `include "mcu_common_defines.sv"
+    `include "mcu_common_defines.vh"
 
     localparam NUM_INTR = `MCU_RV_PIC_TOTAL_INT; // 31
     localparam TOTAL_OBF_KEY_BITS = `CLP_OBF_KEY_DWORDS * 32;
@@ -1000,6 +1003,40 @@ uart #(
     .intr_rx_parity_err_o()
   );
 `endif
+
+i3c_wrapper #(
+    .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
+    .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
+) i3c (
+    .clk_i       (clk_cg),
+    .rst_ni      (cptra_noncore_rst_b),
+    // AMBA AHB Lite Interface
+    .haddr_i     (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].haddr[`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C)-1:0]),
+    .hburst_i    (),
+    .hprot_i     (),
+    .hwdata_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hwdata),
+    .hsel_i      (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hsel),
+    .hwstrb_i    (),
+    .hwrite_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hwrite),
+    .hready_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hready),
+    .htrans_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].htrans),
+    .hsize_i     (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hsize),
+    .hresp_o     (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hresp),
+    .hreadyout_o (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hreadyout),
+    .hrdata_o    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hrdata),
+
+`ifdef VERILATOR
+    .scl_i(),
+    .sda_i(),
+    .scl_o(),
+    .sda_o(),
+    .sel_od_pp_o()
+`else
+    // I3C bus IO
+    .i3c_scl_io(i3c_scl_io),
+    .i3c_sda_io(i3c_sda_io)
+`endif
+);
 
 soc_ifc_top #(
     .AHB_ADDR_WIDTH(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
