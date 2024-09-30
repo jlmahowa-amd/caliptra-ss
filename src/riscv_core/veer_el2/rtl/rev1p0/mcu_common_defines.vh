@@ -239,6 +239,7 @@
 `define TOP tb_top
 //`define MCU_RV_BUILD_AXI4 1
 `define MCU_RV_BUILD_AHB_LITE 1
+`define RV_BUILD_AHB_LITE 1
 `define MCU_RV_BUILD_AXI_NATIVE 1
 `define CLOCK_PERIOD 100
 `define MCU_RV_EXT_ADDRWIDTH 32

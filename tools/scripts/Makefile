@@ -41,7 +41,7 @@ CALIPTRA_DIR = $(CALIPTRA_ROOT)/src/integration/test_suites
 TEST_DIR ?= $(CALIPTRA_SS)/src/integration/test_suites/$(TESTNAME)
 HEX_DIR = $(CALIPTRA_SS)/src/integration/test_suites/hex
 INCLUDES_DIR = $(CALIPTRA_SS)/src/integration/test_suites/includes
-TBDIR = $(CALIPTRA_SS)/src/integration/tb
+TBDIR ?= $(CALIPTRA_SS)/src/integration/tb
 RISCV_HW_IF_DIR = $(CALIPTRA_SS)/src/integration/test_suites/libs/riscv_hw_if
 ISR_DIR = $(CALIPTRA_SS)/src/integration/test_suites/libs/caliptra_isr
 PRINTF_DIR = $(CALIPTRA_SS)/src/integration/test_suites/libs/printf
@@ -131,8 +131,8 @@ else
 	LINK = $(TEST_DIR)/$(TESTNAME).ld
 endif
 
-# VPATH = $(TEST_DIR) $(BUILD_DIR) $(TBDIR) $(RISCV_HW_IF_DIR) $(ISR_DIR) $(PRINTF_DIR) $(COMP_LIBS)
-VPATH = $(TEST_DIR) $(BUILD_DIR) $(TBDIR) $(RISCV_HW_IF_DIR) $(SOC_IFC_DIR) $(PRINTF_DIR)
+VPATH = $(TEST_DIR) $(BUILD_DIR) $(TBDIR) $(RISCV_HW_IF_DIR) $(ISR_DIR) $(PRINTF_DIR) #$(COMP_LIBS)
+# VPATH = $(TEST_DIR) $(BUILD_DIR) $(TBDIR) $(RISCV_HW_IF_DIR) $(SOC_IFC_DIR) $(PRINTF_DIR)
 
 # Use eval to expand env variables in the .vf file
 # $(eval TBFILES = $(shell cat $(TBDIR)/../config/$(DUT).vf | grep -v '+incdir+'))
@@ -258,7 +258,7 @@ vcs-build: $(INCLUDES_DIR)/defines.h $(TB_DPI_SRCS)
 
 ############ TEST Simulation ###############################
 
-verilator: program.hex verilator-build
+verilator: mcu_program.hex verilator-build
 	./obj_dir/V$(DUT) $(VERILATOR_RUN_ARGS)
 
 vcs: program.hex vcs-build
@@ -372,7 +372,12 @@ $(I3C_ROOT)/sw/I3CCSR.h:
 i3c-recovery: $(I3C_ROOT)/sw/I3CCSR.h
 	TESTNAME=i3c_recovery \
 	TEST_DIR=$(CALIPTRA_SS)/src/mcu/test_suites/i3c_recovery \
-	$(MAKE) -f ${CALIPTRA_SS}/tools/scripts/Makefile ms-sw-test
+	TBDIR=$(CALIPTRA_SS)/src/mcu/tb \
+	$(MAKE) -f ${CALIPTRA_SS}/tools/scripts/Makefile mcu_program.hex
+	TESTNAME=i3c_recovery \
+	TEST_DIR=$(CALIPTRA_SS)/src/mcu/test_suites/i3c_recovery \
+	TBDIR=$(CALIPTRA_SS)/src/mcu/tb \
+	$(MAKE) -f ${CALIPTRA_SS}/src/mcu/test_suites/i3c_recovery/Makefile -j`nproc`
 
 i3c-test: $(I3C_ROOT)/sw/I3CCSR.h
 	TESTNAME=smoke_test_i3c \

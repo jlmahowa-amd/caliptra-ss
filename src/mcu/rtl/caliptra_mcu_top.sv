@@ -122,9 +122,9 @@ module caliptra_mcu_top
 `endif
 );
 
-    `include "mcu_common_defines.vh"
+    `include "common_defines.sv"
 
-    localparam NUM_INTR = `MCU_RV_PIC_TOTAL_INT; // 31
+    localparam NUM_INTR = `RV_PIC_TOTAL_INT; // 31
     localparam TOTAL_OBF_KEY_BITS = `CLP_OBF_KEY_DWORDS * 32;
 
     //caliptra reset driven by boot fsm in mailbox
@@ -363,7 +363,7 @@ logic nmi_int;
 logic soft_int;
 logic timer_int;
 
-assign reset_vector = `MCU_RV_RESET_VEC;
+assign reset_vector = `RV_RESET_VEC;
 assign soft_int     = 1'b0;
 
 assign kv_error_intr = 1'b0; // TODO
@@ -498,6 +498,7 @@ el2_veer_wrapper rvtop (
     .jtag_tdi               ( jtag_tdi  ),
     .jtag_trst_n            ( jtag_trst_n  ),
     .jtag_tdo               ( jtag_tdo ),
+    .jtag_tdoEn             (),
 
     //caliptra uncore jtag ports
    .cptra_uncore_dmi_reg_en      ( cptra_uncore_dmi_reg_en ),
