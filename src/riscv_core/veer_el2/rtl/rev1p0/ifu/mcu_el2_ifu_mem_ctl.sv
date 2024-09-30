@@ -447,8 +447,8 @@ import mcu_el2_pkg::*;
    assign fetch_bf_f_c1_clk = 1'b0;
    assign debug_c1_clk      = 1'b0;
 `else
-   rvclkhdr fetch_bf_f_c1_cgc    ( .en(fetch_bf_f_c1_clken),     .l1clk(fetch_bf_f_c1_clk), .* );
-   rvclkhdr debug_c1_cgc         ( .en(debug_c1_clken),          .l1clk(debug_c1_clk), .* );
+   mcu_rvclkhdr fetch_bf_f_c1_cgc    ( .en(fetch_bf_f_c1_clken),     .l1clk(fetch_bf_f_c1_clk), .* );
+   mcu_rvclkhdr debug_c1_cgc         ( .en(debug_c1_clken),          .l1clk(debug_c1_clk), .* );
 `endif
 
 
@@ -1031,8 +1031,8 @@ assign ic_miss_buff_half[63:0]    = {ic_miss_buff_data[{other_tag,1'b1}],ic_miss
    assign busclk = 1'b0;
    assign busclk_force = 1'b0;
 `else
-   rvclkhdr bus_clk_f(.en(bus_ifu_bus_clk_en), .l1clk(busclk), .*);
-   rvclkhdr bus_clk(.en(bus_ifu_bus_clk_en | dec_tlu_force_halt), .l1clk(busclk_force), .*);
+   mcu_rvclkhdr bus_clk_f(.en(bus_ifu_bus_clk_en), .l1clk(busclk), .*);
+   mcu_rvclkhdr bus_clk(.en(bus_ifu_bus_clk_en | dec_tlu_force_halt), .l1clk(busclk_force), .*);
 `endif
 
 
@@ -1157,7 +1157,7 @@ assign ic_miss_buff_half[63:0]    = {ic_miss_buff_data[{other_tag,1'b1}],ic_miss
 `ifdef MCU_RV_FPGA_OPTIMIZE
    assign busclk_reset = 1'b0;
 `else
-   rvclkhdr bus_clk_reset(.en(bus_ifu_bus_clk_en | ic_act_miss_f | dec_tlu_force_halt), .l1clk(busclk_reset), .*);
+   mcu_rvclkhdr bus_clk_reset(.en(bus_ifu_bus_clk_en | ic_act_miss_f | dec_tlu_force_halt), .l1clk(busclk_reset), .*);
 `endif
 
 
@@ -1425,7 +1425,7 @@ if (mcu_pt.ICACHE_ENABLE == 1 ) begin: icache_enabled
      `ifdef MCU_RV_FPGA_OPTIMIZE
         assign way_status_clk[i] = 1'b0;
      `else
-           rvclkhdr way_status_cgc ( .en(way_status_clken[i]),   .l1clk(way_status_clk[i]), .* );
+           mcu_rvclkhdr way_status_cgc ( .en(way_status_clken[i]),   .l1clk(way_status_clk[i]), .* );
      `endif
 
 
@@ -1484,7 +1484,7 @@ if (mcu_pt.ICACHE_ENABLE == 1 ) begin: icache_enabled
      `ifdef MCU_RV_FPGA_OPTIMIZE
         assign tag_valid_clk[i][j]  = 1'b0;
      `else
-           rvclkhdr way_status_cgc ( .en(tag_valid_clken[i][j]),   .l1clk(tag_valid_clk[i][j]), .* );
+           mcu_rvclkhdr way_status_cgc ( .en(tag_valid_clken[i][j]),   .l1clk(tag_valid_clk[i][j]), .* );
      `endif
 
 

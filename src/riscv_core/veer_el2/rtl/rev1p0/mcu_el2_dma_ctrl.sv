@@ -421,7 +421,7 @@ import mcu_el2_pkg::*;
 `ifdef MCU_RV_FPGA_OPTIMIZE
    assign dma_bus_clk = 1'b0;
 `else
-   rvclkhdr  dma_bus_cgc (.en(dma_bus_clk_en), .l1clk(dma_bus_clk), .*);
+   mcu_rvclkhdr  dma_bus_cgc (.en(dma_bus_clk_en), .l1clk(dma_bus_clk), .*);
 `endif
 
    // Write channel buffer

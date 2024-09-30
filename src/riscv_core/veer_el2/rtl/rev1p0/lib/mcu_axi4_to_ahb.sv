@@ -471,9 +471,9 @@ import mcu_el2_pkg::*;
    assign buf_clk = 1'b0;
    assign ahbm_data_clk = 1'b0;
 `else
-   rvclkhdr bus_cgc       (.en(bus_clk_en),      .l1clk(bus_clk),       .*);
-   rvclkhdr buf_cgc       (.en(buf_clken),       .l1clk(buf_clk), .*);
-   rvclkhdr ahbm_data_cgc (.en(ahbm_data_clken), .l1clk(ahbm_data_clk), .*);
+   mcu_rvclkhdr bus_cgc       (.en(bus_clk_en),      .l1clk(bus_clk),       .*);
+   mcu_rvclkhdr buf_cgc       (.en(buf_clken),       .l1clk(buf_clk), .*);
+   mcu_rvclkhdr ahbm_data_cgc (.en(ahbm_data_clken), .l1clk(ahbm_data_clk), .*);
 `endif
 
 `ifdef MCU_RV_ASSERT_ON

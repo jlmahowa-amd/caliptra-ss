@@ -841,7 +841,7 @@ end // block: fa
      assign bht_bank_clken[i][k]  = (bht_wr_en0[i] & ((bht_wr_addr0[mcu_pt.BHT_ADDR_HI: NUM_BHT_LOOP_OUTER_LO]==k) |  BHT_NO_ADDR_MATCH)) |
                                     (bht_wr_en2[i] & ((bht_wr_addr2[mcu_pt.BHT_ADDR_HI: NUM_BHT_LOOP_OUTER_LO]==k) |  BHT_NO_ADDR_MATCH));
 `ifndef MCU_RV_FPGA_OPTIMIZE
-     rvclkhdr bht_bank_grp_cgc ( .en(bht_bank_clken[i][k]), .l1clk(bht_bank_clk[i][k]), .* ); // ifndef MCU_RV_FPGA_OPTIMIZE
+     mcu_rvclkhdr bht_bank_grp_cgc ( .en(bht_bank_clken[i][k]), .l1clk(bht_bank_clk[i][k]), .* ); // ifndef MCU_RV_FPGA_OPTIMIZE
 `endif
 
      for (j=0 ; j<NUM_BHT_LOOP ; j++) begin : BHT_FLOPS

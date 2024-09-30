@@ -135,8 +135,8 @@ import mcu_el2_pkg::*;
    assign lsu_busm_clk = 1'b0;
    assign lsu_bus_obuf_c1_clk = 1'b0;
 `else
-   rvclkhdr  lsu_bus_obuf_c1_cgc ( .en(lsu_bus_obuf_c1_clken), .l1clk(lsu_bus_obuf_c1_clk), .* );
-   rvclkhdr  lsu_busm_cgc (.en(lsu_busm_clken), .l1clk(lsu_busm_clk), .*);
+   mcu_rvclkhdr  lsu_bus_obuf_c1_cgc ( .en(lsu_bus_obuf_c1_clken), .l1clk(lsu_bus_obuf_c1_clk), .* );
+   mcu_rvclkhdr  lsu_busm_cgc (.en(lsu_busm_clken), .l1clk(lsu_busm_clk), .*);
 `endif
 
    mcu_rvoclkhdr lsu_free_cgc (.en(lsu_free_c2_clken), .l1clk(lsu_free_c2_clk), .*);

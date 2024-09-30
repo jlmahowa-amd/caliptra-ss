@@ -229,7 +229,7 @@ wire grp_clk, grp_clken;
     assign grp_clken = |intenable_clk_enable[(p==INT_ENABLE_GRPS?mcu_pt.PIC_TOTAL_INT_PLUS1-1:p*4+3) : p*4] | io_clk_override;
 
   `ifndef MCU_RV_FPGA_OPTIMIZE
-    rvclkhdr intenable_c1_cgc( .en(grp_clken),  .l1clk(grp_clk), .* );
+    mcu_rvclkhdr intenable_c1_cgc( .en(grp_clken),  .l1clk(grp_clk), .* );
   `else
     assign gw_clk[p] = 1'b0 ;
   `endif
