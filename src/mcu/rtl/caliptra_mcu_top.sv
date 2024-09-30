@@ -267,6 +267,11 @@ module caliptra_mcu_top
     logic lsu_addr_ph, lsu_data_ph, lsu_sel;
     logic ic_addr_ph, ic_data_ph, ic_sel;
 
+    logic hmac_busy;
+    logic crypto_error;
+
+    always_comb crypto_error = hmac_busy;
+
 always_comb begin
     mbox_sram_cs = mbox_sram_req.cs;
     mbox_sram_we = mbox_sram_req.we;
@@ -818,6 +823,8 @@ hmac_ctrl #(
      .kv_rd_resp    ('0),
      .kv_wr_resp    ('0),
 
+     .busy_o(hmac_busy),
+
      .error_intr(hmac_error_intr),
      .notif_intr(hmac_notif_intr),
      .debugUnlock_or_scan_mode_switch(debug_lock_or_scan_mode_switch)
@@ -1112,6 +1119,8 @@ soc_ifc_top1
 `else
     .trng_req             (etrng_req),
 `endif
+    .crypto_error(crypto_error),
+
     // uC Interrupts
     .soc_ifc_error_intr(soc_ifc_error_intr),
     .soc_ifc_notif_intr(soc_ifc_notif_intr),
