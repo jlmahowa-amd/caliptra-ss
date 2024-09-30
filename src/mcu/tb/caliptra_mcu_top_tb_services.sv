@@ -651,8 +651,10 @@ module caliptra_mcu_top_tb_services
 
     always @(negedge clk) begin
         if((WriteData[7:0] == 8'hea) && mailbox_write) begin
-            force caliptra_mcu_top_dut.soc_ifc_top1.timer1_timeout_period = {32'h0000_0000, $urandom_range(32'h0000_0001,32'h0000_0FFF)};
-            force caliptra_mcu_top_dut.soc_ifc_top1.timer2_timeout_period = {32'h0000_0000, $urandom_range(32'h0000_0001,32'h0000_0FFF)};
+            logic [15:0] t1_period_high = $urandom_range(32'h0000_0001,32'h0000_0FFF);
+            logic [15:0] t2_period_high = $urandom_range(32'h0000_0001,32'h0000_0FFF);
+            force caliptra_mcu_top_dut.soc_ifc_top1.timer1_timeout_period = {32'h0000_0000, t1_period_high};
+            force caliptra_mcu_top_dut.soc_ifc_top1.timer2_timeout_period = {32'h0000_0000, t2_period_high};
         end
         //Use 'hF1 code to reset these values in the test
     end
