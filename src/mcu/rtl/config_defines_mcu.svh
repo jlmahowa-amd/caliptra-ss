@@ -93,7 +93,7 @@
   `define CALIPTRA_TOP        caliptra_top_tb
   `define CALIPTRA_MCU_RV_TOP     `CALIPTRA_TOP.caliptra_top_dut
 
-  `define MCU_RV_TOP              `CALIPTRA_MCU_RV_TOP.rvtop
+  //`define MCU_RV_TOP              `CALIPTRA_MCU_RV_TOP.rvtop
 
   `define CALIPTRA_ICG           cptra_clk_gate
   
