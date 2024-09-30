@@ -219,6 +219,46 @@ module mcu_top
     output logic [              63:0] dma_axi_rdata,
     output logic [               1:0] dma_axi_rresp,
     output logic                      dma_axi_rlast,
+
+    //-------------------------- I3C AXI signals--------------------------
+    // AXI Write Channels
+    input  logic                        i3c_axi_awvalid,
+    output logic                        i3c_axi_awready,
+    input  logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_awid,
+    input  logic [                31:0] i3c_axi_awaddr,
+    input  logic [                 2:0] i3c_axi_awsize,
+    input  logic [                 2:0] i3c_axi_awprot,
+    input  logic [                 7:0] i3c_axi_awlen,
+    input  logic [                 1:0] i3c_axi_awburst,
+
+
+    input  logic        i3c_axi_wvalid,
+    output logic        i3c_axi_wready,
+    input  logic [63:0] i3c_axi_wdata,
+    input  logic [ 7:0] i3c_axi_wstrb,
+    input  logic        i3c_axi_wlast,
+
+    output logic                        i3c_axi_bvalid,
+    input  logic                        i3c_axi_bready,
+    output logic [                 1:0] i3c_axi_bresp,
+    output logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_bid,
+
+    // AXI Read Channels
+    input  logic                        i3c_axi_arvalid,
+    output logic                        i3c_axi_arready,
+    input  logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_arid,
+    input  logic [                31:0] i3c_axi_araddr,
+    input  logic [                 2:0] i3c_axi_arsize,
+    input  logic [                 2:0] i3c_axi_arprot,
+    input  logic [                 7:0] i3c_axi_arlen,
+    input  logic [                 1:0] i3c_axi_arburst,
+
+    output logic                        i3c_axi_rvalid,
+    input  logic                        i3c_axi_rready,
+    output logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_rid,
+    output logic [                63:0] i3c_axi_rdata,
+    output logic [                 1:0] i3c_axi_rresp,
+    output logic                        i3c_axi_rlast,
 `endif
 
 `ifdef MCU_RV_BUILD_AHB_LITE
@@ -277,6 +317,22 @@ module mcu_top
     output logic [63:0] dma_hrdata,
     output logic        dma_hreadyout,
     output logic        dma_hresp,
+
+    // I3C AHB bus
+    input logic        i3c_hsel,
+    input logic [31:0] i3c_haddr,
+    input logic [ 2:0] i3c_hburst,
+    input logic        i3c_hmastlock,
+    input logic [ 3:0] i3c_hprot,
+    input logic [ 2:0] i3c_hsize,
+    input logic [ 1:0] i3c_htrans,
+    input logic        i3c_hwrite,
+    input logic [63:0] i3c_hwdata,
+    input logic        i3c_hreadyin,
+
+    output logic [63:0] i3c_hrdata,
+    output logic        i3c_hreadyout,
+    output logic        i3c_hresp,
 `endif
     // clk ratio signals
     input  logic        lsu_bus_clk_en,  // Clock ratio b/w cpu core clk & AHB master interface
@@ -356,7 +412,19 @@ module mcu_top
     output logic        dmi_uncore_wr_en,
     output logic [ 6:0] dmi_uncore_addr,
     output logic [31:0] dmi_uncore_wdata,
-    input  logic [31:0] dmi_uncore_rdata
+    input  logic [31:0] dmi_uncore_rdata,
+
+    // I3C Interface
+`ifdef VERILATOR
+    input  logic scl_i,
+    input  logic sda_i,
+    output logic scl_o,
+    output logic sda_o,
+    output logic sel_od_pp_o
+`else
+    inout  logic i3c_scl_io,
+    inout  logic i3c_sda_io
+`endif
 );
 
   mcu_el2_mem_if mem_export ();
@@ -381,6 +449,89 @@ module mcu_top
       .*
   );
 
+  i3c_wrapper #(
+`ifdef MCU_RV_BUILD_AHB_LITE
+    .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
+    .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
+`elsif MCU_RV_BUILD_AXI4
+    .AxiDataWidth(`AXI_DATA_WIDTH),
+    .AxiAddrWidth(`AXI_ADDR_WIDTH),
+    .AxiUserWidth(`AXI_USER_WIDTH),
+    .AxiIdWidth(`AXI_ID_WIDTH)
+`endif
+  ) i3c (
+      .clk_i(clk),
+      .rst_ni(rst_l),
 
-  endmodule
-  
+`ifdef MCU_RV_BUILD_AHB_LITE
+      // AMBA AHB Lite Interface
+      .haddr_i(i3c_haddr),
+      .hburst_i(i3c_hburst),
+      .hprot_i(i3c_hprot),
+      .hwdata_i(i3c_hwdata),
+      .hsel_i(i3c_hsel),
+      .hwstrb_i(i3c_hwstrb),
+      .hwrite_i(i3c_hwrite),
+      .hready_i(i3c_hready),
+      .htrans_i(i3c_htrans),
+      .hsize_i(i3c_hsize),
+      .hresp_o(i3c_hresp),
+      .hreadyout_o(i3c_hreadyout),
+      .hrdata_o(i3c_hrdata),
+`elsif MCU_RV_BUILD_AXI4
+     // AXI Read Channels
+      .araddr_i(i3c_axi_araddr),
+      .arburst_i(i3c_axi_arburst),
+      .arsize_i(i3c_axi_arsize),
+      .arlen_i(i3c_axi_arlen),
+      .aruser_i(i3c_axi_aruser),
+      .arid_i(i3c_axi_arid),
+      .arlock_i(i3c_axi_arlock),
+      .arvalid_i(i3c_axi_arvalid),
+      .arready_o(i3c_axi_arready),
+
+      .rdata_o(i3c_axi_rdata),
+      .rresp_o(i3c_axi_rresp),
+      .rid_o(i3c_axi_rid),
+      .rlast_o(i3c_axi_rlast),
+      .rvalid_o(i3c_axi_rvalid),
+      .rready_i(i3c_axi_rready),
+
+      // AXI Write Channels
+      .awaddr_i(i3c_axi_awaddr),
+      .awburst_i(i3c_axi_awburst),
+      .awsize_i(i3c_axi_awsize),
+      .awlen_i(i3c_axi_awlen),
+      .awuser_i(i3c_axi_awuser),
+      .awid_i(i3c_axi_awid),
+      .awlock_i(i3c_axi_awlock),
+      .awvalid_i(i3c_axi_awvalid),
+      .awready_o(i3c_axi_awready),
+
+      .wdata_i (i3c_axi_wdata),
+      .wstrb_i (i3c_axi_wstrb),
+      .wlast_i (i3c_axi_wlast),
+      .wvalid_i(i3c_axi_wvalid),
+      .wready_o(i3c_axi_wready),
+
+      .bresp_o(i3c_axi_bresp),
+      .bid_o(i3c_axi_bid),
+      .bvalid_o(i3c_axi_bvalid),
+      .bready_i(i3c_axi_bready),
+`endif
+
+`ifdef VERILATOR
+      .scl_i(scl_i),
+      .sda_i(sda_i),
+      .scl_o(scl_o),
+      .sda_o(sda_o),
+      .sel_od_pp_o(sel_od_pp_o)
+`else
+      // I3C bus IO
+      .i3c_scl_io(i3c_scl_io),
+      .i3c_sda_io(i3c_sda_io)
+`endif
+  );
+
+endmodule
+

@@ -13,6 +13,7 @@ slave 2	    (64'h9200_0000-64'h9200_1000)	(64'h0200_abcc::4), (64'ha200_0000::4)
 slave 3	    (64'h9300_0000-64'h9300_1000)	(64'h0300_abcc::4), (64'ha300_0000::4), (64'hb300_0001::4)
 slave 4	    (64'h9400_0000-64'h9400_1000)	(64'h0400_abcc::4), (64'ha400_0000::4), (64'hb400_0001::4)
 
+TODO: slave 5 for I3C at 64'h2000_4000
 */
 
 `timescale 1ps/1ps
@@ -225,6 +226,10 @@ initial begin
         slave[4].cfg_info.total_outstanding_depth = 4;
         slave[4].cfg_info.id_outstanding_depth = 4;
 
+        //-- I3C
+        slave[5].cfg_info.base_address[0] = 64'h2000_4000;
+        slave[5].cfg_info.limit_address[0] = 64'h2000_4FFF;
+
 //#1;
 //do not sure what feature of #1
     // connect devices to the Interconnect
@@ -300,12 +305,14 @@ initial begin
         slave[2].set("mem_uninitialized_value", 0);
         slave[3].set("mem_uninitialized_value", 0);
         slave[4].set("mem_uninitialized_value", 0);
+        slave[5].set("mem_uninitialized_value", 0);
 
         test.slave0= slave[0];
         test.slave1= slave[1];
         test.slave2= slave[2];
         test.slave3= slave[3];
         test.slave4= slave[4];
+        test.slave5= slave[5];
 
         for (int i=0; i< AAXI_INTC_SLAVE_CNT; i++)
             test.slv_bfms.push_back(slave[i]);

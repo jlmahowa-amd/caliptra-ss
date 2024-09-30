@@ -31,6 +31,17 @@ module caliptra_ss_top
     input bit [31:0]            mem_signature_end,
     input bit [31:0]            mem_mailbox
     `endif // VERILATOR
+    // I3C Interface
+`ifdef VERILATOR
+    input  logic scl_i,
+    input  logic sda_i,
+    output logic scl_o,
+    output logic sda_o,
+    output logic sel_od_pp_o
+`else
+    inout  logic i3c_scl_io,
+    inout  logic i3c_sda_io
+`endif
 );
 import axi_pkg::*;
 import soc_ifc_pkg::*;
@@ -97,6 +108,20 @@ import caliptra_top_tb_pkg::*;
         logic        [63:0]         sb_hwdata       ;
         logic                       sb_hready       ;
         logic                       sb_hresp        ;
+
+    `ifdef I3C_USE_AHB
+        logic        [31:0]         i3c_haddr;
+        logic        [2:0]          i3c_hburst;
+        logic                       i3c_hmastlock;
+        logic        [3:0]          i3c_hprot;
+        logic        [2:0]          i3c_hsize;
+        logic        [1:0]          i3c_htrans;
+        logic                       i3c_hwrite;
+        logic        [63:0]         i3c_hrdata;
+        logic        [63:0]         i3c_hwdata;
+        logic                       i3c_hready;
+        logic                       i3c_hresp;
+    `endif
 
         logic        [31:0]         trace_rv_i_insn_ip;
         logic        [31:0]         trace_rv_i_address_ip;
@@ -345,7 +370,66 @@ import caliptra_top_tb_pkg::*;
         wire                        lmem_axi_bvalid;
         wire [`MCU_RV_LSU_BUS_TAG-1:0]  lmem_axi_bid;
         wire                        lmem_axi_bready;
+    //-------------------------- DMA AXI signals--------------------------
+    // AXI Write Channels
+        wire                        i3c_axi_awvalid;
+        wire                        i3c_axi_awready;
+        wire [`MCU_RV_DMA_BUS_TAG:0]  i3c_axi_awid;
+        wire [31:0]                 i3c_axi_awaddr;
+        wire [2:0]                  i3c_axi_awsize;
+        wire [2:0]                  i3c_axi_awprot;
+        wire [7:0]                  i3c_axi_awlen;
+        wire [1:0]                  i3c_axi_awburst;
 
+
+        wire                        i3c_axi_wvalid;
+        wire                        i3c_axi_wready;
+        wire [63:0]                 i3c_axi_wdata;
+        wire [7:0]                  i3c_axi_wstrb;
+        wire                        i3c_axi_wlast;
+
+        wire                        i3c_axi_bvalid;
+        wire                        i3c_axi_bready;
+        wire [1:0]                  i3c_axi_bresp;
+        wire [`MCU_RV_DMA_BUS_TAG:0]  i3c_axi_bid;
+
+        // AXI Read Channels
+        wire                        i3c_axi_arvalid;
+        wire                        i3c_axi_arready;
+        wire [`MCU_RV_DMA_BUS_TAG:0]  i3c_axi_arid;
+        wire [31:0]                 i3c_axi_araddr;
+        wire [2:0]                  i3c_axi_arsize;
+        wire [2:0]                  i3c_axi_arprot;
+        wire [7:0]                  i3c_axi_arlen;
+        wire [1:0]                  i3c_axi_arburst;
+
+        wire                        i3c_axi_rvalid;
+        wire                        i3c_axi_rready;
+        wire [`MCU_RV_DMA_BUS_TAG:0]  i3c_axi_rid;
+        wire [63:0]                 i3c_axi_rdata;
+        wire [1:0]                  i3c_axi_rresp;
+        wire                        i3c_axi_rlast;
+
+        wire                        i3c_axi_arvalid;
+        wire                        i3c_axi_arready;
+
+        wire                        i3c_axi_rvalid;
+        wire [`MCU_RV_LSU_BUS_TAG:0]  i3c_axi_rid;
+        wire [1:0]                  i3c_axi_rresp;
+        wire [63:0]                 i3c_axi_rdata;
+        wire                        i3c_axi_rlast;
+        wire                        i3c_axi_rready;
+
+        wire                        i3c_axi_awvalid;
+        wire                        i3c_axi_awready;
+
+        wire                        i3c_axi_wvalid;
+        wire                        i3c_axi_wready;
+
+        wire [1:0]                  i3c_axi_bresp;
+        wire                        i3c_axi_bvalid;
+        wire [`MCU_RV_LSU_BUS_TAG:0]  i3c_axi_bid;
+        wire                        i3c_axi_bready;
     `endif
         string                      abi_reg[32]; // ABI register names
         mcu_el2_mem_if                  mcu_el2_mem_export ();
@@ -941,7 +1025,7 @@ import caliptra_top_tb_pkg::*;
         assign axi_interconnect.sintf_arr[3].RID     = s_axi_if.rid;
         assign axi_interconnect.sintf_arr[3].RLAST   = s_axi_if.rlast;
         assign s_axi_if.rready                       = axi_interconnect.sintf_arr[3].RREADY;
-        
+
         // -- CALIPTRA SRAM 
         // AXI Interconnect connections
         assign axi_sram_if.awvalid                     = axi_interconnect.sintf_arr[4].AWVALID;
@@ -1100,7 +1184,6 @@ import caliptra_top_tb_pkg::*;
         assign m_axi_bfm_if.rid                       = axi_interconnect.mintf_arr[4].RID;
         assign m_axi_bfm_if.rlast                     = axi_interconnect.mintf_arr[4].RLAST;
         assign axi_interconnect.mintf_arr[4].RREADY   = m_axi_bfm_if.rready;
-        
 
         logic [mcu_pt.LSU_BUS_TAG-1:0] fixme_lsu_axi_arid_req;
         logic [mcu_pt.LSU_BUS_TAG-1:0] fixme_lsu_axi_arid_req_r [mcu_pt.LSU_BUS_TAG];
@@ -1380,8 +1463,66 @@ import caliptra_top_tb_pkg::*;
         .dmi_uncore_wr_en       (),
         .dmi_uncore_addr        (),
         .dmi_uncore_wdata       (),
-        .dmi_uncore_rdata       ()
+        .dmi_uncore_rdata       (),
 
+`ifdef I3C_USE_AHB
+    // I3C
+      .i3c_haddr(i3c_haddr),
+      .i3c_hburst(i3c_hburst),
+      .i3c_hprot(i3c_hprot),
+      .i3c_hwdata(i3c_hwdata),
+      .i3c_hsel(i3c_hsel),
+      .i3c_hwstrb(i3c_hwstrb),
+      .i3c_hwrite(i3c_hwrite),
+      .i3c_hready(i3c_hready),
+      .i3c_htrans(i3c_htrans),
+      .i3c_hsize(i3c_hsize),
+      .i3c_hresp(i3c_hresp),
+      .i3c_hreadyout(i3c_hreadyout),
+      .i3c_hrdata(i3c_hrdata),
+`elsif I3C_USE_AXI
+      .i3c_axi_awvalid        (axi_interconnect.sintf_arr[5].AWVALID),
+      .i3c_axi_awready        (axi_interconnect.sintf_arr[5].AWREADY),
+      .i3c_axi_awid           (axi_interconnect.sintf_arr[5].AWID),
+      .i3c_axi_awaddr         (axi_interconnect.sintf_arr[5].AWADDR[31:0]),
+      .i3c_axi_awsize         (axi_interconnect.sintf_arr[5].AWSIZE),
+      .i3c_axi_awprot         (axi_interconnect.sintf_arr[5].AWPROT),
+      .i3c_axi_awlen          (axi_interconnect.sintf_arr[5].AWLEN),
+      .i3c_axi_awburst        (axi_interconnect.sintf_arr[5].AWBURST),
+      .i3c_axi_wvalid         (axi_interconnect.sintf_arr[5].WVALID),
+      .i3c_axi_wready         (axi_interconnect.sintf_arr[5].WREADY),
+      .i3c_axi_wdata          (axi_interconnect.sintf_arr[5].WDATA),
+      .i3c_axi_wstrb          (axi_interconnect.sintf_arr[5].WSTRB),
+      .i3c_axi_wlast          (axi_interconnect.sintf_arr[5].WLAST),
+      .i3c_axi_bvalid         (axi_interconnect.sintf_arr[5].BVALID),
+      .i3c_axi_bready         (axi_interconnect.sintf_arr[5].BREADY),
+      .i3c_axi_bresp          (axi_interconnect.sintf_arr[5].BRESP),
+      .i3c_axi_bid            (axi_interconnect.sintf_arr[5].BID),
+      .i3c_axi_arvalid        (axi_interconnect.sintf_arr[5].ARVALID),
+      .i3c_axi_arready        (axi_interconnect.sintf_arr[5].ARREADY),
+      .i3c_axi_arid           (axi_interconnect.sintf_arr[5].ARID),
+      .i3c_axi_araddr         (axi_interconnect.sintf_arr[5].ARADDR[31:0]),
+      .i3c_axi_arsize         (axi_interconnect.sintf_arr[5].ARSIZE),
+      .i3c_axi_arprot         (axi_interconnect.sintf_arr[5].ARPROT),
+      .i3c_axi_arlen          (axi_interconnect.sintf_arr[5].ARLEN),
+      .i3c_axi_arburst        (axi_interconnect.sintf_arr[5].ARBURST),
+      .i3c_axi_rvalid         (axi_interconnect.sintf_arr[5].RVALID),
+      .i3c_axi_rready         (axi_interconnect.sintf_arr[5].RREADY),
+      .i3c_axi_rid            (axi_interconnect.sintf_arr[5].RID),
+      .i3c_axi_rdata          (axi_interconnect.sintf_arr[5].RDATA),
+      .i3c_axi_rresp          (axi_interconnect.sintf_arr[5].RRESP),
+      .i3c_axi_rlast          (axi_interconnect.sintf_arr[5].RLAST),
+`endif
+`ifdef VERILATOR
+    .scl_i(scl_i),
+    .sda_i(sda_i),
+    .scl_o(scl_o),
+    .sda_o(sda_o),
+    .sel_od_pp_o(sel_od_pp_o)
+`else
+    .i3c_scl_io(i3c_scl_io),
+    .i3c_sda_io(i3c_sda_io)
+`endif
     );
     assign axi_interconnect.mintf_arr[0].ARID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:mcu_pt.LSU_BUS_TAG] = '0;
     assign axi_interconnect.mintf_arr[0].AWID[aaxi_pkg::AAXI_INTC_ID_WIDTH-1:mcu_pt.LSU_BUS_TAG] = '0;
