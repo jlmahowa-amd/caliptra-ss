@@ -241,13 +241,15 @@ set_property -dict [list \
   CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
   CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {5} \
 ] [get_bd_cells zynq_ultra_ps_e_0]
+#set_property CONFIG.PSU__MAXIGP2__DATA_WIDTH {64} [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add AXI Interconnect
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0
 set_property -dict [list \
-  CONFIG.NUM_MI {5} \
+  CONFIG.NUM_MI {6} \
   CONFIG.NUM_SI {3} \
 ] [get_bd_cells axi_interconnect_0]
+#set_property CONFIG.M03_SECURE {1} [get_bd_cells axi_interconnect_0]
 
 if {$APB} {
   # Add AXI APB Bridge for Caliptra 1.x
@@ -325,19 +327,41 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_intercon
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M03_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M04_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins caliptra_ss_package_0/core_clk]
-# Should hook these up to the FPGA wrapper registers
-connect_bd_net [get_bd_pins caliptra_ss_package_0/porst_l] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
-connect_bd_net [get_bd_pins caliptra_ss_package_0/rst_l] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 
 # Create address segments
 assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
 assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
 if {$APB} {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
 } else {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
 }
+# IFU
+assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+if {$APB} {
+  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
+} else {
+  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
+}
+# LSU
+assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+if {$APB} {
+  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
+} else {
+  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
+}
+
+
+
+
 
 if {$JTAG} {
   # Connect JTAG signals to PS GPIO pins
@@ -352,6 +376,11 @@ if {$JTAG} {
   create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
   connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins caliptra_package_top_0/jtag_in]
 }
+
+connect_bd_net [get_bd_pins caliptra_ss_package_0/S_AXI_WRAPPER_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/S_AXI_WRAPPER] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M05_AXI]
+connect_bd_net [get_bd_pins axi_interconnect_0/M05_ACLK] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+connect_bd_net [get_bd_pins axi_interconnect_0/M05_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 
 save_bd_design
 puts "Fileset when setting defines the second time: [current_fileset]"
@@ -383,5 +412,10 @@ if {$BUILD} {
   set_property BITSTREAM.CONFIG.USR_ACCESS 0x$VERSION [current_design]
   write_bitstream -bin_file $outputDir/caliptra_fpga
 }
+
+# TODO: Temp debug
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {zynq_ultra_ps_e_0_M_AXI_HPM0_LPD}]
 
 start_gui

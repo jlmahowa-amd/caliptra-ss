@@ -23,10 +23,10 @@
 `include "css_mcu0_common_defines.vh"
 //import mcu_el2_pkg::*;
 
+import mcu_fpga_realtime_regs_pkg::*;
+
 module caliptra_ss_top_fpga (
     input bit core_clk,
-    input bit rst_l,
-    input bit porst_l,
     /*
     // Caliptra AXI Interface
     input  wire [31:0] S_AXI_CALIPTRA_AWADDR,
@@ -246,24 +246,85 @@ module caliptra_ss_top_fpga (
     output wire [1-1:0]              S_AXI_MCU_DMA_RID,
     output wire [              63:0] S_AXI_MCU_DMA_RDATA,
     output wire [               1:0] S_AXI_MCU_DMA_RRESP,
-    output wire                      S_AXI_MCU_DMA_RLAST
+    output wire                      S_AXI_MCU_DMA_RLAST,
 
+    // FPGA Realtime register AXI Interface
+    input	wire                      S_AXI_WRAPPER_ARESETN,
+    input	wire                      S_AXI_WRAPPER_AWVALID,
+    output	wire                      S_AXI_WRAPPER_AWREADY,
+    input	wire [31:0]               S_AXI_WRAPPER_AWADDR,
+    input	wire [2:0]                S_AXI_WRAPPER_AWPROT,
+    input	wire                      S_AXI_WRAPPER_WVALID,
+    output	wire                      S_AXI_WRAPPER_WREADY,
+    input	wire [31:0]               S_AXI_WRAPPER_WDATA,
+    input	wire [3:0]                S_AXI_WRAPPER_WSTRB,
+    output	wire                      S_AXI_WRAPPER_BVALID,
+    input	wire                      S_AXI_WRAPPER_BREADY,
+    output	wire [1:0]                S_AXI_WRAPPER_BRESP,
+    input	wire                      S_AXI_WRAPPER_ARVALID,
+    output	wire                      S_AXI_WRAPPER_ARREADY,
+    input	wire [31:0]               S_AXI_WRAPPER_ARADDR,
+    input	wire [2:0]                S_AXI_WRAPPER_ARPROT,
+    output	wire                      S_AXI_WRAPPER_RVALID,
+    input	wire                      S_AXI_WRAPPER_RREADY,
+    output	wire [31:0]               S_AXI_WRAPPER_RDATA,
+    output	wire [1:0]                S_AXI_WRAPPER_RRESP
 );
 
+    axi4lite_intf s_axil ();
+
+    mcu_fpga_realtime_regs__in_t hwif_in;
+    mcu_fpga_realtime_regs__out_t hwif_out;
+
+    assign S_AXI_WRAPPER_AWREADY = s_axil.AWREADY;
+    assign S_AXI_WRAPPER_WREADY = s_axil.WREADY;
+    assign S_AXI_WRAPPER_BVALID = s_axil.BVALID;
+    assign S_AXI_WRAPPER_BRESP = s_axil.BRESP;
+    assign S_AXI_WRAPPER_ARREADY = s_axil.ARREADY;
+    assign S_AXI_WRAPPER_RVALID = s_axil.RVALID;
+    assign S_AXI_WRAPPER_RDATA = s_axil.RDATA;
+    assign S_AXI_WRAPPER_RRESP = s_axil.RRESP;
+
+    always_comb begin
+        s_axil.AWVALID = S_AXI_WRAPPER_AWVALID;
+        s_axil.AWADDR =  S_AXI_WRAPPER_AWADDR;
+        s_axil.AWPROT =  S_AXI_WRAPPER_AWPROT;
+
+        s_axil.WVALID =  S_AXI_WRAPPER_WVALID;
+        s_axil.WDATA =   S_AXI_WRAPPER_WDATA;
+        s_axil.WSTRB =   S_AXI_WRAPPER_WSTRB;
+
+        s_axil.BREADY =  S_AXI_WRAPPER_BREADY;
+
+        s_axil.ARVALID = S_AXI_WRAPPER_ARVALID;
+        s_axil.ARADDR =  S_AXI_WRAPPER_ARADDR;
+        s_axil.ARPROT =  S_AXI_WRAPPER_ARPROT;
+
+        s_axil.RREADY =  S_AXI_WRAPPER_RREADY;
+    end
+
+    // Register Block
+    mcu_fpga_realtime_regs regs (
+        .clk(core_clk),
+        .rst(~S_AXI_WRAPPER_ARESETN),
+
+        .s_axil(s_axil),
+
+        .hwif_in (hwif_in),
+        .hwif_out(hwif_out)
+    );
+
+    // MCU
         logic [31:1]  ext_int;
         logic                       nmi_int;
         logic                       timer_int;
         logic                       soft_int;
 
-        logic        [31:0]         reset_vector;
-        logic        [31:0]         nmi_vector;
         logic        [31:1]         jtag_id;
 initial begin
             jtag_id[31:28] = 4'b1;
             jtag_id[27:12] = '0;
             jtag_id[11:1]  = 11'h45;
-            reset_vector = 0;//`MCU_RV_RESET_VEC;
-            nmi_vector   = 32'hee000000;
 end
 
         logic        [31:0]         trace_rv_i_insn_ip;
@@ -297,12 +358,12 @@ end
        // RTL instance
        //=========================================================================-
         mcu_top rvtop_wrapper (
-        .rst_l                  ( rst_l         ),
-        .dbg_rst_l              ( porst_l       ),
+        .rst_l                  ( hwif_out.interface_regs.control.rst_l.value ),
+        .dbg_rst_l              ( hwif_out.interface_regs.control.dbg_rst_l.value ),
         .clk                    ( core_clk      ),
-        .rst_vec                ( reset_vector[31:1]),
+        .rst_vec                ( hwif_out.interface_regs.reset_vector.reset_vector.value[31:1]),
         .nmi_int                ( nmi_int       ),
-        .nmi_vec                ( nmi_vector[31:1]),
+        .nmi_vec                ( hwif_out.interface_regs.nmi_vector.nmi_vector.value[31:1]),
         .jtag_id                ( jtag_id[31:1]),
 
 

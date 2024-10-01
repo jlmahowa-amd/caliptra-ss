@@ -1,8 +1,6 @@
 
 module caliptra_ss_package_top (
     input wire core_clk,
-    input wire rst_l,
-    input wire porst_l,
     /*
     // Caliptra AXI Interface
     input  wire [31:0] S_AXI_CALIPTRA_AWADDR,
@@ -188,7 +186,7 @@ module caliptra_ss_package_top (
     // AXI Write Channels
     input  wire                      S_AXI_MCU_DMA_AWVALID,
     output wire                      S_AXI_MCU_DMA_AWREADY,
-    input  wire [5-1:0]              S_AXI_MCU_DMA_AWID,
+    input  wire [18-1:0]              S_AXI_MCU_DMA_AWID,
     input  wire [              31:0] S_AXI_MCU_DMA_AWADDR,
     input  wire [               2:0] S_AXI_MCU_DMA_AWSIZE,
     input  wire [               2:0] S_AXI_MCU_DMA_AWPROT,
@@ -205,12 +203,12 @@ module caliptra_ss_package_top (
     output wire                      S_AXI_MCU_DMA_BVALID,
     input  wire                      S_AXI_MCU_DMA_BREADY,
     output wire [               1:0] S_AXI_MCU_DMA_BRESP,
-    output wire [5-1:0]              S_AXI_MCU_DMA_BID,
+    output wire [18-1:0]              S_AXI_MCU_DMA_BID,
 
     // AXI Read CHANNELS
     input  wire                      S_AXI_MCU_DMA_ARVALID,
     output wire                      S_AXI_MCU_DMA_ARREADY,
-    input  wire [5-1:0]              S_AXI_MCU_DMA_ARID,
+    input  wire [18-1:0]              S_AXI_MCU_DMA_ARID,
     input  wire [              31:0] S_AXI_MCU_DMA_ARADDR,
     input  wire [               2:0] S_AXI_MCU_DMA_ARSIZE,
     input  wire [               2:0] S_AXI_MCU_DMA_ARPROT,
@@ -219,17 +217,37 @@ module caliptra_ss_package_top (
 
     output wire                      S_AXI_MCU_DMA_RVALID,
     input  wire                      S_AXI_MCU_DMA_RREADY,
-    output wire [5-1:0]              S_AXI_MCU_DMA_RID,
+    output wire [18-1:0]              S_AXI_MCU_DMA_RID,
     output wire [              63:0] S_AXI_MCU_DMA_RDATA,
     output wire [               1:0] S_AXI_MCU_DMA_RRESP,
-    output wire                      S_AXI_MCU_DMA_RLAST
+    output wire                      S_AXI_MCU_DMA_RLAST,
+    
+    // FPGA Realtime register AXI Interface
+    input	wire                      S_AXI_WRAPPER_ARESETN,
+    input	wire                      S_AXI_WRAPPER_AWVALID,
+    output	wire                      S_AXI_WRAPPER_AWREADY,
+    input	wire [31:0]               S_AXI_WRAPPER_AWADDR,
+    input	wire [2:0]                S_AXI_WRAPPER_AWPROT,
+    input	wire                      S_AXI_WRAPPER_WVALID,
+    output	wire                      S_AXI_WRAPPER_WREADY,
+    input	wire [31:0]               S_AXI_WRAPPER_WDATA,
+    input	wire [3:0]                S_AXI_WRAPPER_WSTRB,
+    output	wire                      S_AXI_WRAPPER_BVALID,
+    input	wire                      S_AXI_WRAPPER_BREADY,
+    output	wire [1:0]                S_AXI_WRAPPER_BRESP,
+    input	wire                      S_AXI_WRAPPER_ARVALID,
+    output	wire                      S_AXI_WRAPPER_ARREADY,
+    input	wire [31:0]               S_AXI_WRAPPER_ARADDR,
+    input	wire [2:0]                S_AXI_WRAPPER_ARPROT,
+    output	wire                      S_AXI_WRAPPER_RVALID,
+    input	wire                      S_AXI_WRAPPER_RREADY,
+    output	wire [31:0]               S_AXI_WRAPPER_RDATA,
+    output	wire [1:0]                S_AXI_WRAPPER_RRESP
     );
 
 caliptra_ss_top_fpga ss_wrapper (
     
     .core_clk(core_clk),
-    .rst_l(rst_l),
-    .porst_l(porst_l),
 /*
     // Caliptra AXI Interface
     .S_AXI_CALIPTRA_AWADDR(S_AXI_CALIPTRA_AWADDR),
@@ -449,7 +467,29 @@ caliptra_ss_top_fpga ss_wrapper (
     .S_AXI_MCU_DMA_RID(S_AXI_MCU_DMA_RID),
     .S_AXI_MCU_DMA_RDATA(S_AXI_MCU_DMA_RDATA),
     .S_AXI_MCU_DMA_RRESP(S_AXI_MCU_DMA_RRESP),
-    .S_AXI_MCU_DMA_RLAST(S_AXI_MCU_DMA_RLAST)
+    .S_AXI_MCU_DMA_RLAST(S_AXI_MCU_DMA_RLAST),
+
+    // FPGA Realtime register AXI Interface
+    .S_AXI_WRAPPER_ARESETN(S_AXI_WRAPPER_ARESETN),
+    .S_AXI_WRAPPER_AWVALID(S_AXI_WRAPPER_AWVALID),
+    .S_AXI_WRAPPER_AWREADY(S_AXI_WRAPPER_AWREADY),
+    .S_AXI_WRAPPER_AWADDR(S_AXI_WRAPPER_AWADDR),
+    .S_AXI_WRAPPER_AWPROT(S_AXI_WRAPPER_AWPROT),
+    .S_AXI_WRAPPER_WVALID(S_AXI_WRAPPER_WVALID),
+    .S_AXI_WRAPPER_WREADY(S_AXI_WRAPPER_WREADY),
+    .S_AXI_WRAPPER_WDATA(S_AXI_WRAPPER_WDATA),
+    .S_AXI_WRAPPER_WSTRB(S_AXI_WRAPPER_WSTRB),
+    .S_AXI_WRAPPER_BVALID(S_AXI_WRAPPER_BVALID),
+    .S_AXI_WRAPPER_BREADY(S_AXI_WRAPPER_BREADY),
+    .S_AXI_WRAPPER_BRESP(S_AXI_WRAPPER_BRESP),
+    .S_AXI_WRAPPER_ARVALID(S_AXI_WRAPPER_ARVALID),
+    .S_AXI_WRAPPER_ARREADY(S_AXI_WRAPPER_ARREADY),
+    .S_AXI_WRAPPER_ARADDR(S_AXI_WRAPPER_ARADDR),
+    .S_AXI_WRAPPER_ARPROT(S_AXI_WRAPPER_ARPROT),
+    .S_AXI_WRAPPER_RVALID(S_AXI_WRAPPER_RVALID),
+    .S_AXI_WRAPPER_RREADY(S_AXI_WRAPPER_RREADY),
+    .S_AXI_WRAPPER_RDATA(S_AXI_WRAPPER_RDATA),
+    .S_AXI_WRAPPER_RRESP(S_AXI_WRAPPER_RRESP)
 );
 
 endmodule

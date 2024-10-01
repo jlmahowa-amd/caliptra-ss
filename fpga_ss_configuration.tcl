@@ -97,7 +97,8 @@ ipx::associate_bus_interfaces -busif M_AXI_MCU_IFU -clock core_clk [ipx::current
 ipx::associate_bus_interfaces -busif M_AXI_MCU_LSU -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif S_AXI_MCU_DMA -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif sb_axi -clock core_clk [ipx::current_core]
-ipx::associate_bus_interfaces -busif S_AXI_CALIPTRA -clock core_clk [ipx::current_core]
+#ipx::associate_bus_interfaces -busif S_AXI_CALIPTRA -clock core_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif S_AXI_WRAPPER -clock core_clk [ipx::current_core]
 #
 ipx::update_source_project_archive -component [ipx::current_core]
 ipx::create_xgui_files [ipx::current_core]
