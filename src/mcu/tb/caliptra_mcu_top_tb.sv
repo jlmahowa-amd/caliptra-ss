@@ -14,17 +14,28 @@
 //
 `default_nettype none
 
-`include "mcu_common_defines.sv"
+`include "common_defines.sv"
 `include "config_defines.svh"
 `include "caliptra_reg_defines.svh"
 `include "caliptra_macros.svh"
 
 `ifndef VERILATOR
-module caliptra_mcu_top_tb;
+module caliptra_mcu_top_tb (
+    // I3C Interface
+    inout  logic i3c_scl_io,
+    inout  logic i3c_sda_io
+    );
 `else
 module caliptra_mcu_top_tb (
     input bit core_clk,
-    input bit rst_l
+    input bit rst_l,
+
+    // I3C Interface
+    input  logic scl_i,
+    input  logic sda_i,
+    output logic scl_o,
+    output logic sda_o,
+    output logic sel_od_pp_o
     );
 `endif
 
@@ -254,6 +265,9 @@ module caliptra_mcu_top_tb (
             end
             else if (PRDATA[`SOC_IFC_REG_CPTRA_HW_ERROR_FATAL_NMI_PIN_LOW]) begin
                 generic_input_wires <= {32'h0, NMI_FATAL_OBSERVED};
+            end
+            else if (PRDATA[`SOC_IFC_REG_CPTRA_HW_ERROR_FATAL_CRYPTO_ERR_LOW]) begin
+                generic_input_wires <= {32'h0, CRYPTO_ERROR_OBSERVED};
             end
             else begin
                 generic_input_wires <= {32'h0, ERROR_NONE_SET};
@@ -1140,7 +1154,20 @@ caliptra_mcu_top caliptra_mcu_top_dut (
     .generic_output_wires(),
 
     .security_state(security_state),
-    .scan_mode     (scan_mode)
+    .scan_mode     (scan_mode),
+
+    // I3C Interface
+`ifdef VERILATOR
+    .scl_i(scl_i),
+    .sda_i(sda_i),
+    .scl_o(scl_o),
+    .sda_o(sda_o),
+    .sel_od_pp_o(sel_od_pp_o)
+`else
+    // I3C bus IO
+    .i3c_scl_io(i3c_scl_io),
+    .i3c_sda_io(i3c_sda_io)
+`endif
 );
 
 

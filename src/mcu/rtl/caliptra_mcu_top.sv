@@ -106,7 +106,20 @@ module caliptra_mcu_top
     output logic [63:0]                generic_output_wires,
 
     input security_state_t             security_state,
-    input logic                        scan_mode
+    input logic                        scan_mode,
+
+    // I3C Interface
+`ifdef VERILATOR
+    input  logic scl_i,
+    input  logic sda_i,
+    output logic scl_o,
+    output logic sda_o,
+    output logic sel_od_pp_o
+`else
+    // I3C bus IO
+    inout  logic i3c_scl_io,
+    inout  logic i3c_sda_io
+`endif
 );
 
     `include "css_mcu0_common_defines.vh"
@@ -253,6 +266,11 @@ module caliptra_mcu_top
     
     logic lsu_addr_ph, lsu_data_ph, lsu_sel;
     logic ic_addr_ph, ic_data_ph, ic_sel;
+
+    logic hmac_busy;
+    logic crypto_error;
+
+    always_comb crypto_error = hmac_busy;
 
 always_comb begin
     mbox_sram_cs = mbox_sram_req.cs;
@@ -480,6 +498,7 @@ el2_veer_wrapper rvtop (
     .jtag_tdi               ( jtag_tdi  ),
     .jtag_trst_n            ( jtag_trst_n  ),
     .jtag_tdo               ( jtag_tdo ),
+    .jtag_tdoEn             (),
 
     //caliptra uncore jtag ports
    .cptra_uncore_dmi_reg_en      ( cptra_uncore_dmi_reg_en ),
@@ -805,6 +824,8 @@ hmac_ctrl #(
      .kv_rd_resp    ('0),
      .kv_wr_resp    ('0),
 
+     .busy_o(hmac_busy),
+
      .error_intr(hmac_error_intr),
      .notif_intr(hmac_notif_intr),
      .debugUnlock_or_scan_mode_switch(debug_lock_or_scan_mode_switch)
@@ -1001,6 +1022,40 @@ uart #(
   );
 `endif
 
+i3c_wrapper #(
+    .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
+    .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
+) i3c (
+    .clk_i       (clk_cg),
+    .rst_ni      (cptra_noncore_rst_b),
+    // AMBA AHB Lite Interface
+    .haddr_i     (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].haddr[`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C)-1:0]),
+    .hburst_i    (),
+    .hprot_i     (),
+    .hwdata_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hwdata),
+    .hsel_i      (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hsel),
+    .hwstrb_i    (),
+    .hwrite_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hwrite),
+    .hready_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hready),
+    .htrans_i    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].htrans),
+    .hsize_i     (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hsize),
+    .hresp_o     (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hresp),
+    .hreadyout_o (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hreadyout),
+    .hrdata_o    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hrdata),
+
+`ifdef VERILATOR
+    .scl_i(scl_i),
+    .sda_i(sda_i),
+    .scl_o(scl_o),
+    .sda_o(sda_o),
+    .sel_od_pp_o(sel_od_pp_o)
+`else
+    // I3C bus IO
+    .i3c_scl_io(i3c_scl_io),
+    .i3c_sda_io(i3c_sda_io)
+`endif
+);
+
 soc_ifc_top #(
     .AHB_ADDR_WIDTH(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
     .AHB_DATA_WIDTH(`CALIPTRA_AHB_HDATA_SIZE),
@@ -1065,6 +1120,8 @@ soc_ifc_top1
 `else
     .trng_req             (etrng_req),
 `endif
+    .crypto_error(crypto_error),
+
     // uC Interrupts
     .soc_ifc_error_intr(soc_ifc_error_intr),
     .soc_ifc_notif_intr(soc_ifc_notif_intr),
