@@ -5,12 +5,12 @@ TB_DEFS = +define+CALIPTRA_INTERNAL_QSPI+CALIPTRA_INTERNAL_TRNG+CALIPTRA_INTERNA
 SIM_BUILD = ${BUILD_DIR}/obj_dir
 VERILATOR_DEBUG = --trace --trace-structs
 TEST_FILES   = $(sort $(wildcard test_*.py))
-MODULE = caliptra_mcu_top_tb
+MODULE = test_i3c_recovery
 
 # Cocotb test suite setup
 SIM = verilator
 TOPLEVEL_LANG = verilog
-TOPLEVEL=caliptra_mcu_top_tb
+TOPLEVEL=caliptra_mcu_top_tb_wrapper
 EXTRA_ARGS = -Wno-WIDTH -Wno-UNOPTFLAT -Wno-LITENDIAN -Wno-CMPCONST -Wno-MULTIDRIVEN -Wno-UNPACKED -Wno-ALWCOMBORDER
 EXTRA_ARGS += --timing
 EXTRA_ARGS += -I${BUILD_DIR}
@@ -26,7 +26,6 @@ EXTRA_ARGS += $(TB_DPI_SRCS) \
               --cc -CFLAGS "$(CFLAGS)" \
 	          +libext+.v+.sv +define+RV_OPENSOURCE \
 	          --timescale 1ns/1ps \
-	          --top-module $(DUT) \
 	          --autoflush $(VERILATOR_DEBUG) \
 	          $(TB_DEFS)
 
@@ -375,7 +374,8 @@ ${I3C_ROOT}/src/ctrl/controller.sv \
 ${I3C_ROOT}/src/recovery/recovery_handler.sv \
 ${I3C_ROOT}/src/i3c.sv \
 ${I3C_ROOT}/src/i3c_wrapper.sv \
-${CALIPTRA_SS}/src/mcu/rtl/caliptra_mcu_top.sv
+${CALIPTRA_SS}/src/mcu/rtl/caliptra_mcu_top.sv \
+${CALIPTRA_SS}/src/mcu/test_suites/i3c_recovery/caliptra_mcu_top_tb_wrapper.sv
 
 # Do not import cocotb configuration if it's a RTL testbench
 ifeq (,$(filter icarus-test verilator-test,$(MAKECMDGOALS)))
