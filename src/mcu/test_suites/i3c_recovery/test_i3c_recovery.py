@@ -24,10 +24,10 @@ class I3CTopTestInterface:
         self.log.setLevel(logging.DEBUG)
 
         self.i3c_controller = I3cController(
-            sda_i=dut.sda_i,
-            sda_o=dut.sda_o,
-            scl_i=dut.scl_i,
-            scl_o=dut.scl_o,
+            sda_i=dut.sda_o,
+            sda_o=dut.sda_i,
+            scl_i=dut.scl_o,
+            scl_o=dut.scl_i,
             debug_state_o=None,
             speed=12.5e6,
         )
@@ -40,6 +40,7 @@ async def test_i3c_target(dut):
     cocotb.log.setLevel(logging.DEBUG)
     await cocotb.start(Clock(dut.core_clk, CLOCK_PERIOD_NS, "ns").start())
     await ClockCycles(dut.core_clk, 5)
+    dut.rst_l.value = 1
 
     tb = I3CTopTestInterface(dut)
     rec_if = I3cRecoveryInterface(tb.i3c_controller)
