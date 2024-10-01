@@ -6,12 +6,18 @@ from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryInterface
 
 import cocotb
 from cocotb.handle import SimHandleBase
-from cocotb.triggers import Timer
+from cocotb.triggers import Timer, ClockCycles
+from cocotb.clock import Clock
+
+CLOCK_PERIOD_NS = 10
 
 
 class I3CTopTestInterface:
     def __init__(self, dut: SimHandleBase) -> None:
         self.dut = dut
+        self.clock = dut.core_clk
+        self.reset_n = dut.rst_l
+
         self.sel_od = dut.sel_od_pp_o
 
         self.log = logging.getLogger("cocotb.tb")
@@ -27,13 +33,18 @@ class I3CTopTestInterface:
         )
 
 
+
 @cocotb.test()
 async def test_i3c_target(dut):
 
     cocotb.log.setLevel(logging.DEBUG)
+    await cocotb.start(Clock(dut.core_clk, CLOCK_PERIOD_NS, "ns").start())
+    await ClockCycles(dut.core_clk, 5)
 
     tb = I3CTopTestInterface(dut)
     rec_if = I3cRecoveryInterface(tb.i3c_controller)
+
+    await Timer(1000, "ns")
 
     address = 0x23
     command = I3cRecoveryInterface.Command.PROT_CAP
