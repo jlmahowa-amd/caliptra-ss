@@ -454,10 +454,10 @@ module mcu_top
     .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
     .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
 `elsif MCU_RV_BUILD_AXI4
-    .AxiDataWidth(64),
-    .AxiAddrWidth(32),
-    .AxiUserWidth(64),
-    .AxiIdWidth(pt.DMA_BUS_TAG)
+    .AxiDataWidth(`AXI_DATA_WIDTH),
+    .AxiAddrWidth(`AXI_ADDR_WIDTH),
+    .AxiUserWidth(`AXI_USER_WIDTH),
+    .AxiIdWidth(`AXI_ID_WIDTH)
 `endif
   ) i3c (
       .clk_i(clk),

@@ -188,7 +188,7 @@ module caliptra_package_axi_top (
     output  wire M_AXI_CALIPTRA_WLAST,
     // B
     input wire [1:0] M_AXI_CALIPTRA_BRESP,
-    input reg  [15:0] M_AXI_CALIPTRA_BID,
+    input wire  [15:0] M_AXI_CALIPTRA_BID,
     input wire M_AXI_CALIPTRA_BVALID,
     output  wire M_AXI_CALIPTRA_BREADY,
     // AR
@@ -204,7 +204,7 @@ module caliptra_package_axi_top (
     // R
     input wire [31:0] M_AXI_CALIPTRA_RDATA,
     input wire [3:0] M_AXI_CALIPTRA_RRESP,
-    input reg  [15:0] M_AXI_CALIPTRA_RID,
+    input wire [15:0] M_AXI_CALIPTRA_RID,
     input wire M_AXI_CALIPTRA_RLAST,
     input wire M_AXI_CALIPTRA_RVALID,
     output  wire M_AXI_CALIPTRA_RREADY,

@@ -447,4 +447,13 @@ set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {zynq_ultra_ps_e_0_M_AXI_HPM0_LPD}]
 save_bd_design
 
+# i3c_constraints.
+#set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_scl_io]]
+#set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_sda_io]]
+#set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_sda_io]]
+#set_property OFFCHIP_TERM FP_VTT_50 [get_ports [list i3c_scl_io]]
+#place_ports i3c_scl_io G8
+#place_ports i3c_sda_io G7
+
+
 start_gui
