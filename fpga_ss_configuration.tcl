@@ -14,7 +14,7 @@
 set caliptrartlDir $fpgaDir/caliptra-rtl
 set ssrtlDir $fpgaDir
 
-lappend VERILOG_OPTIONS TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE css_mcu0_TEC_RV_ICG=css_mcu0_clockhdr TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4
+lappend VERILOG_OPTIONS TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE css_mcu0_TEC_RV_ICG=css_mcu0_clockhdr TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr MCU_RV_BUILD_AXI4 I3C_USE_AXI AXI_ID_WIDTH=1 AXI_USER_WIDTH=64 AXI_DATA_WIDTH=64 AXI_ADDR_WIDTH=32
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 
 #start_gui
@@ -22,6 +22,17 @@ set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 create_project soc_package_project $outputDir -part xczu7ev-ffvc1156-2-e
 # Try setting after creating project
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
+
+
+# Create FIFO for fake UART communication
+create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name log_fifo -dir $outputDir
+set_property -dict [list \
+  CONFIG.Input_Data_Width {8} \
+  CONFIG.Input_Depth {8192} \
+  CONFIG.Performance_Options {First_Word_Fall_Through} \
+  CONFIG.Full_Threshold_Assert_Value {7168} \
+  CONFIG.Programmable_Full_Type {Single_Programmable_Full_Threshold_Constant} \
+] [get_ips log_fifo]
 
 # Add ss RTL
 #add_files [ glob $ssrtlDir/ ]
@@ -36,39 +47,52 @@ add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*.sv ]
 add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*/*.sv ]
 add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*/*.v ]
 
-if {0} {
-# Add VEER Headers
-add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_param.vh
-add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/pic_map_auto.h
-add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_pdef.vh
+if {1} {
+    # Add VEER Headers
+    add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_param.vh
+    add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/pic_map_auto.h
+    add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_pdef.vh
 
-# Add VEER sources
-add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*.sv ]
-add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.sv ]
-add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.v ]
+    # Add VEER sources
+    add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*.sv ]
+    add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.sv ]
+    add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.v ]
 
-# Add Caliptra Headers (Weird how much requires the Caliptra RTL directory. Can this be excluded?)
-add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
-# Add Caliptra Sources
-add_files [ glob $caliptrartlDir/src/*/rtl/*.sv ]
-add_files [ glob $caliptrartlDir/src/*/rtl/*.v ]
-# Trying this out. beh_lib.sv includes common_defines.sv
-# Follow-up: During packaging Vivado says that it may not be recognized as a synthesis include_dir after IP delivery
-#set_property include_dirs $caliptrartlDir/src/riscv_core/veer_el2/rtl [current_fileset]
+    # Add Caliptra Headers (Weird how much requires the Caliptra RTL directory. Can this be excluded?)
+    add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
+    # Add Caliptra Sources
+    add_files [ glob $caliptrartlDir/src/*/rtl/*.sv ]
+    add_files [ glob $caliptrartlDir/src/*/rtl/*.v ]
+    # Trying this out. beh_lib.sv includes common_defines.sv
+    # Follow-up: During packaging Vivado says that it may not be recognized as a synthesis include_dir after IP delivery
+    #set_property include_dirs $caliptrartlDir/src/riscv_core/veer_el2/rtl [current_fileset]
 
-# Remove spi_host files that aren't used yet and are flagged as having syntax errors
-# TODO: Re-include these files when spi_host is used.
-remove_files [ glob $caliptrartlDir/src/spi_host/rtl/*.sv ]
+    # Remove spi_host files that aren't used yet and are flagged as having syntax errors
+    # TODO: Re-include these files when spi_host is used.
+    remove_files [ glob $caliptrartlDir/src/spi_host/rtl/*.sv ]
 
-# Remove Caliptra files that need to be replaced by FPGA specific versions
-# Replace RAM with FPGA block ram
-#remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_ram_tdp_file.sv ]
-# Key Vault is very large. Replacing KV with a version with the minimum number of entries.
-remove_files [ glob $caliptrartlDir/src/keyvault/rtl/kv_reg.sv ]
+    # Remove Caliptra files that need to be replaced by FPGA specific versions
+    # Replace RAM with FPGA block ram
+    #remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_ram_tdp_file.sv ]
+    # Key Vault is very large. Replacing KV with a version with the minimum number of entries.
+    remove_files [ glob $caliptrartlDir/src/keyvault/rtl/kv_reg.sv ]
 
-# Remove ECDSA top
-remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_top.sv ]
+    # Remove ECDSA top
+    remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_top.sv ]
 }
+
+# I3C
+set i3cDir $fpgaDir/third_party/i3c-core
+# Include headers and packages first
+add_files [ glob $i3cDir/src/*.svh ]
+add_files [ glob $i3cDir/src/*/*/*_pkg.sv ]
+add_files [ glob $i3cDir/src/*/*_pkg.sv ]
+add_files [ glob $i3cDir/src/*_pkg.sv ]
+# Then the rest of the sv files
+add_files [ glob $i3cDir/src/*/*/*.sv ]
+add_files [ glob $i3cDir/src/*/*.sv ]
+add_files [ glob $i3cDir/src/*.sv ]
+
 
 # MCU
 add_files [ glob $ssrtlDir/src/mcu/rtl/*.svh ]
@@ -99,6 +123,7 @@ ipx::associate_bus_interfaces -busif S_AXI_MCU_DMA -clock core_clk [ipx::current
 ipx::associate_bus_interfaces -busif sb_axi -clock core_clk [ipx::current_core]
 #ipx::associate_bus_interfaces -busif S_AXI_CALIPTRA -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif S_AXI_WRAPPER -clock core_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif S_AXI_I3C -clock core_clk [ipx::current_core]
 #
 ipx::update_source_project_archive -component [ipx::current_core]
 ipx::create_xgui_files [ipx::current_core]

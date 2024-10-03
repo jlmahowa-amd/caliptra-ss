@@ -30,7 +30,7 @@ if {[info exists VERSION] == 0} {
 
 # Path to rtl
 #set rtlDir $fpgaDir/../$RTL_VERSION/rtl
-set caliptrartlDir $fpgaDir/caliptra-rtl
+set caliptrartlDir $fpgaDir/third_party/caliptra-rtl
 set ssrtlDir $fpgaDir
 puts "JTAG: $JTAG"
 puts "ITRNG: $ITRNG"
@@ -198,6 +198,7 @@ ipx::infer_bus_interfaces xilinx.com:interface:bram_rtl:1.0 [ipx::current_core]
 ipx::add_bus_parameter MASTER_TYPE [ipx::get_bus_interfaces axi_bram -of_objects [ipx::current_core]]
 ipx::associate_bus_interfaces -busif S_AXI_WRAPPER -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif S_AXI_CALIPTRA -clock core_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif M_AXI_CALIPTRA -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif axi_bram -clock axi_bram_clk [ipx::current_core]
 set_property name caliptra_package_top [ipx::current_core]
 set_property core_revision 1 [ipx::current_core]
@@ -246,8 +247,8 @@ set_property -dict [list \
 # Add AXI Interconnect
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0
 set_property -dict [list \
-  CONFIG.NUM_MI {6} \
-  CONFIG.NUM_SI {3} \
+  CONFIG.NUM_MI {7} \
+  CONFIG.NUM_SI {4} \
 ] [get_bd_cells axi_interconnect_0]
 #set_property CONFIG.M03_SECURE {1} [get_bd_cells axi_interconnect_0]
 
@@ -327,12 +328,27 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_intercon
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M03_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/M04_ACLK]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins caliptra_ss_package_0/core_clk]
+# Connections for I3C
+connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/S_AXI_I3C] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M06_AXI]
+connect_bd_net [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0]
+connect_bd_net [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+# I3C pins
+create_bd_port -dir IO -type data i3c_sda_io
+connect_bd_net [get_bd_pins /caliptra_ss_package_0/i3c_sda_io] [get_bd_ports i3c_sda_io]
+create_bd_port -dir IO -type clk -freq_hz 1000000 i3c_scl_io
+connect_bd_net [get_bd_pins /caliptra_ss_package_0/i3c_scl_io] [get_bd_ports i3c_scl_io]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/S_AXI_I3C_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+# Caliptra M_AXI
+connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_CALIPTRA] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S03_AXI]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins axi_interconnect_0/S03_ARESETN]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_interconnect_0/S03_ACLK]
 
 # Create address segments
 assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
 assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
 if {$APB} {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces zynq_ultra_ps_e_0/Data] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
 } else {
@@ -343,6 +359,7 @@ assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [ge
 assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
 if {$APB} {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
 } else {
@@ -353,12 +370,23 @@ assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [ge
 assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
 assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
 if {$APB} {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
 } else {
   assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
 }
-
+# M_AXI_CALIPTRA
+assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
+if {$APB} {
+  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
+} else {
+  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
+}
 
 
 
@@ -417,5 +445,6 @@ if {$BUILD} {
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {zynq_ultra_ps_e_0_M_AXI_HPM0_LPD}]
+save_bd_design
 
 start_gui

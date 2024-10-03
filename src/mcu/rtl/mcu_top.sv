@@ -224,7 +224,7 @@ module mcu_top
     // AXI Write Channels
     input  logic                        i3c_axi_awvalid,
     output logic                        i3c_axi_awready,
-    input  logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_awid,
+    input  logic [pt.DMA_BUS_TAG:0] i3c_axi_awid,
     input  logic [                31:0] i3c_axi_awaddr,
     input  logic [                 2:0] i3c_axi_awsize,
     input  logic [                 2:0] i3c_axi_awprot,
@@ -241,12 +241,12 @@ module mcu_top
     output logic                        i3c_axi_bvalid,
     input  logic                        i3c_axi_bready,
     output logic [                 1:0] i3c_axi_bresp,
-    output logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_bid,
+    output logic [pt.DMA_BUS_TAG:0] i3c_axi_bid,
 
     // AXI Read Channels
     input  logic                        i3c_axi_arvalid,
     output logic                        i3c_axi_arready,
-    input  logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_arid,
+    input  logic [pt.DMA_BUS_TAG:0] i3c_axi_arid,
     input  logic [                31:0] i3c_axi_araddr,
     input  logic [                 2:0] i3c_axi_arsize,
     input  logic [                 2:0] i3c_axi_arprot,
@@ -255,7 +255,7 @@ module mcu_top
 
     output logic                        i3c_axi_rvalid,
     input  logic                        i3c_axi_rready,
-    output logic [mcu_pt.DMA_BUS_TAG:0] i3c_axi_rid,
+    output logic [pt.DMA_BUS_TAG:0] i3c_axi_rid,
     output logic [                63:0] i3c_axi_rdata,
     output logic [                 1:0] i3c_axi_rresp,
     output logic                        i3c_axi_rlast,
@@ -454,10 +454,10 @@ module mcu_top
     .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
     .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
 `elsif MCU_RV_BUILD_AXI4
-    .AxiDataWidth(`AXI_DATA_WIDTH),
-    .AxiAddrWidth(`AXI_ADDR_WIDTH),
-    .AxiUserWidth(`AXI_USER_WIDTH),
-    .AxiIdWidth(`AXI_ID_WIDTH)
+    .AxiDataWidth(64),
+    .AxiAddrWidth(32),
+    .AxiUserWidth(64),
+    .AxiIdWidth(pt.DMA_BUS_TAG)
 `endif
   ) i3c (
       .clk_i(clk),

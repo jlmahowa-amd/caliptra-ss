@@ -268,7 +268,49 @@ module caliptra_ss_top_fpga (
     output	wire                      S_AXI_WRAPPER_RVALID,
     input	wire                      S_AXI_WRAPPER_RREADY,
     output	wire [31:0]               S_AXI_WRAPPER_RDATA,
-    output	wire [1:0]                S_AXI_WRAPPER_RRESP
+    output	wire [1:0]                S_AXI_WRAPPER_RRESP,
+    
+    // I3C
+    input	wire                      S_AXI_I3C_ARESETN,
+    input	wire                      S_AXI_I3C_AWVALID,
+    output	wire                      S_AXI_I3C_AWREADY,
+    input	wire [31:0]               S_AXI_I3C_AWADDR,
+    input	wire [2:0]                S_AXI_I3C_AWPROT,
+    input	wire                      S_AXI_I3C_WVALID,
+    output	wire                      S_AXI_I3C_WREADY,
+    input	wire [63:0]               S_AXI_I3C_WDATA,
+    input	wire [7:0]                S_AXI_I3C_WSTRB,
+    output	wire                      S_AXI_I3C_BVALID,
+    input	wire                      S_AXI_I3C_BREADY,
+    output	wire [1:0]                S_AXI_I3C_BRESP,
+    input	wire                      S_AXI_I3C_ARVALID,
+    output	wire                      S_AXI_I3C_ARREADY,
+    input	wire [31:0]               S_AXI_I3C_ARADDR,
+    input	wire [2:0]                S_AXI_I3C_ARPROT,
+    output	wire                      S_AXI_I3C_RVALID,
+    input	wire                      S_AXI_I3C_RREADY,
+    output	wire [63:0]               S_AXI_I3C_RDATA,
+    output	wire [1:0]                S_AXI_I3C_RRESP,
+    
+    input wire [1:0] S_AXI_I3C_ARBURST,
+    input wire [2:0] S_AXI_I3C_ARSIZE,
+    input wire [7:0] S_AXI_I3C_ARLEN,
+    input wire [31:0] S_AXI_I3C_ARUSER,
+    input wire [7:0] S_AXI_I3C_ARID,
+    input wire S_AXI_I3C_ARLOCK,
+    output wire [  7:0]           S_AXI_I3C_RID,
+    output wire                   S_AXI_I3C_RLAST,
+    input wire [             1:0] S_AXI_I3C_AWBURST,
+    input wire [             2:0] S_AXI_I3C_AWSIZE,
+    input wire [             7:0] S_AXI_I3C_AWLEN,
+    input wire [31:0] S_AXI_I3C_AWUSER,
+    input wire [  7:0] S_AXI_I3C_AWID,
+    input wire                    S_AXI_I3C_AWLOCK,
+    input  wire                  S_AXI_I3C_WLAST,
+    output wire [7:0] S_AXI_I3C_BID,
+
+    inout  wire i3c_scl_io,
+    inout  wire i3c_sda_io
 );
 
     axi4lite_intf s_axil ();
@@ -313,6 +355,86 @@ module caliptra_ss_top_fpga (
         .hwif_in (hwif_in),
         .hwif_out(hwif_out)
     );
+
+    // Log FIFO
+    // Valid = !Empty
+    logic log_fifo_empty;
+    assign hwif_in.fifo_regs.log_fifo_data.char_valid.next = ~log_fifo_empty;
+    assign hwif_in.fifo_regs.log_fifo_status.log_fifo_empty.next = log_fifo_empty;
+
+    // When rd_swacc is asserted, use the value of "valid" from when it was sampled.
+    reg log_fifo_valid_f;
+    always@(posedge core_clk) begin
+        log_fifo_valid_f <= ~log_fifo_empty;
+    end
+
+    log_fifo log_fifo_inst(
+        .clk (core_clk),
+        .srst (~S_AXI_WRAPPER_ARESETN),
+        .dout (hwif_in.fifo_regs.log_fifo_data.next_char.next),
+        .empty (log_fifo_empty),
+        .full (hwif_in.fifo_regs.log_fifo_status.log_fifo_full.next),
+        .din (hwif_out.fifo_regs.log_fifo_input.char.value),
+        .wr_en (hwif_out.fifo_regs.log_fifo_input.char.wr_swacc),
+        .rd_en (log_fifo_valid_f & hwif_out.fifo_regs.log_fifo_data.next_char.rd_swacc),
+        .prog_full () // [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
+    );
+
+/*
+    // I3C
+i3c_wrapper #(
+    .AxiDataWidth(32),
+    .AxiAddrWidth(32),
+    .AxiUserWidth(32),
+    .AxiIdWidth(6)
+) i3c (
+    .clk_i       (clk_cg),
+    .rst_ni      (S_AXI_I3C_ARESETN),
+
+    .araddr_i(S_AXI_I3C_ARADDR),
+    .arburst_i(S_AXI_I3C_ARBURST),
+    .arsize_i(S_AXI_I3C_ARSIZE),
+    .arlen_i(S_AXI_I3C_ARLEN),
+    .aruser_i(S_AXI_I3C_ARUSER),
+    .arid_i(S_AXI_I3C_ARID),
+    .arlock_i(S_AXI_I3C_ARLOCK),
+    .arvalid_i(S_AXI_I3C_ARVALID),
+    .arready_o(S_AXI_I3C_ARREADY),
+
+    .rdata_o(S_AXI_I3C_RDATA),
+    .rresp_o(S_AXI_I3C_RRESP),
+    .rid_o(S_AXI_I3C_RID),
+    .rlast_o(S_AXI_I3C_RLAST),
+    .rvalid_o(S_AXI_I3C_RVALID),
+    .rready_i(S_AXI_I3C_RREADY),
+
+    // AXI Write Channels
+    .awaddr_i(S_AXI_I3C_AWADDR),
+    .awburst_i(S_AXI_I3C_AWBURST),
+    .awsize_i(S_AXI_I3C_AWSIZE),
+    .awlen_i(S_AXI_I3C_AWLEN),
+    .awuser_i(S_AXI_I3C_AWUSER),
+    .awid_i(S_AXI_I3C_AWID),
+    .awlock_i(S_AXI_I3C_AWLOCK),
+    .awvalid_i(S_AXI_I3C_AWVALID),
+    .awready_o(S_AXI_I3C_AWREADY),
+
+    .wdata_i(S_AXI_I3C_WDATA),
+    .wstrb_i(S_AXI_I3C_WSTRB),
+    .wlast_i(S_AXI_I3C_WLAST),
+    .wvalid_i(S_AXI_I3C_WVALID),
+    .wready_o(S_AXI_I3C_WREADY),
+
+    .bresp_o(S_AXI_I3C_BRESP),
+    .bid_o(S_AXI_I3C_BID),
+    .bvalid_o(S_AXI_I3C_BVALID),
+    .bready_i(S_AXI_I3C_BREADY),
+
+    // I3C bus IO
+    .i3c_scl_io(i3c_scl_io),
+    .i3c_sda_io(i3c_sda_io)
+);
+*/
 
     // MCU
         logic [31:1]  ext_int;
@@ -626,7 +748,54 @@ end
         .dmi_uncore_wr_en       (),
         .dmi_uncore_addr        (),
         .dmi_uncore_wdata       (),
-        .dmi_uncore_rdata       ()
+        .dmi_uncore_rdata       (),
+        
+        // I3C AXI interface
+        .i3c_axi_awvalid(S_AXI_I3C_AWVALID),
+        .i3c_axi_awready(S_AXI_I3C_AWREADY),
+        .i3c_axi_awid(S_AXI_I3C_AWID),
+        .i3c_axi_awaddr(S_AXI_I3C_AWADDR),
+        .i3c_axi_awsize(S_AXI_I3C_AWSIZE),
+        .i3c_axi_awprot(S_AXI_I3C_AWPROT),
+        .i3c_axi_awlen(S_AXI_I3C_AWLEN),
+        .i3c_axi_awburst(S_AXI_I3C_AWBURST),
+
+        .i3c_axi_wvalid(S_AXI_I3C_WVALID),
+        .i3c_axi_wready(S_AXI_I3C_WREADY),
+        .i3c_axi_wdata(S_AXI_I3C_WDATA),
+        .i3c_axi_wstrb(S_AXI_I3C_WSTRB),
+        .i3c_axi_wlast(S_AXI_I3C_WLAST),
+
+        .i3c_axi_bvalid(S_AXI_I3C_BVALID),
+        .i3c_axi_bready(S_AXI_I3C_BREADY),
+        .i3c_axi_bresp(S_AXI_I3C_BRESP),
+        .i3c_axi_bid(S_AXI_I3C_BID),
+
+
+        .i3c_axi_arvalid(S_AXI_I3C_ARVALID),
+        .i3c_axi_arready(S_AXI_I3C_ARREADY),
+        .i3c_axi_arid(S_AXI_I3C_ARID),
+        .i3c_axi_araddr(S_AXI_I3C_ARADDR),
+        .i3c_axi_arsize(S_AXI_I3C_ARSIZE),
+        .i3c_axi_arprot(S_AXI_I3C_ARPROT),
+        .i3c_axi_arlen(S_AXI_I3C_ARLEN),
+        .i3c_axi_arburst(S_AXI_I3C_ARBURST),
+        
+        .i3c_axi_rvalid(S_AXI_I3C_RVALID),
+        .i3c_axi_rready(S_AXI_I3C_RREADY),
+        .i3c_axi_rid(S_AXI_I3C_RID),
+        .i3c_axi_rdata(S_AXI_I3C_RDATA),
+        .i3c_axi_rresp(S_AXI_I3C_RRESP),
+        .i3c_axi_rlast(S_AXI_I3C_RLAST),
+
+        //.awuser_i(S_AXI_I3C_AWUSER),
+        //.awlock_i(S_AXI_I3C_AWLOCK),
+        //.aruser_i(S_AXI_I3C_ARUSER),
+        //.arlock_i(S_AXI_I3C_ARLOCK),
+
+        // I3C bus IO
+        .i3c_scl_io(i3c_scl_io),
+        .i3c_sda_io(i3c_sda_io)
 
     );
 
