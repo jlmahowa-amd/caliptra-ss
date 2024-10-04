@@ -317,8 +317,8 @@ module caliptra_ss_top_fpga (
     input  logic ss_axi_bram_en,
     input  logic [3:0] ss_axi_bram_we,
     input  logic [13:0] ss_axi_bram_addr,
-    input  logic [31:0] ss_axi_bram_wrdata,
-    output logic [31:0] ss_axi_bram_rddata,
+    input  logic [31:0] ss_axi_bram_din,
+    output logic [31:0] ss_axi_bram_dout,
     input  logic ss_axi_bram_rst
 );
 
@@ -328,7 +328,6 @@ module caliptra_ss_top_fpga (
         .AUTO_SLEEP_TIME(0),            // DECIMAL
         .BYTE_WRITE_WIDTH_A(32),        // DECIMAL
         .CASCADE_HEIGHT(0),             // DECIMAL
-        .CLOCKING_MODE("common_clock"), // String
         .ECC_MODE("no_ecc"),            // String
         .MEMORY_INIT_FILE("none"),      // String
         .MEMORY_INIT_PARAM("0"),        // String
@@ -341,7 +340,6 @@ module caliptra_ss_top_fpga (
         .READ_RESET_VALUE_A("0"),       // String
         .RST_MODE_A("SYNC"),            // String
         .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
-        .USE_EMBEDDED_CONSTRAINT(0),    // DECIMAL
         .USE_MEM_INIT(1),               // DECIMAL
         .USE_MEM_INIT_MMI(0),           // DECIMAL
         .WAKEUP_TIME("disable_sleep"),  // String
@@ -351,11 +349,11 @@ module caliptra_ss_top_fpga (
     )
     imem_inst1 (
         .dbiterra(),
-        .douta(ss_axi_bram_rddata),
+        .douta(ss_axi_bram_dout),
         .sbiterra(),
         .addra(ss_axi_bram_addr),
         .clka(core_clk),
-        .dina(ss_axi_bram_wrdata),
+        .dina(ss_axi_bram_din),
         .ena(ss_axi_bram_en),
         .injectdbiterra(0),
         .injectsbiterra(0),

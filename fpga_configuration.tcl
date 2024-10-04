@@ -682,6 +682,7 @@ connect_bd_net [get_bd_pins caliptra_ss_package_0/S_AXI_WRAPPER_ARESETN] [get_bd
 connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/S_AXI_WRAPPER] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M05_AXI]
 #connect_bd_net [get_bd_pins axi_interconnect_0/M05_ACLK] [get_bd_pins ps_0/pl_clk0]
 #connect_bd_net [get_bd_pins axi_interconnect_0/M05_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+connect_bd_intf_net [get_bd_intf_pins ss_imem_bram_ctrl_1/BRAM_PORTA] [get_bd_intf_pins caliptra_ss_package_0/ss_axi_bram]
 
 save_bd_design
 puts "Fileset when setting defines the second time: [current_fileset]"
@@ -704,7 +705,7 @@ if {$BOARD eq "ZCU104"} {
 } else {
 
   # Add DDR pin placement constraints
-  add_files -fileset constrs_1 $fpgaDir/src/ddr4_constraints.xdc
+  add_files -fileset constrs_1 $fpgaDir/fpgasrc/ddr4_constraints.xdc
 }
 
 # Start build
@@ -721,10 +722,10 @@ if {$BUILD} {
 }
 
 # TODO: Temp debug
-set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
-set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
-set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {ps_0_M_AXI_HPM0_LPD}]
-save_bd_design
+#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
+#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
+#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {ps_0_M_AXI_HPM0_LPD}]
+#save_bd_design
 
 # i3c_constraints.
 #set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_scl_io]]
