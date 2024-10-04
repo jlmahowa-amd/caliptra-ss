@@ -19,20 +19,9 @@ set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 
 #start_gui
 
-create_project soc_package_project $outputDir -part xczu7ev-ffvc1156-2-e
+create_project soc_package_project $outputDir -part $PART
 # Try setting after creating project
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
-
-
-# Create FIFO for fake UART communication
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name log_fifo -dir $outputDir
-set_property -dict [list \
-  CONFIG.Input_Data_Width {8} \
-  CONFIG.Input_Depth {8192} \
-  CONFIG.Performance_Options {First_Word_Fall_Through} \
-  CONFIG.Full_Threshold_Assert_Value {7168} \
-  CONFIG.Programmable_Full_Type {Single_Programmable_Full_Threshold_Constant} \
-] [get_ips log_fifo]
 
 # Add ss RTL
 #add_files [ glob $ssrtlDir/ ]
@@ -116,6 +105,10 @@ set_property top caliptra_ss_package_top [current_fileset]
 #close_bd_design [get_bd_designs caliptra_ss_package_bd]
 
 ipx::package_project -root_dir $sspackageDir -vendor design -library user -taxonomy /UserIP
+# Infer bram
+ipx::infer_bus_interfaces xilinx.com:interface:bram_rtl:1.0 [ipx::current_core]
+ipx::add_bus_parameter MASTER_TYPE [ipx::get_bus_interfaces ss_axi_bram -of_objects [ipx::current_core]]
+ipx::associate_bus_interfaces -busif ss_axi_bram -clock ss_axi_bram_clk [ipx::current_core]
 # Associate clocks to busses
 ipx::associate_bus_interfaces -busif M_AXI_MCU_IFU -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif M_AXI_MCU_LSU -clock core_clk [ipx::current_core]

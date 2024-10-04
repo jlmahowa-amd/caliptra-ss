@@ -284,7 +284,16 @@ module caliptra_ss_package_top (
     output wire [5:0] S_AXI_I3C_BID,
 
     inout  wire i3c_scl_io,
-    inout  wire i3c_sda_io
+    inout  wire i3c_sda_io,
+    
+    // SS IMEM AXI Interface
+    input  wire ss_axi_bram_clk,
+    input  wire ss_axi_bram_en,
+    input  wire [3:0] ss_axi_bram_we,
+    input  wire [13:0] ss_axi_bram_addr,
+    input  wire [31:0] ss_axi_bram_wrdata,
+    output wire [31:0] ss_axi_bram_rddata,
+    input  wire ss_axi_bram_rst
     );
 
 caliptra_ss_top_fpga ss_wrapper (
@@ -572,7 +581,16 @@ caliptra_ss_top_fpga ss_wrapper (
     .S_AXI_I3C_BID(S_AXI_I3C_BID),
 
     .i3c_scl_io(i3c_scl_io),
-    .i3c_sda_io(i3c_sda_io)
+    .i3c_sda_io(i3c_sda_io),
+
+    // SS IMEM AXI Interface
+    s_axi_bram_clk(s_axi_bram_clk),
+    s_axi_bram_en(s_axi_bram_en),
+    s_axi_bram_we(s_axi_bram_we),
+    ss_axi_bram_addr(ss_axi_bram_addr),
+    ss_axi_bram_wrdata(ss_axi_bram_wrdata),
+    ss_axi_bram_rddata(ss_axi_bram_rddata),
+    s_axi_bram_rst(s_axi_bram_rst)
 );
 
 endmodule

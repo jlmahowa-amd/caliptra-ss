@@ -310,8 +310,60 @@ module caliptra_ss_top_fpga (
     output wire [7:0] S_AXI_I3C_BID,
 
     inout  wire i3c_scl_io,
-    inout  wire i3c_sda_io
+    inout  wire i3c_sda_io,
+    
+    // SS IMEM AXI Interface
+    input  logic ss_axi_bram_clk,
+    input  logic ss_axi_bram_en,
+    input  logic [3:0] ss_axi_bram_we,
+    input  logic [13:0] ss_axi_bram_addr,
+    input  logic [31:0] ss_axi_bram_wrdata,
+    output logic [31:0] ss_axi_bram_rddata,
+    input  logic ss_axi_bram_rst
 );
+
+
+    xpm_memory_spram #(
+        .ADDR_WIDTH_A(32), // DECIMAL
+        .AUTO_SLEEP_TIME(0),            // DECIMAL
+        .BYTE_WRITE_WIDTH_A(32),        // DECIMAL
+        .CASCADE_HEIGHT(0),             // DECIMAL
+        .CLOCKING_MODE("common_clock"), // String
+        .ECC_MODE("no_ecc"),            // String
+        .MEMORY_INIT_FILE("none"),      // String
+        .MEMORY_INIT_PARAM("0"),        // String
+        .MEMORY_OPTIMIZATION("false"),  // String
+        .MEMORY_PRIMITIVE("auto"),      // String
+        .MEMORY_SIZE(64*1024*8),        // DECIMAL
+        .MESSAGE_CONTROL(0),            // DECIMAL
+        .READ_DATA_WIDTH_A(32),         // DECIMAL
+        .READ_LATENCY_A(1),             // DECIMAL
+        .READ_RESET_VALUE_A("0"),       // String
+        .RST_MODE_A("SYNC"),            // String
+        .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+        .USE_EMBEDDED_CONSTRAINT(0),    // DECIMAL
+        .USE_MEM_INIT(1),               // DECIMAL
+        .USE_MEM_INIT_MMI(0),           // DECIMAL
+        .WAKEUP_TIME("disable_sleep"),  // String
+        .WRITE_DATA_WIDTH_A(32),        // DECIMAL
+        .WRITE_MODE_A("no_change"),     // String
+        .WRITE_PROTECT(1)               // DECIMAL
+    )
+    imem_inst1 (
+        .dbiterra(),
+        .douta(ss_axi_bram_rddata),
+        .sbiterra(),
+        .addra(ss_axi_bram_addr),
+        .clka(core_clk),
+        .dina(ss_axi_bram_wrdata),
+        .ena(ss_axi_bram_en),
+        .injectdbiterra(0),
+        .injectsbiterra(0),
+        .regcea(1),
+        .rsta(ss_axi_bram_rst),
+        .sleep(0),
+        .wea(ss_axi_bram_we)
+    );
 
     axi4lite_intf s_axil ();
 
@@ -368,17 +420,53 @@ module caliptra_ss_top_fpga (
         log_fifo_valid_f <= ~log_fifo_empty;
     end
 
-    log_fifo log_fifo_inst(
-        .clk (core_clk),
-        .srst (~S_AXI_WRAPPER_ARESETN),
-        .dout (hwif_in.fifo_regs.log_fifo_data.next_char.next),
-        .empty (log_fifo_empty),
-        .full (hwif_in.fifo_regs.log_fifo_status.log_fifo_full.next),
-        .din (hwif_out.fifo_regs.log_fifo_input.char.value),
-        .wr_en (hwif_out.fifo_regs.log_fifo_input.char.wr_swacc),
-        .rd_en (log_fifo_valid_f & hwif_out.fifo_regs.log_fifo_data.next_char.rd_swacc),
-        .prog_full () // [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
-    );
+
+   xpm_fifo_sync #(
+      .CASCADE_HEIGHT(0),         // DECIMAL
+      .DOUT_RESET_VALUE("0"),     // String
+      .ECC_MODE("no_ecc"),        // String
+      .FIFO_MEMORY_TYPE("block"), // String
+      .FIFO_READ_LATENCY(0),      // DECIMAL
+      .FIFO_WRITE_DEPTH(8192),    // DECIMAL
+      .FULL_RESET_VALUE(0),       // DECIMAL
+      .PROG_EMPTY_THRESH(10),     // DECIMAL
+      .PROG_FULL_THRESH(7168),    // DECIMAL Currently unused
+      .RD_DATA_COUNT_WIDTH(14),   // DECIMAL
+      .READ_DATA_WIDTH(8),        // DECIMAL
+      .READ_MODE("fwft"),         // String
+      .SIM_ASSERT_CHK(0),         // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+      .USE_ADV_FEATURES("0000"),  // String
+      .WAKEUP_TIME(0),            // DECIMAL
+      .WRITE_DATA_WIDTH(8),       // DECIMAL
+      .WR_DATA_COUNT_WIDTH(14)    // DECIMAL
+   )
+   log_fifo_inst (
+      .almost_empty(),
+      .almost_full(),
+      .data_valid(),
+      .dbiterr(),
+      .dout(hwif_in.fifo_regs.log_fifo_data.next_char.next),
+      .empty(log_fifo_empty),
+      .full(hwif_in.fifo_regs.log_fifo_status.log_fifo_full.next),
+      .overflow(),
+      .prog_empty(),
+      .prog_full(),
+      .rd_data_count(),
+      .rd_rst_busy(),
+      .sbiterr(),
+      .underflow(),
+      .wr_ack(),
+      .wr_data_count(),
+      .wr_rst_busy(),
+      .din(hwif_out.fifo_regs.log_fifo_input.char.value),
+      .injectdbiterr(0),
+      .injectsbiterr(0),
+      .rd_en(log_fifo_valid_f & hwif_out.fifo_regs.log_fifo_data.next_char.rd_swacc),
+      .rst(~S_AXI_WRAPPER_ARESETN),
+      .sleep(0),
+      .wr_clk(core_clk),
+      .wr_en(hwif_out.fifo_regs.log_fifo_input.char.wr_swacc)
+   );
 
 /*
     // I3C

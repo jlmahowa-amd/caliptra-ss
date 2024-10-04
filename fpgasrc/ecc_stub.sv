@@ -21,7 +21,7 @@
 // 3- ahb_slv_sif module to handle AHB-lite interface
 //======================================================================
 
-module ecc_top
+module ecc_top_disabled
     import kv_defines_pkg::*;
     #(
     parameter AHB_ADDR_WIDTH = 32,
