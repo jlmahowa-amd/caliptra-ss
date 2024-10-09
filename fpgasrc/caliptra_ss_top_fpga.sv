@@ -34,7 +34,7 @@ module caliptra_ss_top_fpga (
     input  wire [2:0] S_AXI_CALIPTRA_AWSIZE,
     input  wire [7:0] S_AXI_CALIPTRA_AWLEN,
     input  wire [31:0] S_AXI_CALIPTRA_AWUSER,
-    input  wire [15:0] S_AXI_CALIPTRA_AWID,
+    input  wire [18:0] S_AXI_CALIPTRA_AWID,
     input  wire S_AXI_CALIPTRA_AWLOCK,
     input  wire S_AXI_CALIPTRA_AWVALID,
     output wire S_AXI_CALIPTRA_AWREADY,
@@ -46,7 +46,7 @@ module caliptra_ss_top_fpga (
     input  wire S_AXI_CALIPTRA_WLAST,
     // B
     output wire [1:0] S_AXI_CALIPTRA_BRESP,
-    output reg  [15:0] S_AXI_CALIPTRA_BID,
+    output reg  [18:0] S_AXI_CALIPTRA_BID,
     output wire S_AXI_CALIPTRA_BVALID,
     input  wire S_AXI_CALIPTRA_BREADY,
     // AR
@@ -55,14 +55,14 @@ module caliptra_ss_top_fpga (
     input  wire [2:0] S_AXI_CALIPTRA_ARSIZE,
     input  wire [7:0] S_AXI_CALIPTRA_ARLEN,
     input  wire [31:0] S_AXI_CALIPTRA_ARUSER,
-    input  wire [15:0] S_AXI_CALIPTRA_ARID,
+    input  wire [18:0] S_AXI_CALIPTRA_ARID,
     input  wire S_AXI_CALIPTRA_ARLOCK,
     input  wire S_AXI_CALIPTRA_ARVALID,
     output wire S_AXI_CALIPTRA_ARREADY,
     // R
     output wire [31:0] S_AXI_CALIPTRA_RDATA,
     output wire [3:0] S_AXI_CALIPTRA_RRESP,
-    output reg  [15:0] S_AXI_CALIPTRA_RID,
+    output reg  [18:0] S_AXI_CALIPTRA_RID,
     output wire S_AXI_CALIPTRA_RLAST,
     output wire S_AXI_CALIPTRA_RVALID,
     input  wire S_AXI_CALIPTRA_RREADY,
@@ -71,7 +71,7 @@ module caliptra_ss_top_fpga (
     // AXI Write Channels
     output wire                      M_AXI_MCU_LSU_AWVALID,
     input  wire                      M_AXI_MCU_LSU_AWREADY,
-    output wire [3-1:0]              M_AXI_MCU_LSU_AWID,
+    output wire [18:0]              M_AXI_MCU_LSU_AWID,
     output wire [              31:0] M_AXI_MCU_LSU_AWADDR,
     output wire [               3:0] M_AXI_MCU_LSU_AWREGION,
     output wire [               7:0] M_AXI_MCU_LSU_AWLEN,
@@ -91,12 +91,12 @@ module caliptra_ss_top_fpga (
     input  wire                      M_AXI_MCU_LSU_BVALID,
     output wire                      M_AXI_MCU_LSU_BREADY,
     input  wire [               1:0] M_AXI_MCU_LSU_BRESP,
-    input  wire [3-1:0]              M_AXI_MCU_LSU_BID,
+    input  wire [18:0]              M_AXI_MCU_LSU_BID,
 
     // AXI Read Channels
     output wire                      M_AXI_MCU_LSU_ARVALID,
     input  wire                      M_AXI_MCU_LSU_ARREADY,
-    output wire [3-1:0]              M_AXI_MCU_LSU_ARID,
+    output wire [18:0]              M_AXI_MCU_LSU_ARID,
     output wire [              31:0] M_AXI_MCU_LSU_ARADDR,
     output wire [               3:0] M_AXI_MCU_LSU_ARREGION,
     output wire [               7:0] M_AXI_MCU_LSU_ARLEN,
@@ -109,7 +109,7 @@ module caliptra_ss_top_fpga (
 
     input  wire                      M_AXI_MCU_LSU_RVALID,
     output wire                      M_AXI_MCU_LSU_RREADY,
-    input  wire [3-1:0]              M_AXI_MCU_LSU_RID,
+    input  wire [18:0]              M_AXI_MCU_LSU_RID,
     input  wire [              63:0] M_AXI_MCU_LSU_RDATA,
     input  wire [               1:0] M_AXI_MCU_LSU_RRESP,
     input  wire                      M_AXI_MCU_LSU_RLAST,
@@ -118,7 +118,7 @@ module caliptra_ss_top_fpga (
     // AXI Write Channels
     output wire                      M_AXI_MCU_IFU_AWVALID,
     input  wire                      M_AXI_MCU_IFU_AWREADY,
-    output wire [3-1:0]              M_AXI_MCU_IFU_AWID,
+    output wire [18:0]              M_AXI_MCU_IFU_AWID,
     output wire [              31:0] M_AXI_MCU_IFU_AWADDR,
     output wire [               3:0] M_AXI_MCU_IFU_AWREGION,
     output wire [               7:0] M_AXI_MCU_IFU_AWLEN,
@@ -138,12 +138,12 @@ module caliptra_ss_top_fpga (
     input  wire                      M_AXI_MCU_IFU_BVALID,
     output wire                      M_AXI_MCU_IFU_BREADY,
     input  wire [               1:0] M_AXI_MCU_IFU_BRESP,
-    input  wire [3-1:0]              M_AXI_MCU_IFU_BID,
+    input  wire [18:0]              M_AXI_MCU_IFU_BID,
 
     // AXI Read Channels
     output wire                      M_AXI_MCU_IFU_ARVALID,
     input  wire                      M_AXI_MCU_IFU_ARREADY,
-    output wire [3-1:0]              M_AXI_MCU_IFU_ARID,
+    output wire [18:0]              M_AXI_MCU_IFU_ARID,
     output wire [              31:0] M_AXI_MCU_IFU_ARADDR,
     output wire [               3:0] M_AXI_MCU_IFU_ARREGION,
     output wire [               7:0] M_AXI_MCU_IFU_ARLEN,
@@ -156,7 +156,7 @@ module caliptra_ss_top_fpga (
 
     input  wire                      M_AXI_MCU_IFU_RVALID,
     output wire                      M_AXI_MCU_IFU_RREADY,
-    input  wire [3-1:0]              M_AXI_MCU_IFU_RID,
+    input  wire [18:0]              M_AXI_MCU_IFU_RID,
     input  wire [              63:0] M_AXI_MCU_IFU_RDATA,
     input  wire [               1:0] M_AXI_MCU_IFU_RRESP,
     input  wire                      M_AXI_MCU_IFU_RLAST,
@@ -165,7 +165,7 @@ module caliptra_ss_top_fpga (
     // AXI Write Channels
     output wire                     sb_axi_awvalid,
     input  wire                     sb_axi_awready,
-    output wire [1-1:0]             sb_axi_awid,
+    output wire [18:0]             sb_axi_awid,
     output wire [             31:0] sb_axi_awaddr,
     output wire [              3:0] sb_axi_awregion,
     output wire [              7:0] sb_axi_awlen,
@@ -185,12 +185,12 @@ module caliptra_ss_top_fpga (
     input  wire                     sb_axi_bvalid,
     output wire                     sb_axi_bready,
     input  wire [              1:0] sb_axi_bresp,
-    input  wire [1-1:0]             sb_axi_bid,
+    input  wire [18:0]             sb_axi_bid,
 
     // AXI Read Channels
     output wire                     sb_axi_arvalid,
     input  wire                     sb_axi_arready,
-    output wire [1-1:0]             sb_axi_arid,
+    output wire [18:0]             sb_axi_arid,
     output wire [             31:0] sb_axi_araddr,
     output wire [              3:0] sb_axi_arregion,
     output wire [              7:0] sb_axi_arlen,
@@ -203,7 +203,7 @@ module caliptra_ss_top_fpga (
 
     input  wire                     sb_axi_rvalid,
     output wire                     sb_axi_rready,
-    input  wire [1-1:0]             sb_axi_rid,
+    input  wire [18:0]             sb_axi_rid,
     input  wire [             63:0] sb_axi_rdata,
     input  wire [              1:0] sb_axi_rresp,
     input  wire                     sb_axi_rlast,
@@ -212,7 +212,7 @@ module caliptra_ss_top_fpga (
     // AXI Write Channels
     input  wire                      S_AXI_MCU_DMA_AWVALID,
     output wire                      S_AXI_MCU_DMA_AWREADY,
-    input  wire [1-1:0]              S_AXI_MCU_DMA_AWID,
+    input  wire [18:0]              S_AXI_MCU_DMA_AWID,
     input  wire [              31:0] S_AXI_MCU_DMA_AWADDR,
     input  wire [               2:0] S_AXI_MCU_DMA_AWSIZE,
     input  wire [               2:0] S_AXI_MCU_DMA_AWPROT,
@@ -229,12 +229,12 @@ module caliptra_ss_top_fpga (
     output wire                      S_AXI_MCU_DMA_BVALID,
     input  wire                      S_AXI_MCU_DMA_BREADY,
     output wire [               1:0] S_AXI_MCU_DMA_BRESP,
-    output wire [1-1:0]              S_AXI_MCU_DMA_BID,
+    output wire [18:0]              S_AXI_MCU_DMA_BID,
 
     // AXI Read CHANNELS
     input  wire                      S_AXI_MCU_DMA_ARVALID,
     output wire                      S_AXI_MCU_DMA_ARREADY,
-    input  wire [1-1:0]              S_AXI_MCU_DMA_ARID,
+    input  wire [18:0]              S_AXI_MCU_DMA_ARID,
     input  wire [              31:0] S_AXI_MCU_DMA_ARADDR,
     input  wire [               2:0] S_AXI_MCU_DMA_ARSIZE,
     input  wire [               2:0] S_AXI_MCU_DMA_ARPROT,
@@ -243,7 +243,7 @@ module caliptra_ss_top_fpga (
 
     output wire                      S_AXI_MCU_DMA_RVALID,
     input  wire                      S_AXI_MCU_DMA_RREADY,
-    output wire [1-1:0]              S_AXI_MCU_DMA_RID,
+    output wire [18:0]              S_AXI_MCU_DMA_RID,
     output wire [              63:0] S_AXI_MCU_DMA_RDATA,
     output wire [               1:0] S_AXI_MCU_DMA_RRESP,
     output wire                      S_AXI_MCU_DMA_RLAST,
@@ -296,21 +296,26 @@ module caliptra_ss_top_fpga (
     input wire [2:0] S_AXI_I3C_ARSIZE,
     input wire [7:0] S_AXI_I3C_ARLEN,
     input wire [31:0] S_AXI_I3C_ARUSER,
-    input wire [7:0] S_AXI_I3C_ARID,
+    input wire [18:0] S_AXI_I3C_ARID,
     input wire S_AXI_I3C_ARLOCK,
-    output wire [  7:0]           S_AXI_I3C_RID,
+    output wire [18:0]           S_AXI_I3C_RID,
     output wire                   S_AXI_I3C_RLAST,
     input wire [             1:0] S_AXI_I3C_AWBURST,
     input wire [             2:0] S_AXI_I3C_AWSIZE,
     input wire [             7:0] S_AXI_I3C_AWLEN,
     input wire [31:0] S_AXI_I3C_AWUSER,
-    input wire [  7:0] S_AXI_I3C_AWID,
+    input wire [18:0] S_AXI_I3C_AWID,
     input wire                    S_AXI_I3C_AWLOCK,
     input  wire                  S_AXI_I3C_WLAST,
-    output wire [7:0] S_AXI_I3C_BID,
+    output wire [18:0] S_AXI_I3C_BID,
 
-    inout  wire i3c_scl_io,
-    inout  wire i3c_sda_io,
+    input  logic scl_i,
+    input  logic sda_i,
+    output logic scl_o,
+    output logic sda_o,
+    output logic sel_od_pp_o,
+//    inout  wire i3c_scl_io,
+//    inout  wire i3c_sda_io,
     
     // SS IMEM AXI Interface
     input  logic ss_axi_bram_clk,
@@ -414,8 +419,11 @@ module caliptra_ss_top_fpga (
 
     // When rd_swacc is asserted, use the value of "valid" from when it was sampled.
     reg log_fifo_valid_f;
+    // Delay FIFO input wr_en by one cycle
+    reg wr_swacc_f;
     always@(posedge core_clk) begin
         log_fifo_valid_f <= ~log_fifo_empty;
+        wr_swacc_f <= hwif_out.fifo_regs.log_fifo_input.char.wr_swacc;
     end
 
 
@@ -463,7 +471,7 @@ module caliptra_ss_top_fpga (
       .rst(~S_AXI_WRAPPER_ARESETN),
       .sleep(0),
       .wr_clk(core_clk),
-      .wr_en(hwif_out.fifo_regs.log_fifo_input.char.wr_swacc)
+      .wr_en(wr_swacc_f)
    );
 
 /*
@@ -517,8 +525,13 @@ i3c_wrapper #(
     .bready_i(S_AXI_I3C_BREADY),
 
     // I3C bus IO
-    .i3c_scl_io(i3c_scl_io),
-    .i3c_sda_io(i3c_sda_io)
+    .scl_i(scl_i),
+    .sda_i(sda_i),
+    .scl_o(scl_o),
+    .sda_o(sda_o),
+    .sel_od_pp_o(sel_od_pp_o)
+    //.i3c_scl_io(i3c_scl_io),
+    //.i3c_sda_io(i3c_sda_io)
 );
 */
 
@@ -880,8 +893,13 @@ end
         //.arlock_i(S_AXI_I3C_ARLOCK),
 
         // I3C bus IO
-        .i3c_scl_io(i3c_scl_io),
-        .i3c_sda_io(i3c_sda_io)
+        .scl_i(scl_i),
+        .sda_i(sda_i),
+        .scl_o(scl_o),
+        .sda_o(sda_o),
+        .sel_od_pp_o(sel_od_pp_o)
+        //.i3c_scl_io(i3c_scl_io),
+        //.i3c_sda_io(i3c_sda_io)
 
     );
 

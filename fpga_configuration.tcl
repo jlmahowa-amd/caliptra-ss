@@ -1,23 +1,25 @@
-# Create path variables
-set fpgaDir [file dirname [info script]]
-set outputDir $fpgaDir/caliptra_build_versal
-set caliptrapackageDir $outputDir/caliptra_package
-set sspackageDir $outputDir/ss_package
-# Clean and create output directory.
-file delete -force $outputDir
-file mkdir $outputDir
-file mkdir $caliptrapackageDir
-file mkdir $sspackageDir
+
 
 # Simplistic processing of command line arguments to enable different features
 # Defaults:
 set BUILD FALSE
 set GUI   FALSE
-set JTAG  TRUE
-set ITRNG TRUE
+set JTAG  FALSE
+set ITRNG FALSE
 set CG_EN FALSE
 set RTL_VERSION latest
-set BOARD VCK190
+
+set BOARD ZCU104
+set DISABLE_ECC TRUE
+set ENABLE_ADB FALSE
+set ITRNG FALSE
+
+#set BOARD VCK190
+#set DISABLE_ECC FALSE
+#set ENABLE_ADB TRUE
+#set ITRNG TRUE
+
+
 set APB FALSE
 foreach arg $argv {
     regexp {(.*)=(.*)} $arg fullmatch option value
@@ -28,6 +30,21 @@ foreach arg $argv {
 if {[info exists VERSION] == 0} {
   set VERSION [exec git rev-parse --short HEAD]
 }
+
+# Create path variables
+set fpgaDir [file dirname [info script]]
+if {$BOARD eq "ZCU104"} {
+  set outputDir $fpgaDir/caliptra_build
+} else {
+  set outputDir $fpgaDir/caliptra_build_versal
+}
+set caliptrapackageDir $outputDir/caliptra_package
+set sspackageDir $outputDir/ss_package
+# Clean and create output directory.
+file delete -force $outputDir
+file mkdir $outputDir
+file mkdir $caliptrapackageDir
+file mkdir $sspackageDir
 
 # Path to rtl
 #set rtlDir $fpgaDir/../$RTL_VERSION/rtl
@@ -75,7 +92,9 @@ if {$BOARD eq "ZCU104"} {
 # Create a project to package Caliptra.
 # Packaging Caliptra allows Vivado to recognize the APB bus as an endpoint for the memory map.
 create_project caliptra_package_project $outputDir -part $PART
-set_property board_part xilinx.com:vck190:part0:3.1 [current_project]
+if {$BOARD eq "VCK190"} {
+  set_property board_part xilinx.com:vck190:part0:3.1 [current_project]
+}
 
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 puts "\n\nVERILOG DEFINES: [get_property verilog_define [current_fileset]]"
@@ -92,8 +111,10 @@ add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.v ]
 
 
 # Add Adam's Bridge
-#add_files [ glob $fpgaDir/adams-bridge/src/*/rtl/*.sv ]
-source adams-bridge-files.tcl
+if {$ENABLE_ADB} {
+  #add_files [ glob $fpgaDir/adams-bridge/src/*/rtl/*.sv ]
+  source adams-bridge-files.tcl
+}
 
 # Add Caliptra Headers
 add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
@@ -106,17 +127,29 @@ add_files [ glob $caliptrartlDir/src/*/rtl/*.v ]
 remove_files [ glob $caliptrartlDir/src/spi_host/rtl/*.sv ]
 
 # Remove Caliptra files that need to be replaced by FPGA specific versions
-# Replace RAM with FPGA block ram
-remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_ram_tdp_file.sv ]
 # Key Vault is very large. Replacing KV with a version with the minimum number of entries.
 remove_files [ glob $caliptrartlDir/src/keyvault/rtl/kv_reg.sv ]
 
-# Remove ECC to be replaced by stub for SS
-#remove_files [ glob $caliptrartlDir/src/ecc/rtl/*.sv ]
 
 # Add FPGA specific sources
 add_files [ glob $fpgaDir/fpgasrc/*.sv]
 add_files [ glob $fpgaDir/fpgasrc/*.v]
+
+
+if {$DISABLE_ECC} {
+  # Remove ECC to be replaced by stub for SS
+  remove_files [ glob $caliptrartlDir/src/ecc/rtl/*.sv ]
+} else {
+  # Replace RAM with FPGA block ram
+  remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_ram_tdp_file.sv ]
+  # Remove ECC stub from FPGA files
+  remove_files $fpgaDir/fpgasrc/ecc_stub.sv
+}
+
+if {$ENABLE_ADB} {
+  # Remove MLDSA stub
+  remove_files $fpgaDir/fpgasrc/mldsa_stub.sv
+}
 
 # Mark all Verilog sources as SystemVerilog because some of them have SystemVerilog syntax.
 set_property file_type SystemVerilog [get_files *.v]
@@ -197,7 +230,7 @@ create_bd_cell -type ip -vlnv design:user:caliptra_package_top:1.0 caliptra_pack
 if {$BOARD eq "ZCU104"} {
   create_bd_cell -type ip -vlnv xilinx.com:ip:zynq_ultra_ps_e ps_0
   set_property -dict [list \
-    CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ {20} \
+    CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ {40} \
     CONFIG.PSU__USE__IRQ0 {1} \
     CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
     CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {5} \
@@ -238,7 +271,7 @@ if {$BOARD eq "ZCU104"} {
       DDR_MEMORY_MODE {Connectivity to DDR via NOC} \
       DEBUG_MODE {JTAG} \
       DESIGN_MODE {1} \
-      PMC_CRP_PL0_REF_CTRL_FREQMHZ {20} \
+      PMC_CRP_PL0_REF_CTRL_FREQMHZ {40} \
       PMC_GPIO0_MIO_PERIPHERAL {{ENABLE 1} {IO {PMC_MIO 0 .. 25}}} \
       PMC_GPIO1_MIO_PERIPHERAL {{ENABLE 1} {IO {PMC_MIO 26 .. 51}}} \
       PMC_MIO37 {{AUX_IO 0} {DIRECTION out} {DRIVE_STRENGTH 8mA} {OUTPUT_DATA high} {PULL pullup} {SCHMITT 0} {SLEW slow} {USAGE GPIO}} \
@@ -548,7 +581,8 @@ connect_bd_net -net proc_sys_reset_0_peripheral_aresetn \
   [get_bd_pins caliptra_package_top_0/S_AXI_WRAPPER_ARESETN] \
   [get_bd_pins axi_bram_ctrl_0/s_axi_aresetn]
 # Create clock connections
-connect_bd_net -net ps_0_pl0_ref_clk \
+#  -net ps_0_pl0_ref_clk
+connect_bd_net \
   [get_bd_pins $ps_pl_clk] \
   [get_bd_pins $ps_axi_aclk] \
   [get_bd_pins proc_sys_reset_0/slowest_sync_clk] \
@@ -577,11 +611,28 @@ connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/S_AXI_I3C] -boundary
 #connect_bd_net [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins ps_0/pl_clk0]
 #connect_bd_net [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 # I3C pins
-create_bd_port -dir IO -type data i3c_sda_io
-connect_bd_net [get_bd_pins /caliptra_ss_package_0/i3c_sda_io] [get_bd_ports i3c_sda_io]
-create_bd_port -dir IO -type clk -freq_hz 1000000 i3c_scl_io
-connect_bd_net [get_bd_pins /caliptra_ss_package_0/i3c_scl_io] [get_bd_ports i3c_scl_io]
-connect_bd_net [get_bd_pins caliptra_ss_package_0/S_AXI_I3C_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
+add_files [ glob $caliptrartlDir/src/caliptra_prim_generic/rtl/*.sv ]
+add_files [ glob $caliptrartlDir/src/caliptra_prim/rtl/*.sv ]
+add_files [ glob $fpgaDir/third_party/i3c-core/src/phy/*.sv ]
+add_files $fpgaDir/fpgasrc/i3c_io_wrapper.v
+create_bd_cell -type module -reference i3c_io_wrapper i3c_io_wrapper_0
+create_bd_port -dir IO -type data sda_io
+connect_bd_net [get_bd_ports sda_io] [get_bd_pins i3c_io_wrapper_0/sda_io]
+create_bd_port -dir IO -type clk -freq_hz 1000000 scl_io
+connect_bd_net [get_bd_ports scl_io] [get_bd_pins i3c_io_wrapper_0/scl_io]
+# Connections betweeni3c_io_wrapper and the i3c
+connect_bd_net [get_bd_pins caliptra_ss_package_0/sel_od_pp_o] [get_bd_pins i3c_io_wrapper_0/sel_od_pp_i]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/scl_o] [get_bd_pins i3c_io_wrapper_0/scl_i]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/sda_o] [get_bd_pins i3c_io_wrapper_0/sda_i]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/scl_i] [get_bd_pins i3c_io_wrapper_0/scl_o]
+connect_bd_net [get_bd_pins caliptra_ss_package_0/sda_i] [get_bd_pins i3c_io_wrapper_0/sda_o]
+
+#create_bd_port -dir IO -type data i3c_sda_io
+#connect_bd_net [get_bd_pins /caliptra_ss_package_0/i3c_sda_io] [get_bd_ports i3c_sda_io]
+#create_bd_port -dir IO -type clk -freq_hz 1000000 i3c_scl_io
+#connect_bd_net [get_bd_pins /caliptra_ss_package_0/i3c_scl_io] [get_bd_ports i3c_scl_io]
+#connect_bd_net [get_bd_pins caliptra_ss_package_0/S_AXI_I3C_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 # Caliptra M_AXI
 connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_CALIPTRA] -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S03_AXI]
 #connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins axi_interconnect_0/S03_ARESETN]
@@ -589,49 +640,32 @@ connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_CALIPTRA] -bo
 
 # Create address segments
 if {$BOARD eq "ZCU104"} {
-assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
-if {$APB} {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
-} else {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
-}
-# IFU
-assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
-if {$APB} {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
-} else {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_IFU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
-}
-# LSU
-assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
-if {$APB} {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
-} else {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_ss_package_0/M_AXI_MCU_LSU] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
-}
-# M_AXI_CALIPTRA
-assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
-assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
-assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
-if {$APB} {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
-} else {
-  assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
-}
+  # Zynq
+  assign_bd_address -offset 0x80000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
+  assign_bd_address -offset 0x82000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x82010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x82020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+  assign_bd_address -offset 0x82030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
+  if {$APB} {
+    assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
+  } else {
+    assign_bd_address -offset 0x90000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces ps_0/Data] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
+  }
+
+  # Other AXI managers
+  set managers {caliptra_ss_package_0/M_AXI_MCU_IFU caliptra_ss_package_0/M_AXI_MCU_LSU caliptra_package_top_0/M_AXI_CALIPTRA}
+  foreach manager $managers {
+    assign_bd_address -offset 0x10000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+    assign_bd_address -offset 0x20000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+    assign_bd_address -offset 0x30000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
+    assign_bd_address -offset 0x40000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+    assign_bd_address -offset 0x50000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
+    if {$APB} {
+      assign_bd_address -offset 0x60000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
+    } else {
+      assign_bd_address -offset 0x60000000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
+    }
+  }
 } else {
 
   # DRAM
@@ -654,17 +688,17 @@ if {$APB} {
   assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces ps_0/PMC_NOC_AXI_0] [get_bd_addr_segs axi_noc_0/S05_AXI/C0_DDR_LOW1] -force
 
   # Caliptra register and memory interfaces
-  set masters {get_bd_addr_spaces ps_0/M_AXI_FPD caliptra_ss_package_0/M_AXI_MCU_IFU caliptra_ss_package_0/M_AXI_MCU_LSU caliptra_package_top_0/M_AXI_CALIPTRA}
-  foreach master $masters {
-    assign_bd_address -offset 0xA4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-    assign_bd_address -offset 0xA4010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
-    assign_bd_address -offset 0xA4200000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
-    assign_bd_address -offset 0xA4210000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
-    assign_bd_address -offset 0xA4220000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
+  set managers {get_bd_addr_spaces ps_0/M_AXI_FPD caliptra_ss_package_0/M_AXI_MCU_IFU caliptra_ss_package_0/M_AXI_MCU_LSU caliptra_package_top_0/M_AXI_CALIPTRA}
+  foreach manager $managers {
+    assign_bd_address -offset 0xA4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+    assign_bd_address -offset 0xA4010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs ss_imem_bram_ctrl_1/S_AXI/Mem0] -force
+    assign_bd_address -offset 0xA4200000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
+    assign_bd_address -offset 0xA4210000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
+    assign_bd_address -offset 0xA4220000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
     if {$APB} {
-      assign_bd_address -offset 0xA4100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
+      assign_bd_address -offset 0xA4100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
     } else {
-      assign_bd_address -offset 0xA4100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $master] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
+      assign_bd_address -offset 0xA4100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_CALIPTRA/reg0] -force
     }
   }
 
@@ -692,6 +726,7 @@ puts "\n\nVERILOG DEFINES: [get_property verilog_define [current_fileset]]"
 # Create the HDL wrapper for the block design and add it. This will be set as top.
 make_wrapper -files [get_files $outputDir/caliptra_fpga_project.srcs/sources_1/bd/caliptra_fpga_project_bd/caliptra_fpga_project_bd.bd] -top
 add_files -norecurse $outputDir/caliptra_fpga_project.gen/sources_1/bd/caliptra_fpga_project_bd/hdl/caliptra_fpga_project_bd_wrapper.v
+set_property top caliptra_fpga_project_bd_wrapper [current_fileset]
 
 update_compile_order -fileset sources_1
 
@@ -722,18 +757,30 @@ if {$BUILD} {
 }
 
 # TODO: Temp debug
-#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
-#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
-#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {ps_0_M_AXI_HPM0_LPD}]
-#save_bd_design
+if {$BOARD eq "ZCU104"} {
+  set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
+  set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
+  set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {ps_0_M_AXI_HPM0_LPD}]
+  set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M05_AXI}]
+  set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M06_AXI}]
+  save_bd_design
+}
 
 # i3c_constraints.
 #set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_scl_io]]
 #set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_sda_io]]
-#set_property IOSTANDARD LVCMOS33 [get_ports [list i3c_sda_io]]
-#set_property OFFCHIP_TERM FP_VTT_50 [get_ports [list i3c_scl_io]]
 #place_ports i3c_scl_io G8
 #place_ports i3c_sda_io G7
 
+# i3c constraints Versal
+#place_ports i3c_scl_io BF24
+#place_ports i3c_sda_io BC20
+#set_property IOSTANDARD LVCMOS15 [get_ports [list i3c_scl_io]]
+#set_property IOSTANDARD LVCMOS15 [get_ports [list i3c_sda_io]]
 
+if {$BOARD eq "ZCU104"} {
+  add_files -fileset constrs_1 $fpgaDir/fpgasrc/zynq_i3c_constraints.xdc
+} else {
+  add_files -fileset constrs_1 $fpgaDir/fpgasrc/versal_i3c_constraints.xdc
+}
 start_gui

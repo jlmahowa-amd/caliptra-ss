@@ -415,16 +415,16 @@ module mcu_top
     input  logic [31:0] dmi_uncore_rdata,
 
     // I3C Interface
-`ifdef VERILATOR
+//`ifdef VERILATOR
     input  logic scl_i,
     input  logic sda_i,
     output logic scl_o,
     output logic sda_o,
     output logic sel_od_pp_o
-`else
-    inout  logic i3c_scl_io,
-    inout  logic i3c_sda_io
-`endif
+//`else
+//    inout  logic i3c_scl_io,
+//    inout  logic i3c_sda_io
+//`endif
 );
 
   css_mcu0_el2_mem_if mem_export ();
@@ -520,17 +520,17 @@ module mcu_top
       .bready_i(i3c_axi_bready),
 `endif
 
-`ifdef VERILATOR
+//`ifdef VERILATOR
       .scl_i(scl_i),
       .sda_i(sda_i),
       .scl_o(scl_o),
       .sda_o(sda_o),
       .sel_od_pp_o(sel_od_pp_o)
-`else
-      // I3C bus IO
-      .i3c_scl_io(i3c_scl_io),
-      .i3c_sda_io(i3c_sda_io)
-`endif
+//`else
+//      // I3C bus IO
+//      .i3c_scl_io(i3c_scl_io),
+//      .i3c_sda_io(i3c_sda_io)
+//`endif
   );
 
 endmodule
