@@ -38,7 +38,7 @@ module mcu_top
     output logic [31:0] trace_rv_i_tval_ip,
 
     // Bus signals
-`ifdef css_mcu0_RV_BUILD_AXI4
+//`ifdef css_mcu0_RV_BUILD_AXI4
     //-------------------------- LSU AXI signals--------------------------
     // AXI Write Channels
     output logic                      lsu_axi_awvalid,
@@ -259,81 +259,81 @@ module mcu_top
     output logic [                63:0] i3c_axi_rdata,
     output logic [                 1:0] i3c_axi_rresp,
     output logic                        i3c_axi_rlast,
-`endif
+//`endif
 
-`ifdef MCU_RV_BUILD_AHB_LITE
-    //// AHB LITE BUS
-    output logic [31:0] haddr,
-    output logic [ 2:0] hburst,
-    output logic        hmastlock,
-    output logic [ 3:0] hprot,
-    output logic [ 2:0] hsize,
-    output logic [ 1:0] htrans,
-    output logic        hwrite,
-
-    input logic [63:0] hrdata,
-    input logic        hready,
-    input logic        hresp,
-
-    // LSU AHB Master
-    output logic [31:0] lsu_haddr,
-    output logic [ 2:0] lsu_hburst,
-    output logic        lsu_hmastlock,
-    output logic [ 3:0] lsu_hprot,
-    output logic [ 2:0] lsu_hsize,
-    output logic [ 1:0] lsu_htrans,
-    output logic        lsu_hwrite,
-    output logic [63:0] lsu_hwdata,
-
-    input  logic [63:0] lsu_hrdata,
-    input  logic        lsu_hready,
-    input  logic        lsu_hresp,
-    // Debug Syster Bus AHB
-    output logic [31:0] sb_haddr,
-    output logic [ 2:0] sb_hburst,
-    output logic        sb_hmastlock,
-    output logic [ 3:0] sb_hprot,
-    output logic [ 2:0] sb_hsize,
-    output logic [ 1:0] sb_htrans,
-    output logic        sb_hwrite,
-    output logic [63:0] sb_hwdata,
-
-    input logic [63:0] sb_hrdata,
-    input logic        sb_hready,
-    input logic        sb_hresp,
-
-    // DMA Slave
-    input logic        dma_hsel,
-    input logic [31:0] dma_haddr,
-    input logic [ 2:0] dma_hburst,
-    input logic        dma_hmastlock,
-    input logic [ 3:0] dma_hprot,
-    input logic [ 2:0] dma_hsize,
-    input logic [ 1:0] dma_htrans,
-    input logic        dma_hwrite,
-    input logic [63:0] dma_hwdata,
-    input logic        dma_hreadyin,
-
-    output logic [63:0] dma_hrdata,
-    output logic        dma_hreadyout,
-    output logic        dma_hresp,
-
-    // I3C AHB bus
-    input logic        i3c_hsel,
-    input logic [31:0] i3c_haddr,
-    input logic [ 2:0] i3c_hburst,
-    input logic        i3c_hmastlock,
-    input logic [ 3:0] i3c_hprot,
-    input logic [ 2:0] i3c_hsize,
-    input logic [ 1:0] i3c_htrans,
-    input logic        i3c_hwrite,
-    input logic [63:0] i3c_hwdata,
-    input logic        i3c_hreadyin,
-
-    output logic [63:0] i3c_hrdata,
-    output logic        i3c_hreadyout,
-    output logic        i3c_hresp,
-`endif
+//`ifdef MCU_RV_BUILD_AHB_LITE
+//    //// AHB LITE BUS
+//    output logic [31:0] haddr,
+//    output logic [ 2:0] hburst,
+//    output logic        hmastlock,
+//    output logic [ 3:0] hprot,
+//    output logic [ 2:0] hsize,
+//    output logic [ 1:0] htrans,
+//    output logic        hwrite,
+//
+//    input logic [63:0] hrdata,
+//    input logic        hready,
+//    input logic        hresp,
+//
+//    // LSU AHB Master
+//    output logic [31:0] lsu_haddr,
+//    output logic [ 2:0] lsu_hburst,
+//    output logic        lsu_hmastlock,
+//    output logic [ 3:0] lsu_hprot,
+//    output logic [ 2:0] lsu_hsize,
+//    output logic [ 1:0] lsu_htrans,
+//    output logic        lsu_hwrite,
+//    output logic [63:0] lsu_hwdata,
+//
+//    input  logic [63:0] lsu_hrdata,
+//    input  logic        lsu_hready,
+//    input  logic        lsu_hresp,
+//    // Debug Syster Bus AHB
+//    output logic [31:0] sb_haddr,
+//    output logic [ 2:0] sb_hburst,
+//    output logic        sb_hmastlock,
+//    output logic [ 3:0] sb_hprot,
+//    output logic [ 2:0] sb_hsize,
+//    output logic [ 1:0] sb_htrans,
+//    output logic        sb_hwrite,
+//    output logic [63:0] sb_hwdata,
+//
+//    input logic [63:0] sb_hrdata,
+//    input logic        sb_hready,
+//    input logic        sb_hresp,
+//
+//    // DMA Slave
+//    input logic        dma_hsel,
+//    input logic [31:0] dma_haddr,
+//    input logic [ 2:0] dma_hburst,
+//    input logic        dma_hmastlock,
+//    input logic [ 3:0] dma_hprot,
+//    input logic [ 2:0] dma_hsize,
+//    input logic [ 1:0] dma_htrans,
+//    input logic        dma_hwrite,
+//    input logic [63:0] dma_hwdata,
+//    input logic        dma_hreadyin,
+//
+//    output logic [63:0] dma_hrdata,
+//    output logic        dma_hreadyout,
+//    output logic        dma_hresp,
+//
+//    // I3C AHB bus
+//    input logic        i3c_hsel,
+//    input logic [31:0] i3c_haddr,
+//    input logic [ 2:0] i3c_hburst,
+//    input logic        i3c_hmastlock,
+//    input logic [ 3:0] i3c_hprot,
+//    input logic [ 2:0] i3c_hsize,
+//    input logic [ 1:0] i3c_htrans,
+//    input logic        i3c_hwrite,
+//    input logic [63:0] i3c_hwdata,
+//    input logic        i3c_hreadyin,
+//
+//    output logic [63:0] i3c_hrdata,
+//    output logic        i3c_hreadyout,
+//    output logic        i3c_hresp,
+//`endif
     // clk ratio signals
     input  logic        lsu_bus_clk_en,  // Clock ratio b/w cpu core clk & AHB master interface
     input  logic        ifu_bus_clk_en,  // Clock ratio b/w cpu core clk & AHB master interface
@@ -415,16 +415,16 @@ module mcu_top
     input  logic [31:0] dmi_uncore_rdata,
 
     // I3C Interface
-//`ifdef VERILATOR
+`ifdef VERILATOR
     input  logic scl_i,
     input  logic sda_i,
     output logic scl_o,
     output logic sda_o,
     output logic sel_od_pp_o
-//`else
-//    inout  logic i3c_scl_io,
-//    inout  logic i3c_sda_io
-//`endif
+`else
+    inout  logic i3c_scl_io,
+    inout  logic i3c_sda_io
+`endif
 );
 
   css_mcu0_el2_mem_if mem_export ();
@@ -450,35 +450,35 @@ module mcu_top
   );
 
   i3c_wrapper #(
-`ifdef MCU_RV_BUILD_AHB_LITE
-    .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
-    .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
-`elsif MCU_RV_BUILD_AXI4
+//`ifdef MCU_RV_BUILD_AHB_LITE
+//    .AhbDataWidth(`CALIPTRA_AHB_HDATA_SIZE),
+//    .AhbAddrWidth(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_I3C))
+//`elsif MCU_RV_BUILD_AXI4
     .AxiDataWidth(`AXI_DATA_WIDTH),
     .AxiAddrWidth(`AXI_ADDR_WIDTH),
     .AxiUserWidth(`AXI_USER_WIDTH),
     .AxiIdWidth(`AXI_ID_WIDTH)
-`endif
+//`endif
   ) i3c (
       .clk_i(clk),
       .rst_ni(rst_l),
 
-`ifdef MCU_RV_BUILD_AHB_LITE
-      // AMBA AHB Lite Interface
-      .haddr_i(i3c_haddr),
-      .hburst_i(i3c_hburst),
-      .hprot_i(i3c_hprot),
-      .hwdata_i(i3c_hwdata),
-      .hsel_i(i3c_hsel),
-      .hwstrb_i(i3c_hwstrb),
-      .hwrite_i(i3c_hwrite),
-      .hready_i(i3c_hready),
-      .htrans_i(i3c_htrans),
-      .hsize_i(i3c_hsize),
-      .hresp_o(i3c_hresp),
-      .hreadyout_o(i3c_hreadyout),
-      .hrdata_o(i3c_hrdata),
-`elsif MCU_RV_BUILD_AXI4
+//`ifdef MCU_RV_BUILD_AHB_LITE
+//      // AMBA AHB Lite Interface
+//      .haddr_i(i3c_haddr),
+//      .hburst_i(i3c_hburst),
+//      .hprot_i(i3c_hprot),
+//      .hwdata_i(i3c_hwdata),
+//      .hsel_i(i3c_hsel),
+//      .hwstrb_i(i3c_hwstrb),
+//      .hwrite_i(i3c_hwrite),
+//      .hready_i(i3c_hready),
+//      .htrans_i(i3c_htrans),
+//      .hsize_i(i3c_hsize),
+//      .hresp_o(i3c_hresp),
+//      .hreadyout_o(i3c_hreadyout),
+//      .hrdata_o(i3c_hrdata),
+//`elsif MCU_RV_BUILD_AXI4
      // AXI Read Channels
       .araddr_i(i3c_axi_araddr),
       .arburst_i(i3c_axi_arburst),
@@ -518,19 +518,19 @@ module mcu_top
       .bid_o(i3c_axi_bid),
       .bvalid_o(i3c_axi_bvalid),
       .bready_i(i3c_axi_bready),
-`endif
+//`endif
 
-//`ifdef VERILATOR
+`ifdef VERILATOR
       .scl_i(scl_i),
       .sda_i(sda_i),
       .scl_o(scl_o),
       .sda_o(sda_o),
       .sel_od_pp_o(sel_od_pp_o)
-//`else
-//      // I3C bus IO
-//      .i3c_scl_io(i3c_scl_io),
-//      .i3c_sda_io(i3c_sda_io)
-//`endif
+`else
+      // I3C bus IO
+      .i3c_scl_io(i3c_scl_io),
+      .i3c_sda_io(i3c_sda_io)
+`endif
   );
 
 endmodule

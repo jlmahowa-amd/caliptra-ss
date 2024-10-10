@@ -45,7 +45,7 @@ import css_mcu0_el2_pkg::*;
    output logic [31:0]                     trace_rv_i_tval_ip,
 
    // Bus signals
-`ifdef css_mcu0_RV_BUILD_AXI4
+//`ifdef css_mcu0_RV_BUILD_AXI4
    //-------------------------- LSU AXI signals--------------------------
    // AXI Write Channels
    output logic                            lsu_axi_awvalid,
@@ -226,65 +226,65 @@ import css_mcu0_el2_pkg::*;
    output logic [63:0]                     dma_axi_rdata,
    output logic [1:0]                      dma_axi_rresp,
    output logic                            dma_axi_rlast,
-`endif
+//`endif
 
-`ifdef RV_BUILD_AHB_LITE
- //// AHB LITE BUS
-   output logic [31:0]                     haddr,
-   output logic [2:0]                      hburst,
-   output logic                            hmastlock,
-   output logic [3:0]                      hprot,
-   output logic [2:0]                      hsize,
-   output logic [1:0]                      htrans,
-   output logic                            hwrite,
-
-   input logic [63:0]                      hrdata,
-   input logic                             hready,
-   input logic                             hresp,
-
-   // LSU AHB Master
-   output logic [31:0]                     lsu_haddr,
-   output logic [2:0]                      lsu_hburst,
-   output logic                            lsu_hmastlock,
-   output logic [3:0]                      lsu_hprot,
-   output logic [2:0]                      lsu_hsize,
-   output logic [1:0]                      lsu_htrans,
-   output logic                            lsu_hwrite,
-   output logic [63:0]                     lsu_hwdata,
-
-   input logic [63:0]                      lsu_hrdata,
-   input logic                             lsu_hready,
-   input logic                             lsu_hresp,
-   // Debug Syster Bus AHB
-   output logic [31:0]                     sb_haddr,
-   output logic [2:0]                      sb_hburst,
-   output logic                            sb_hmastlock,
-   output logic [3:0]                      sb_hprot,
-   output logic [2:0]                      sb_hsize,
-   output logic [1:0]                      sb_htrans,
-   output logic                            sb_hwrite,
-   output logic [63:0]                     sb_hwdata,
-
-   input  logic [63:0]                     sb_hrdata,
-   input  logic                            sb_hready,
-   input  logic                            sb_hresp,
-
-   // DMA Slave
-   input logic                             dma_hsel,
-   input logic [31:0]                      dma_haddr,
-   input logic [2:0]                       dma_hburst,
-   input logic                             dma_hmastlock,
-   input logic [3:0]                       dma_hprot,
-   input logic [2:0]                       dma_hsize,
-   input logic [1:0]                       dma_htrans,
-   input logic                             dma_hwrite,
-   input logic [63:0]                      dma_hwdata,
-   input logic                             dma_hreadyin,
-
-   output logic [63:0]                     dma_hrdata,
-   output logic                            dma_hreadyout,
-   output logic                            dma_hresp,
-`endif
+//`ifdef RV_BUILD_AHB_LITE
+// //// AHB LITE BUS
+//   output logic [31:0]                     haddr,
+//   output logic [2:0]                      hburst,
+//   output logic                            hmastlock,
+//   output logic [3:0]                      hprot,
+//   output logic [2:0]                      hsize,
+//   output logic [1:0]                      htrans,
+//   output logic                            hwrite,
+//
+//   input logic [63:0]                      hrdata,
+//   input logic                             hready,
+//   input logic                             hresp,
+//
+//   // LSU AHB Master
+//   output logic [31:0]                     lsu_haddr,
+//   output logic [2:0]                      lsu_hburst,
+//   output logic                            lsu_hmastlock,
+//   output logic [3:0]                      lsu_hprot,
+//   output logic [2:0]                      lsu_hsize,
+//   output logic [1:0]                      lsu_htrans,
+//   output logic                            lsu_hwrite,
+//   output logic [63:0]                     lsu_hwdata,
+//
+//   input logic [63:0]                      lsu_hrdata,
+//   input logic                             lsu_hready,
+//   input logic                             lsu_hresp,
+//   // Debug Syster Bus AHB
+//   output logic [31:0]                     sb_haddr,
+//   output logic [2:0]                      sb_hburst,
+//   output logic                            sb_hmastlock,
+//   output logic [3:0]                      sb_hprot,
+//   output logic [2:0]                      sb_hsize,
+//   output logic [1:0]                      sb_htrans,
+//   output logic                            sb_hwrite,
+//   output logic [63:0]                     sb_hwdata,
+//
+//   input  logic [63:0]                     sb_hrdata,
+//   input  logic                            sb_hready,
+//   input  logic                            sb_hresp,
+//
+//   // DMA Slave
+//   input logic                             dma_hsel,
+//   input logic [31:0]                      dma_haddr,
+//   input logic [2:0]                       dma_hburst,
+//   input logic                             dma_hmastlock,
+//   input logic [3:0]                       dma_hprot,
+//   input logic [2:0]                       dma_hsize,
+//   input logic [1:0]                       dma_htrans,
+//   input logic                             dma_hwrite,
+//   input logic [63:0]                      dma_hwdata,
+//   input logic                             dma_hreadyin,
+//
+//   output logic [63:0]                     dma_hrdata,
+//   output logic                            dma_hreadyout,
+//   output logic                            dma_hresp,
+//`endif
    // clk ratio signals
    input logic                             lsu_bus_clk_en, // Clock ratio b/w cpu core clk & AHB master interface
    input logic                             ifu_bus_clk_en, // Clock ratio b/w cpu core clk & AHB master interface

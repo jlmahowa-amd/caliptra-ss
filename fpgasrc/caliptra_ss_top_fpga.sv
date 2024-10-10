@@ -309,13 +309,13 @@ module caliptra_ss_top_fpga (
     input  wire                  S_AXI_I3C_WLAST,
     output wire [18:0] S_AXI_I3C_BID,
 
-    input  logic scl_i,
-    input  logic sda_i,
-    output logic scl_o,
-    output logic sda_o,
-    output logic sel_od_pp_o,
-//    inout  wire i3c_scl_io,
-//    inout  wire i3c_sda_io,
+    //input  logic scl_i,
+    //input  logic sda_i,
+    //output logic scl_o,
+    //output logic sda_o,
+    //output logic sel_od_pp_o,
+    inout  wire i3c_scl_io,
+    inout  wire i3c_sda_io,
     
     // SS IMEM AXI Interface
     input  logic ss_axi_bram_clk,
@@ -525,13 +525,13 @@ i3c_wrapper #(
     .bready_i(S_AXI_I3C_BREADY),
 
     // I3C bus IO
-    .scl_i(scl_i),
-    .sda_i(sda_i),
-    .scl_o(scl_o),
-    .sda_o(sda_o),
-    .sel_od_pp_o(sel_od_pp_o)
-    //.i3c_scl_io(i3c_scl_io),
-    //.i3c_sda_io(i3c_sda_io)
+    //.scl_i(scl_i),
+    //.sda_i(sda_i),
+    //.scl_o(scl_o),
+    //.sda_o(sda_o),
+    //.sel_od_pp_o(sel_od_pp_o)
+    .i3c_scl_io(i3c_scl_io),
+    .i3c_sda_io(i3c_sda_io)
 );
 */
 
@@ -893,13 +893,13 @@ end
         //.arlock_i(S_AXI_I3C_ARLOCK),
 
         // I3C bus IO
-        .scl_i(scl_i),
-        .sda_i(sda_i),
-        .scl_o(scl_o),
-        .sda_o(sda_o),
-        .sel_od_pp_o(sel_od_pp_o)
-        //.i3c_scl_io(i3c_scl_io),
-        //.i3c_sda_io(i3c_sda_io)
+        //.scl_i(scl_i),
+        //.sda_i(sda_i),
+        //.scl_o(scl_o),
+        //.sda_o(sda_o),
+        //.sel_od_pp_o(sel_od_pp_o)
+        .i3c_scl_io(i3c_scl_io),
+        .i3c_sda_io(i3c_sda_io)
 
     );
 
