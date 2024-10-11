@@ -415,7 +415,7 @@ module mcu_top
     input  logic [31:0] dmi_uncore_rdata,
 
     // I3C Interface
-`ifdef VERILATOR
+`ifdef OUTSIDE
     input  logic scl_i,
     input  logic sda_i,
     output logic scl_o,
@@ -520,7 +520,7 @@ module mcu_top
       .bready_i(i3c_axi_bready),
 //`endif
 
-`ifdef VERILATOR
+`ifdef OUTSIDE
       .scl_i(scl_i),
       .sda_i(sda_i),
       .scl_o(scl_o),

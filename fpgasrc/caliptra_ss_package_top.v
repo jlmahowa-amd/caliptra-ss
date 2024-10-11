@@ -283,14 +283,16 @@ module caliptra_ss_package_top (
     input  wire                  S_AXI_I3C_WLAST,
     output wire [18:0] S_AXI_I3C_BID,
 
-    //input  wire scl_i,
-    //input  wire sda_i,
-    //output wire scl_o,
-    //output wire sda_o,
-    //output wire sel_od_pp_o,
+`ifdef OUTSIDE
+    input  wire scl_i,
+    input  wire sda_i,
+    output wire scl_o,
+    output wire sda_o,
+    output wire sel_od_pp_o,
+`else
     inout  wire i3c_scl_io,
     inout  wire i3c_sda_io,
-    
+`endif
     // SS IMEM AXI Interface
     input  wire ss_axi_bram_clk,
     input  wire ss_axi_bram_en,
@@ -585,14 +587,16 @@ caliptra_ss_top_fpga ss_wrapper (
     .S_AXI_I3C_WLAST(S_AXI_I3C_WLAST),
     .S_AXI_I3C_BID(S_AXI_I3C_BID),
 
-    //.scl_i(scl_i),
-    //.sda_i(sda_i),
-    //.scl_o(scl_o),
-    //.sda_o(sda_o),
-    //.sel_od_pp_o(sel_od_pp_o),
+`ifdef OUTSIDE
+    .scl_i(scl_i),
+    .sda_i(sda_i),
+    .scl_o(scl_o),
+    .sda_o(sda_o),
+    .sel_od_pp_o(sel_od_pp_o),
+`else
     .i3c_scl_io(i3c_scl_io),
     .i3c_sda_io(i3c_sda_io),
-
+`endif
     // SS IMEM AXI Interface
     .ss_axi_bram_clk(ss_axi_bram_clk),
     .ss_axi_bram_en(ss_axi_bram_en),

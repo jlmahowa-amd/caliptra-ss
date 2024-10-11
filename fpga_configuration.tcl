@@ -9,17 +9,17 @@ set ITRNG FALSE
 set CG_EN FALSE
 set RTL_VERSION latest
 
-set BOARD ZCU104
-set DISABLE_ECC TRUE
-set ENABLE_ADB FALSE
-set ITRNG FALSE
-
-#set BOARD VCK190
-#set DISABLE_ECC FALSE
+#set BOARD ZCU104
+#set DISABLE_ECC TRUE
 #set ENABLE_ADB FALSE
-#set ITRNG TRUE
+#set ITRNG FALSE
 
+set BOARD VCK190
+set DISABLE_ECC FALSE
+set ENABLE_ADB TRUE
+set ITRNG TRUE
 
+set I3C_OUTSIDE FALSE
 set APB FALSE
 foreach arg $argv {
     regexp {(.*)=(.*)} $arg fullmatch option value
@@ -73,6 +73,9 @@ if {$ITRNG} {
 }
 if {$APB} {
   lappend VERILOG_OPTIONS CALIPTRA_APB
+}
+if {$I3C_OUTSIDE} {
+  lappend VERILOG_OPTIONS OUTSIDE
 }
 
 # Start the Vivado GUI for interactive debug
@@ -611,7 +614,8 @@ connect_bd_intf_net [get_bd_intf_pins caliptra_ss_package_0/S_AXI_I3C] -boundary
 #connect_bd_net [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins ps_0/pl_clk0]
 #connect_bd_net [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
 # I3C pins
-if {FALSE} {
+if {$I3C_OUTSIDE} {
+  # Set OUTSIDE above
   add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
   add_files [ glob $caliptrartlDir/src/caliptra_prim_generic/rtl/*.sv ]
   add_files [ glob $caliptrartlDir/src/caliptra_prim/rtl/*.sv ]
