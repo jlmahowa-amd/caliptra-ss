@@ -109,7 +109,7 @@ module caliptra_mcu_top
     input logic                        scan_mode,
 
     // I3C Interface
-`ifdef VERILATOR
+`ifdef I3C_OUTSIDE
     input  logic scl_i,
     input  logic sda_i,
     output logic scl_o,
@@ -1043,7 +1043,7 @@ i3c_wrapper #(
     .hreadyout_o (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hreadyout),
     .hrdata_o    (responder_inst[`CALIPTRA_SLAVE_SEL_I3C].hrdata),
 
-`ifdef VERILATOR
+`ifdef I3C_OUTSIDE
     .scl_i(scl_i),
     .sda_i(sda_i),
     .scl_o(scl_o),

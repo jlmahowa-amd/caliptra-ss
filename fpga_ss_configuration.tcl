@@ -11,7 +11,7 @@
 #file mkdir $sspackageDir
 #file mkdir $adapterDir
 
-set caliptrartlDir $fpgaDir/caliptra-rtl
+set caliptrartlDir $fpgaDir/third-party/caliptra-rtl
 set ssrtlDir $fpgaDir
 
 lappend VERILOG_OPTIONS TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE css_mcu0_TEC_RV_ICG=css_mcu0_clockhdr TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr css_mcu0_RV_BUILD_AXI4 MCU_RV_BUILD_AXI4 I3C_USE_AXI AXI_ID_WIDTH=1 AXI_USER_WIDTH=32 AXI_DATA_WIDTH=32 AXI_ADDR_WIDTH=32

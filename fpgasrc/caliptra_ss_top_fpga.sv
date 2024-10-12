@@ -309,7 +309,7 @@ module caliptra_ss_top_fpga (
     input  wire                  S_AXI_I3C_WLAST,
     output wire [18:0] S_AXI_I3C_BID,
 
-`ifdef OUTSIDE
+`ifdef I3C_OUTSIDE
     input  logic scl_i,
     input  logic sda_i,
     output logic scl_o,
@@ -895,7 +895,7 @@ end
         //.arlock_i(S_AXI_I3C_ARLOCK),
 
         // I3C bus IO
-`ifdef OUTSIDE
+`ifdef I3C_OUTSIDE
         .scl_i(scl_i),
         .sda_i(sda_i),
         .scl_o(scl_o),

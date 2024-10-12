@@ -283,7 +283,7 @@ module caliptra_ss_package_top (
     input  wire                  S_AXI_I3C_WLAST,
     output wire [18:0] S_AXI_I3C_BID,
 
-`ifdef OUTSIDE
+`ifdef I3C_OUTSIDE
     input  wire scl_i,
     input  wire sda_i,
     output wire scl_o,
@@ -587,7 +587,7 @@ caliptra_ss_top_fpga ss_wrapper (
     .S_AXI_I3C_WLAST(S_AXI_I3C_WLAST),
     .S_AXI_I3C_BID(S_AXI_I3C_BID),
 
-`ifdef OUTSIDE
+`ifdef I3C_OUTSIDE
     .scl_i(scl_i),
     .sda_i(sda_i),
     .scl_o(scl_o),
