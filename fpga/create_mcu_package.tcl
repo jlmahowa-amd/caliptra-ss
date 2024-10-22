@@ -1,24 +1,20 @@
 ## Create path variables
 #set fpgaDir [file dirname [info script]]
 #set outputDir $fpgaDir/caliptra_build
-#set caliptrapackageDir $outputDir/caliptra_package
 #set sspackageDir $outputDir/ss_package
 #set adapterDir $outputDir/soc_adapter_package
 ## Clean and create output directory.
 #file delete -force $outputDir
 #file mkdir $outputDir
-#file mkdir $caliptrapackageDir
 #file mkdir $sspackageDir
 #file mkdir $adapterDir
 
-set caliptrartlDir $fpgaDir/third-party/caliptra-rtl
-set ssrtlDir $fpgaDir
+set caliptrartlDir $fpgaDir/../third_party/caliptra-rtl
+set ssrtlDir $fpgaDir/..
 
 lappend VERILOG_OPTIONS TECH_SPECIFIC_ICG USER_ICG=fpga_fake_icg RV_FPGA_OPTIMIZE css_mcu0_TEC_RV_ICG=css_mcu0_clockhdr TECH_SPECIFIC_EC_RV_ICG css_mcu0_USER_EC_RV_ICG=mcu_clockhdr css_mcu0_RV_BUILD_AXI4 MCU_RV_BUILD_AXI4 I3C_USE_AXI AXI_ID_WIDTH=1 AXI_USER_WIDTH=32 AXI_DATA_WIDTH=32 AXI_ADDR_WIDTH=32
 #lappend VERILOG_OPTIONS OUTSIDE
 set_property verilog_define $VERILOG_OPTIONS [current_fileset]
-
-#start_gui
 
 create_project soc_package_project $outputDir -part $PART
 # Try setting after creating project
@@ -37,7 +33,7 @@ add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*.sv ]
 add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*/*.sv ]
 add_files [ glob $ssrtlDir/src/riscv_core/veer_el2/rtl/design/*/*.v ]
 
-if {1} {
+if {0} {
     # Add VEER Headers
     add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_param.vh
     add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/pic_map_auto.h
@@ -69,16 +65,22 @@ if {1} {
 
     # Remove ECDSA top
     remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_top.sv ]
+} else {
+  # Attempting to add only the files needed by I3C
+  add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
+  add_files [ glob $caliptrartlDir/src/caliptra_prim_generic/rtl/*.sv ]
+  add_files [ glob $caliptrartlDir/src/caliptra_prim/rtl/*.sv ]
 }
 
 # I3C
-set i3cDir $fpgaDir/third_party/i3c-core
+set i3cDir $fpgaDir/../third_party/i3c-core
 # Include headers and packages first
 add_files [ glob $i3cDir/src/*.svh ]
 add_files [ glob $i3cDir/src/*/*/*_pkg.sv ]
 add_files [ glob $i3cDir/src/*/*_pkg.sv ]
 add_files [ glob $i3cDir/src/*_pkg.sv ]
 # Then the rest of the sv files
+add_files [ glob $i3cDir/src/*/*/*.v ]
 add_files [ glob $i3cDir/src/*/*/*.sv ]
 add_files [ glob $i3cDir/src/*/*.sv ]
 add_files [ glob $i3cDir/src/*.sv ]
@@ -88,14 +90,14 @@ add_files [ glob $i3cDir/src/*.sv ]
 add_files [ glob $ssrtlDir/src/mcu/rtl/*.svh ]
 add_files [ glob $ssrtlDir/src/mcu/rtl/*.sv ]
 # Add FPGA specific sources
-add_files [ glob $fpgaDir/fpgasrc/*.sv]
-add_files [ glob $fpgaDir/fpgasrc/*.v]
+add_files [ glob $fpgaDir/src/*.sv]
+add_files [ glob $fpgaDir/src/*.v]
 
 
 # Mark all Verilog sources as SystemVerilog because some of them have SystemVerilog syntax.
 set_property file_type SystemVerilog [get_files *.v]
 # Exception: caliptra_ss_package_top.v needs to be Verilog to be included in a Block Diagram.
-set_property file_type Verilog [get_files  $fpgaDir/fpgasrc/caliptra_ss_package_top.v]
+set_property file_type Verilog [get_files  $fpgaDir/src/caliptra_ss_package_top.v]
 
 set_property top caliptra_ss_package_top [current_fileset]
 
@@ -105,20 +107,20 @@ set_property top caliptra_ss_package_top [current_fileset]
 #save_bd_design
 #close_bd_design [get_bd_designs caliptra_ss_package_bd]
 
-ipx::package_project -root_dir $sspackageDir -vendor design -library user -taxonomy /UserIP
-# Infer bram
+ipx::package_project -root_dir $sspackageDir -vendor design -library user -taxonomy /UserIP -import_files
+# Infer interfaces
 ipx::infer_bus_interfaces xilinx.com:interface:bram_rtl:1.0 [ipx::current_core]
 ipx::add_bus_parameter MASTER_TYPE [ipx::get_bus_interfaces ss_axi_bram -of_objects [ipx::current_core]]
-ipx::associate_bus_interfaces -busif ss_axi_bram -clock ss_axi_bram_clk [ipx::current_core]
 # Associate clocks to busses
+ipx::associate_bus_interfaces -busif ss_axi_bram -clock ss_axi_bram_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif M_AXI_MCU_IFU -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif M_AXI_MCU_LSU -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif S_AXI_MCU_DMA -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif sb_axi -clock core_clk [ipx::current_core]
-#ipx::associate_bus_interfaces -busif S_AXI_CALIPTRA -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif S_AXI_WRAPPER -clock core_clk [ipx::current_core]
 ipx::associate_bus_interfaces -busif S_AXI_I3C -clock core_clk [ipx::current_core]
-#
+# Other packager settings
+set_property PAYMENT_REQUIRED FALSE [ipx::current_core]
 ipx::update_source_project_archive -component [ipx::current_core]
 ipx::create_xgui_files [ipx::current_core]
 ipx::update_checksums [ipx::current_core]

@@ -1,7 +1,5 @@
 
-
-# Simplistic processing of command line arguments to enable different features
-# Defaults:
+# Default settings:
 set BUILD FALSE
 set GUI   FALSE
 set JTAG  FALSE
@@ -9,6 +7,7 @@ set ITRNG FALSE
 set CG_EN FALSE
 set RTL_VERSION latest
 
+# TODO: This is a hacky way of quickly switching between the Zynq and Versal boards
 #set BOARD ZCU104
 #set DISABLE_ECC TRUE
 #set ENABLE_ADB FALSE
@@ -21,6 +20,7 @@ set ITRNG TRUE
 
 set I3C_OUTSIDE FALSE
 set APB FALSE
+# Simplistic processing of command line arguments to override defaults
 foreach arg $argv {
     regexp {(.*)=(.*)} $arg fullmatch option value
     set $option "$value"
@@ -48,7 +48,7 @@ file mkdir $sspackageDir
 
 # Path to rtl
 #set rtlDir $fpgaDir/../$RTL_VERSION/rtl
-set caliptrartlDir $fpgaDir/third_party/caliptra-rtl
+set caliptrartlDir $fpgaDir/../third_party/caliptra-rtl
 set ssrtlDir $fpgaDir
 puts "JTAG: $JTAG"
 puts "ITRNG: $ITRNG"
@@ -92,129 +92,14 @@ if {$BOARD eq "ZCU104"} {
   exit
 }
 
-# Create a project to package Caliptra.
-# Packaging Caliptra allows Vivado to recognize the APB bus as an endpoint for the memory map.
-create_project caliptra_package_project $outputDir -part $PART
-if {$BOARD eq "VCK190"} {
-  set_property board_part xilinx.com:vck190:part0:3.1 [current_project]
-}
-
-set_property verilog_define $VERILOG_OPTIONS [current_fileset]
-puts "\n\nVERILOG DEFINES: [get_property verilog_define [current_fileset]]"
-
-# Add VEER Headers
-add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_param.vh
-add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/pic_map_auto.h
-add_files $caliptrartlDir/src/riscv_core/veer_el2/rtl/el2_pdef.vh
-
-# Add VEER sources
-add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*.sv ]
-add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.sv ]
-add_files [ glob $caliptrartlDir/src/riscv_core/veer_el2/rtl/*/*.v ]
-
-
-# Add Adam's Bridge
-if {$ENABLE_ADB} {
-  #add_files [ glob $fpgaDir/adams-bridge/src/*/rtl/*.sv ]
-  source adams-bridge-files.tcl
-}
-
-# Add Caliptra Headers
-add_files [ glob $caliptrartlDir/src/*/rtl/*.svh ]
-# Add Caliptra Sources
-add_files [ glob $caliptrartlDir/src/*/rtl/*.sv ]
-add_files [ glob $caliptrartlDir/src/*/rtl/*.v ]
-
-# Remove spi_host files that aren't used yet and are flagged as having syntax errors
-# TODO: Re-include these files when spi_host is used.
-remove_files [ glob $caliptrartlDir/src/spi_host/rtl/*.sv ]
-
-# Remove Caliptra files that need to be replaced by FPGA specific versions
-# Key Vault is very large. Replacing KV with a version with the minimum number of entries.
-remove_files [ glob $caliptrartlDir/src/keyvault/rtl/kv_reg.sv ]
-
-
-# Add FPGA specific sources
-add_files [ glob $fpgaDir/fpgasrc/*.sv]
-add_files [ glob $fpgaDir/fpgasrc/*.v]
-
-
-if {$DISABLE_ECC} {
-  # Remove ECC to be replaced by stub for SS
-  remove_files [ glob $caliptrartlDir/src/ecc/rtl/*.sv ]
-} else {
-  # Replace RAM with FPGA block ram
-  remove_files [ glob $caliptrartlDir/src/ecc/rtl/ecc_ram_tdp_file.sv ]
-  # Remove ECC stub from FPGA files
-  remove_files $fpgaDir/fpgasrc/ecc_stub.sv
-}
-
-if {$ENABLE_ADB} {
-  # Remove MLDSA stub
-  remove_files $fpgaDir/fpgasrc/mldsa_stub.sv
-}
-
-# Mark all Verilog sources as SystemVerilog because some of them have SystemVerilog syntax.
-set_property file_type SystemVerilog [get_files *.v]
-
-# Exception: caliptra_package_top.v needs to be Verilog to be included in a Block Diagram.
-set_property file_type Verilog [get_files  $fpgaDir/fpgasrc/caliptra_package_top.v]
-
-# Add include paths
-set_property include_dirs $caliptrartlDir/src/integration/rtl [current_fileset]
-
-
-# Set caliptra_package_top as top in case next steps fail so that the top is something useful.
-if {$APB} {
-  set_property top caliptra_package_apb_top [current_fileset]
-} else {
-  set_property top caliptra_package_axi_top [current_fileset]
-}
-
-# Create block diagram that includes an instance of caliptra_package_top
-create_bd_design "caliptra_package_bd"
-if {$APB} {
-  create_bd_cell -type module -reference caliptra_package_apb_top caliptra_package_top_0
-} else {
-  create_bd_cell -type module -reference caliptra_package_axi_top caliptra_package_top_0
-}
-save_bd_design
-close_bd_design [get_bd_designs caliptra_package_bd]
-
-# Package IP
-puts "Fileset when packaging: [current_fileset]"
-puts "\n\nVERILOG DEFINES: [get_property verilog_define [current_fileset]]"
-ipx::package_project -root_dir $caliptrapackageDir -vendor design -library user -taxonomy /UserIP -import_files
-# -set_current false
-#ipx::unload_core $caliptrapackageDir/component.xml
-#ipx::edit_ip_in_project -upgrade true -name tmp_edit_project -directory $caliptrapackageDir $caliptrapackageDir/component.xml
-ipx::infer_bus_interfaces xilinx.com:interface:apb_rtl:1.0 [ipx::current_core]
-ipx::infer_bus_interfaces xilinx.com:interface:bram_rtl:1.0 [ipx::current_core]
-ipx::add_bus_parameter MASTER_TYPE [ipx::get_bus_interfaces axi_bram -of_objects [ipx::current_core]]
-ipx::associate_bus_interfaces -busif S_AXI_WRAPPER -clock core_clk [ipx::current_core]
-ipx::associate_bus_interfaces -busif S_AXI_CALIPTRA -clock core_clk [ipx::current_core]
-ipx::associate_bus_interfaces -busif M_AXI_CALIPTRA -clock core_clk [ipx::current_core]
-ipx::associate_bus_interfaces -busif axi_bram -clock axi_bram_clk [ipx::current_core]
-set_property name caliptra_package_top [ipx::current_core]
-set_property core_revision 1 [ipx::current_core]
-ipx::update_source_project_archive -component [ipx::current_core]
-ipx::create_xgui_files [ipx::current_core]
-ipx::update_checksums [ipx::current_core]
-ipx::check_integrity [ipx::current_core]
-ipx::save_core [ipx::current_core]
-
-## Close temp project
-#close_project
-# Close caliptra_package_project
-close_project
 
 ##### Caliptra Package #####
+source create_caliptra_package.tcl
+##### Caliptra Package #####
 
-##### SOC Package #####
-source fpga_ss_configuration.tcl
-##### SOC Package #####
-
-# Packaging complete
+##### MCU Package #####
+source create_mcu_package.tcl
+##### MCU Package #####
 
 # Create a project for the SOC connections
 create_project caliptra_fpga_project $outputDir -part $PART
@@ -233,7 +118,7 @@ create_bd_cell -type ip -vlnv design:user:caliptra_package_top:1.0 caliptra_pack
 if {$BOARD eq "ZCU104"} {
   create_bd_cell -type ip -vlnv xilinx.com:ip:zynq_ultra_ps_e ps_0
   set_property -dict [list \
-    CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ {40} \
+    CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ {20} \
     CONFIG.PSU__USE__IRQ0 {1} \
     CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
     CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {5} \
@@ -274,7 +159,7 @@ if {$BOARD eq "ZCU104"} {
       DDR_MEMORY_MODE {Connectivity to DDR via NOC} \
       DEBUG_MODE {JTAG} \
       DESIGN_MODE {1} \
-      PMC_CRP_PL0_REF_CTRL_FREQMHZ {40} \
+      PMC_CRP_PL0_REF_CTRL_FREQMHZ {20} \
       PMC_GPIO0_MIO_PERIPHERAL {{ENABLE 1} {IO {PMC_MIO 0 .. 25}}} \
       PMC_GPIO1_MIO_PERIPHERAL {{ENABLE 1} {IO {PMC_MIO 26 .. 51}}} \
       PMC_MIO37 {{AUX_IO 0} {DIRECTION out} {DRIVE_STRENGTH 8mA} {OUTPUT_DATA high} {PULL pullup} {SCHMITT 0} {SLEW slow} {USAGE GPIO}} \
@@ -632,7 +517,7 @@ if {$I3C_OUTSIDE} {
   #add_files [ glob $caliptrartlDir/src/caliptra_prim_generic/rtl/*.sv ]
   #add_files [ glob $caliptrartlDir/src/caliptra_prim/rtl/*.sv ]
   #add_files [ glob $fpgaDir/third_party/i3c-core/src/phy/*.sv ]
-  #add_files $fpgaDir/fpgasrc/i3c_io_wrapper.v
+  #add_files $fpgaDir/src/i3c_io_wrapper.v
   #create_bd_cell -type module -reference i3c_io_wrapper i3c_io_wrapper_0
   #create_bd_port -dir IO -type data sda_io
   #connect_bd_net [get_bd_ports sda_io] [get_bd_pins i3c_io_wrapper_0/sda_io]
@@ -703,6 +588,7 @@ if {$BOARD eq "ZCU104"} {
     assign_bd_address -offset 0xA4010000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_WRAPPER/reg0] -force
     assign_bd_address -offset 0xA4020000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_WRAPPER/reg0] -force
     assign_bd_address -offset 0xA4030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_I3C/reg0] -force
+    assign_bd_address -offset 0xA4040000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_ss_package_0/S_AXI_MCU_DMA/reg0] -force
     if {$APB} {
       assign_bd_address -offset 0xA4100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
     } else {
@@ -732,9 +618,9 @@ set_property verilog_define $VERILOG_OPTIONS [current_fileset]
 puts "\n\nVERILOG DEFINES: [get_property verilog_define [current_fileset]]"
 
 # Create the HDL wrapper for the block design and add it. This will be set as top.
-#make_wrapper -files [get_files $outputDir/caliptra_fpga_project.srcs/sources_1/bd/caliptra_fpga_project_bd/caliptra_fpga_project_bd.bd] -top
-#add_files -norecurse $outputDir/caliptra_fpga_project.gen/sources_1/bd/caliptra_fpga_project_bd/hdl/caliptra_fpga_project_bd_wrapper.v
-add_files -norecurse  $fpgaDir/fpgasrc/caliptra_fpga_project_bd_wrapper.v
+make_wrapper -files [get_files $outputDir/caliptra_fpga_project.srcs/sources_1/bd/caliptra_fpga_project_bd/caliptra_fpga_project_bd.bd] -top
+add_files -norecurse $outputDir/caliptra_fpga_project.gen/sources_1/bd/caliptra_fpga_project_bd/hdl/caliptra_fpga_project_bd_wrapper.v
+#add_files -norecurse  $fpgaDir/src/caliptra_fpga_project_bd_wrapper.v
 set_property top caliptra_fpga_project_bd_wrapper [current_fileset]
 
 update_compile_order -fileset sources_1
@@ -749,7 +635,7 @@ if {$BOARD eq "ZCU104"} {
 } else {
 
   # Add DDR pin placement constraints
-  add_files -fileset constrs_1 $fpgaDir/fpgasrc/ddr4_constraints.xdc
+  add_files -fileset constrs_1 $fpgaDir/src/ddr4_constraints.xdc
 }
 
 # Start build
@@ -768,6 +654,7 @@ if {$BUILD} {
 # TODO: Temp debug
 if {$BOARD eq "ZCU104"} {
   set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {caliptra_ss_package_0_M_AXI_MCU_IFU caliptra_ss_package_0_M_AXI_MCU_LSU}]
+  set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M01_AXI}]
   set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M03_AXI}]
   set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {ps_0_M_AXI_HPM0_LPD}]
   set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_interconnect_0_M05_AXI}]
@@ -788,8 +675,8 @@ if {$BOARD eq "ZCU104"} {
 #set_property IOSTANDARD LVCMOS15 [get_ports [list i3c_sda_io]]
 
 if {$BOARD eq "ZCU104"} {
-  add_files -fileset constrs_1 $fpgaDir/fpgasrc/zynq_i3c_constraints.xdc
+  add_files -fileset constrs_1 $fpgaDir/src/zynq_i3c_constraints.xdc
 } else {
-  add_files -fileset constrs_1 $fpgaDir/fpgasrc/versal_i3c_constraints.xdc
+  add_files -fileset constrs_1 $fpgaDir/src/versal_i3c_constraints.xdc
 }
 start_gui

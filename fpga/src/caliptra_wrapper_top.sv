@@ -69,7 +69,7 @@ module caliptra_wrapper_top (
     output wire S_AXI_CALIPTRA_ARREADY,
     // R
     output wire [31:0] S_AXI_CALIPTRA_RDATA,
-    output wire [3:0] S_AXI_CALIPTRA_RRESP,
+    output wire [1:0] S_AXI_CALIPTRA_RRESP,
     output reg  [15:0] S_AXI_CALIPTRA_RID,
     output wire S_AXI_CALIPTRA_RLAST,
     output wire S_AXI_CALIPTRA_RVALID,
@@ -108,7 +108,7 @@ module caliptra_wrapper_top (
     input wire M_AXI_CALIPTRA_ARREADY,
     // R
     input wire [31:0] M_AXI_CALIPTRA_RDATA,
-    input wire [3:0] M_AXI_CALIPTRA_RRESP,
+    input wire [1:0] M_AXI_CALIPTRA_RRESP,
     input reg  [15:0] M_AXI_CALIPTRA_RID,
     input wire M_AXI_CALIPTRA_RLAST,
     input wire M_AXI_CALIPTRA_RVALID,
@@ -231,7 +231,7 @@ module caliptra_wrapper_top (
 
     // Unused master interface
     axi_if #(
-        .AW(`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
+        .AW(32),
         .DW(32),
         .IW(16),
         .UW(16)

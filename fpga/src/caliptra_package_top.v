@@ -164,7 +164,7 @@ module caliptra_package_axi_top (
     output wire S_AXI_CALIPTRA_ARREADY,
     // R
     output wire [31:0] S_AXI_CALIPTRA_RDATA,
-    output wire [3:0] S_AXI_CALIPTRA_RRESP,
+    output wire [1:0] S_AXI_CALIPTRA_RRESP,
     output wire [15:0] S_AXI_CALIPTRA_RID,
     output wire S_AXI_CALIPTRA_RLAST,
     output wire S_AXI_CALIPTRA_RVALID,
@@ -203,7 +203,7 @@ module caliptra_package_axi_top (
     input wire M_AXI_CALIPTRA_ARREADY,
     // R
     input wire [31:0] M_AXI_CALIPTRA_RDATA,
-    input wire [3:0] M_AXI_CALIPTRA_RRESP,
+    input wire [1:0] M_AXI_CALIPTRA_RRESP,
     input wire [15:0] M_AXI_CALIPTRA_RID,
     input wire M_AXI_CALIPTRA_RLAST,
     input wire M_AXI_CALIPTRA_RVALID,

@@ -323,7 +323,7 @@ module caliptra_ss_top_fpga (
     input  logic ss_axi_bram_clk,
     input  logic ss_axi_bram_en,
     input  logic [3:0] ss_axi_bram_we,
-    input  logic [13:0] ss_axi_bram_addr,
+    input  logic [15:0] ss_axi_bram_addr,
     input  logic [31:0] ss_axi_bram_din,
     output logic [31:0] ss_axi_bram_dout,
     input  logic ss_axi_bram_rst
