@@ -4,7 +4,7 @@ set adbDir $fpgaDir/../third_party/adams-bridge
 add_files $adbDir/src/abr_prim/rtl/abr_prim_flop_macros.sv
 
 # From mldsa_top_tb.vf
-add_files $adbDir/src/mldsa_top/rtl/abr_config_defines.svh
+add_files $adbDir/src/mldsa_top/rtl/mldsa_config_defines.svh
 add_files $adbDir/src/mldsa_top/rtl/mldsa_params_pkg.sv
 add_files $adbDir/src/mldsa_top/rtl/mldsa_reg_pkg.sv
 add_files $adbDir/src/abr_libs/rtl/abr_sva.svh
@@ -41,6 +41,7 @@ add_files [ glob $adbDir/src/abr_prim/rtl/*.svh ]
 #add_files $adbDir/src/abr_prim/rtl/abr_prim_pkg.sv
 #add_files $adbDir/src/abr_prim/rtl/abr_prim_sparse_fsm_pkg.sv
 add_files $adbDir/src/ntt_top/rtl/ntt_defines_pkg.sv
+add_files $adbDir/src/ntt_top/rtl/ntt_special_adder.sv
 add_files $adbDir/src/ntt_top/tb/ntt_ram_tdp_file.sv
 add_files $adbDir/src/ntt_top/tb/ntt_wrapper.sv
 add_files $adbDir/src/norm_check/rtl/norm_check_defines_pkg.sv
