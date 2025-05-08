@@ -314,25 +314,25 @@ module caliptra_wrapper_top #(
     input  wire [18:0]               M_AXI_MCU_IFU_BID,
 
     // AXI Read Channels
-    (* syn_keep = "true", mark_debug = "true" *) output wire                      M_AXI_MCU_IFU_ARVALID,
-    (* syn_keep = "true", mark_debug = "true" *) input  wire                      M_AXI_MCU_IFU_ARREADY,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [18:0]              M_AXI_MCU_IFU_ARID,
+    output wire                      M_AXI_MCU_IFU_ARVALID,
+    input  wire                      M_AXI_MCU_IFU_ARREADY,
+    output wire [18:0]              M_AXI_MCU_IFU_ARID,
     (* syn_keep = "true", mark_debug = "true" *) output wire [              31:0] M_AXI_MCU_IFU_ARADDR,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               3:0] M_AXI_MCU_IFU_ARREGION,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               7:0] M_AXI_MCU_IFU_ARLEN,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               2:0] M_AXI_MCU_IFU_ARSIZE,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               1:0] M_AXI_MCU_IFU_ARBURST,
-    (* syn_keep = "true", mark_debug = "true" *) output wire                      M_AXI_MCU_IFU_ARLOCK,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               3:0] M_AXI_MCU_IFU_ARCACHE,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               2:0] M_AXI_MCU_IFU_ARPROT,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [               3:0] M_AXI_MCU_IFU_ARQOS,
+    output wire [               3:0] M_AXI_MCU_IFU_ARREGION,
+    output wire [               7:0] M_AXI_MCU_IFU_ARLEN,
+    output wire [               2:0] M_AXI_MCU_IFU_ARSIZE,
+    output wire [               1:0] M_AXI_MCU_IFU_ARBURST,
+    output wire                      M_AXI_MCU_IFU_ARLOCK,
+    output wire [               3:0] M_AXI_MCU_IFU_ARCACHE,
+    output wire [               2:0] M_AXI_MCU_IFU_ARPROT,
+    output wire [               3:0] M_AXI_MCU_IFU_ARQOS,
 
     (* syn_keep = "true", mark_debug = "true" *) input  wire                      M_AXI_MCU_IFU_RVALID,
-    (* syn_keep = "true", mark_debug = "true" *) output wire                      M_AXI_MCU_IFU_RREADY,
-    (* syn_keep = "true", mark_debug = "true" *) input  wire [18:0]              M_AXI_MCU_IFU_RID,
+    output wire                      M_AXI_MCU_IFU_RREADY,
+    input  wire [18:0]              M_AXI_MCU_IFU_RID,
     (* syn_keep = "true", mark_debug = "true" *) input  wire [              63:0] M_AXI_MCU_IFU_RDATA,
     (* syn_keep = "true", mark_debug = "true" *) input  wire [               1:0] M_AXI_MCU_IFU_RRESP,
-    (* syn_keep = "true", mark_debug = "true" *) input  wire                      M_AXI_MCU_IFU_RLAST,
+    input  wire                      M_AXI_MCU_IFU_RLAST,
 
     //-------------------------- MCU SB AXI signals--------------------------
     // AXI Write Channels
@@ -2181,10 +2181,11 @@ caliptra_ss_top caliptra_ss_top_0 (
     .cptra_error_fatal(),
     .cptra_error_non_fatal()
 );
-
+/*
     // Hierarchical references to generic output wires register. Use as input to log FIFO.
     assign fifo_write_en = caliptra_ss_top_0.caliptra_top_dut.soc_ifc_top1.i_soc_ifc_reg.field_combo.CPTRA_GENERIC_OUTPUT_WIRES[0].generic_wires.load_next;
     assign fifo_char[7:0] = caliptra_ss_top_0.caliptra_top_dut.soc_ifc_top1.i_soc_ifc_reg.field_combo.CPTRA_GENERIC_OUTPUT_WIRES[0].generic_wires.next[7:0];
+*/
 
 
 `ifdef DISABLING_THIS
