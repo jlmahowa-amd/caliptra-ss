@@ -328,8 +328,8 @@ module caliptra_wrapper_top #(
     output wire [               3:0] M_AXI_MCU_IFU_ARQOS,
 
     (* syn_keep = "true", mark_debug = "true" *) input  wire                      M_AXI_MCU_IFU_RVALID,
-    output wire                      M_AXI_MCU_IFU_RREADY,
-    input  wire [18:0]              M_AXI_MCU_IFU_RID,
+    (* syn_keep = "true", mark_debug = "true" *) output wire                      M_AXI_MCU_IFU_RREADY,
+    (* syn_keep = "true", mark_debug = "true" *) input  wire [18:0]              M_AXI_MCU_IFU_RID,
     (* syn_keep = "true", mark_debug = "true" *) input  wire [              63:0] M_AXI_MCU_IFU_RDATA,
     (* syn_keep = "true", mark_debug = "true" *) input  wire [               1:0] M_AXI_MCU_IFU_RRESP,
     input  wire                      M_AXI_MCU_IFU_RLAST,
@@ -1489,7 +1489,7 @@ I think this is the one that isn't used
     // MCU LSU AXI Manager
     axi_if #(
         .AW(32),//`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
-        .DW(`CALIPTRA_AXI_DATA_WIDTH),
+        .DW(64),
         .IW(`CALIPTRA_AXI_ID_WIDTH),
         .UW(`CALIPTRA_AXI_USER_WIDTH)
     ) cptra_ss_mcu_lsu_m_axi_if (.clk(core_clk), .rst_n(hwif_out.interface_regs.control.cptra_ss_rst_b.value));
@@ -1536,7 +1536,7 @@ I think this is the one that isn't used
     // MCU IFU AXI Manager
     axi_if #(
         .AW(32),//`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
-        .DW(`CALIPTRA_AXI_DATA_WIDTH),
+        .DW(64),
         .IW(`CALIPTRA_AXI_ID_WIDTH),
         .UW(`CALIPTRA_AXI_USER_WIDTH)
     ) cptra_ss_mcu_ifu_m_axi_if (.clk(core_clk), .rst_n(hwif_out.interface_regs.control.cptra_ss_rst_b.value));
@@ -1583,7 +1583,7 @@ I think this is the one that isn't used
     // MCU SB AXI Manager
     axi_if #(
         .AW(32),//`CALIPTRA_SLAVE_ADDR_WIDTH(`CALIPTRA_SLAVE_SEL_SOC_IFC)),
-        .DW(`CALIPTRA_AXI_DATA_WIDTH),
+        .DW(64),
         .IW(`CALIPTRA_AXI_ID_WIDTH),
         .UW(`CALIPTRA_AXI_USER_WIDTH)
     ) cptra_ss_mcu_sb_m_axi_if (.clk(core_clk), .rst_n(hwif_out.interface_regs.control.cptra_ss_rst_b.value));
