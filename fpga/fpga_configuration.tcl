@@ -12,7 +12,7 @@ set ENABLE_ADB TRUE
 set ITRNG TRUE
 set FAST_I3C TRUE
 
-set I3C_OUTSIDE FALSE
+set I3C_OUTSIDE TRUE
 set APB FALSE
 # Simplistic processing of command line arguments to override defaults
 foreach arg $argv {
@@ -146,6 +146,7 @@ set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells cptra_rom_bram_ctrl_0]
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 cptra_rom_bram_ctrl_1
 set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells cptra_rom_bram_ctrl_1]
 
+# Not connected when I3C_OUTSIDE is used
 # Create AXI I3C to act as external I3C
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_i3c:1.0 axi_i3c_0
 set_property -dict [list \
@@ -267,7 +268,7 @@ if {$FAST_I3C} {
     [get_bd_pins xpm_cdc_gen_0/dest_clk]
 }
 
-if {FALSE} {
+if {$I3C_OUTSIDE} {
   # Connections to I3C driver board
   create_bd_port -dir O -type data SDA_UP
   create_bd_port -dir O -type data SDA_PUSH

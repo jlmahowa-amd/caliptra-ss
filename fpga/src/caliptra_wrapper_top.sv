@@ -33,6 +33,17 @@ module caliptra_wrapper_top #(
     input bit core_clk,
     input bit i3c_clk,
 
+`ifdef I3C_OUTSIDE
+    // I3C signals to driver board
+    (* syn_keep = "true", mark_debug = "true" *)output logic SDA_UP,
+    (* syn_keep = "true", mark_debug = "true" *)output logic SDA_PUSH,
+    (* syn_keep = "true", mark_debug = "true" *)output logic SDA_PULL,
+    (* syn_keep = "true", mark_debug = "true" *)input  logic SDA,
+    (* syn_keep = "true", mark_debug = "true" *)output logic SCL_UP,
+    (* syn_keep = "true", mark_debug = "true" *)output logic SCL_PUSH,
+    (* syn_keep = "true", mark_debug = "true" *)output logic SCL_PULL,
+    (* syn_keep = "true", mark_debug = "true" *)input  logic SCL
+`else
     // I3C signals from AXI I3C
     (* syn_keep = "true", mark_debug = "true" *) input wire axi_i3c_scl_t,
     (* syn_keep = "true", mark_debug = "true" *) input wire axi_i3c_scl_o,
@@ -43,6 +54,7 @@ module caliptra_wrapper_top #(
     // I3C signals back to AXI I3C
     (* syn_keep = "true", mark_debug = "true" *) output reg SCL,
     (* syn_keep = "true", mark_debug = "true" *) output reg SDA,
+`endif
 
     // Caliptra S_AXI Interface
     input  wire [31:0] S_AXI_CALIPTRA_AWADDR,
@@ -317,7 +329,7 @@ module caliptra_wrapper_top #(
     output wire                      M_AXI_MCU_IFU_ARVALID,
     input  wire                      M_AXI_MCU_IFU_ARREADY,
     output wire [18:0]              M_AXI_MCU_IFU_ARID,
-    (* syn_keep = "true", mark_debug = "true" *) output wire [              31:0] M_AXI_MCU_IFU_ARADDR,
+    output wire [              31:0] M_AXI_MCU_IFU_ARADDR,
     output wire [               3:0] M_AXI_MCU_IFU_ARREGION,
     output wire [               7:0] M_AXI_MCU_IFU_ARLEN,
     output wire [               2:0] M_AXI_MCU_IFU_ARSIZE,
@@ -327,11 +339,11 @@ module caliptra_wrapper_top #(
     output wire [               2:0] M_AXI_MCU_IFU_ARPROT,
     output wire [               3:0] M_AXI_MCU_IFU_ARQOS,
 
-    (* syn_keep = "true", mark_debug = "true" *) input  wire                      M_AXI_MCU_IFU_RVALID,
-    (* syn_keep = "true", mark_debug = "true" *) output wire                      M_AXI_MCU_IFU_RREADY,
-    (* syn_keep = "true", mark_debug = "true" *) input  wire [18:0]              M_AXI_MCU_IFU_RID,
-    (* syn_keep = "true", mark_debug = "true" *) input  wire [              63:0] M_AXI_MCU_IFU_RDATA,
-    (* syn_keep = "true", mark_debug = "true" *) input  wire [               1:0] M_AXI_MCU_IFU_RRESP,
+    input  wire                      M_AXI_MCU_IFU_RVALID,
+    output wire                      M_AXI_MCU_IFU_RREADY,
+    input  wire [18:0]              M_AXI_MCU_IFU_RID,
+    input  wire [              63:0] M_AXI_MCU_IFU_RDATA,
+     input  wire [               1:0] M_AXI_MCU_IFU_RRESP,
     input  wire                      M_AXI_MCU_IFU_RLAST,
 
     //-------------------------- MCU SB AXI signals--------------------------
@@ -554,15 +566,6 @@ module caliptra_wrapper_top #(
     output	wire [31:0]               S_AXI_WRAPPER_RDATA,
     output	wire [1:0]                S_AXI_WRAPPER_RRESP
 
-    // I3C
-    //output logic SDA_UP,
-    //output logic SDA_PUSH,
-    //output logic SDA_PULL,
-    //input  logic SDA,
-    //output logic SCL_UP,
-    //output logic SCL_PUSH,
-    //output logic SCL_PULL,
-    //input  logic SCL
     );
 
     axi4lite_intf wrapper_s_axil ();
@@ -627,7 +630,7 @@ module caliptra_wrapper_top #(
     logic [`CALIPTRA_IMEM_DATA_WIDTH-1:0] imem_rdata;
 
     logic [255:0]                              cptra_obf_key;
-    (* syn_keep = "true", mark_debug = "true" *) logic [`CLP_CSR_HMAC_KEY_DWORDS-1:0][31:0] cptra_csr_hmac_key;
+    logic [`CLP_CSR_HMAC_KEY_DWORDS-1:0][31:0] cptra_csr_hmac_key;
     assign cptra_obf_key =
         {hwif_out.interface_regs.cptra_obf_key[7].value.value,
          hwif_out.interface_regs.cptra_obf_key[6].value.value,
@@ -1843,14 +1846,35 @@ I think this is the one that isn't used
     |         1 |      0 |           0 | -> |    1 |    1 |  1 | -> | push pull low  |
     |         1 |      1 |           1 | -> |    0 |    0 |  1 | -> | push pull high |
     */
-    //logic cptra_ss_i3c_scl_o;
-    //logic cptra_ss_i3c_sda_o;
-    //logic cptra_ss_sel_od_pp_o;
     (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_sel_od_pp_o;
     (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_scl_o;
     (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_sda_o;
+`ifdef I3C_OUTSIDE
+    always_comb begin
+        case ({
+        i3c_core_sel_od_pp_o, i3c_core_scl_o
+        })
+        2'b00:   {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b101;
+        2'b01:   {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b110;
+        2'b10:   {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b111;
+        2'b11:   {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b001;
+        default: {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b101;
+        endcase
+    end
 
+    always_comb begin
+        case ({
+        i3c_core_sel_od_pp_o, i3c_core_sda_o
+        })
+        2'b00:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b101;
+        2'b01:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b110;
+        2'b10:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b111;
+        2'b11:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b001;
+        default: {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b101;
+        endcase
+    end
 
+`else
     // TODO: Connect OE signals from i3c-core
     always_comb begin
         //     i3c-core                             | AXI I3C
@@ -1947,6 +1971,7 @@ I think this is the one that isn't used
         default: SDA = 1'b1;
         endcase
     end
+`endif
 
 
 // Looping back cptra_rst_b
