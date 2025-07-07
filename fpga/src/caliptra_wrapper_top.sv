@@ -2095,10 +2095,10 @@ caliptra_ss_top caliptra_ss_top_0 (
     .cptra_ss_mcu_jtag_tdoEn_o(mcu_jtag_tdoEn_o),
 
     // Address straps
-    .cptra_ss_strap_caliptra_base_addr_i     (64'hA4100000),
-    .cptra_ss_strap_mci_base_addr_i          (64'hA8000000),
-    .cptra_ss_strap_recovery_ifc_base_addr_i (64'hA4030100), // I3C controller SecFwRecoveryIf
-    .cptra_ss_strap_otp_fc_base_addr_i       (64'hA4060000),
+    .cptra_ss_strap_caliptra_base_addr_i     (64'h10000000),
+    .cptra_ss_strap_mci_base_addr_i          (64'h40000000),
+    .cptra_ss_strap_recovery_ifc_base_addr_i (64'h20030100), // I3C controller SecFwRecoveryIf
+    .cptra_ss_strap_otp_fc_base_addr_i       (64'h80000000),
     .cptra_ss_strap_uds_seed_base_addr_i     ({32'h00000000, hwif_out.interface_regs.uds_seed_base_addr.uds_seed_base_addr.value}),
     .cptra_ss_strap_prod_debug_unlock_auth_pk_hash_reg_bank_offset_i(hwif_out.interface_regs.prod_debug_unlock_auth_pk_hash_reg_bank_offset.prod_debug_unlock_auth_pk_hash_reg_bank_offset.value),
     .cptra_ss_strap_num_of_prod_debug_unlock_auth_pk_hashes_i(hwif_out.interface_regs.num_of_prod_debug_unlock_auth_pk_hashes.num_of_prod_debug_unlock_auth_pk_hashes.value),

@@ -13,7 +13,6 @@ set ITRNG TRUE
 set FAST_I3C TRUE
 
 set I3C_OUTSIDE FALSE
-set APB FALSE
 # Simplistic processing of command line arguments to override defaults
 foreach arg $argv {
   regexp {(.*)=(.*)} $arg fullmatch option value
@@ -59,9 +58,6 @@ if {$CG_EN} {
 if {$ITRNG} {
   # Add option to use Caliptra's internal TRNG instead of ETRNG
   lappend VERILOG_OPTIONS CALIPTRA_INTERNAL_TRNG
-}
-if {$APB} {
-  lappend VERILOG_OPTIONS CALIPTRA_APB
 }
 if {$I3C_OUTSIDE} {
   lappend VERILOG_OPTIONS I3C_OUTSIDE
@@ -138,7 +134,7 @@ set_property -dict [list \
   CONFIG.NUM_CLKS {2} \
   ] [get_bd_cells axi_interconnect_1]
 
-proc register_axi_subordinate {src_block src_port address size dst addrseg} {
+proc register_axi_subordinate {src_block src_port address size dst addrseg name debug} {
   global axi_subordinates
 
   incr axi_subordinates(ID)
@@ -150,24 +146,28 @@ proc register_axi_subordinate {src_block src_port address size dst addrseg} {
   set axi_subordinates($id,size)       $size
   set axi_subordinates($id,dst)        $dst
   set axi_subordinates($id,addrseg)    $addrseg
+  set axi_subordinates($id,name)       $name
+  set axi_subordinates($id,debug)      $debug
 }
 global axi_subordinates
 set axi_subordinates(ID) 0
 
-#                        src_block          src_port address    size       dst                                   addrseg
-register_axi_subordinate axi_interconnect_1 M00_AXI  0x10000000 0x00100000 caliptra_package_top_0/S_AXI_CALIPTRA reg0
-register_axi_subordinate axi_interconnect_1 M01_AXI  0x20000000 0x00002000 caliptra_package_top_0/S_AXI_I3C      reg0
-register_axi_subordinate axi_interconnect_1 M02_AXI  0x30000000 0x00002000 caliptra_package_top_0/S_AXI_LCC      reg0
-register_axi_subordinate axi_interconnect_1 M03_AXI  0x40000000 0x01000000 caliptra_package_top_0/S_AXI_MCI      reg0
-register_axi_subordinate axi_interconnect_1 M04_AXI  0x50000000 0x00020000 caliptra_package_top_0/S_AXI_MCU_ROM  reg0
-register_axi_subordinate axi_interconnect_1 M05_AXI  0x60000000 0x00002000 caliptra_package_top_0/S_AXI_OTP      reg0
-register_axi_subordinate axi_interconnect_1 M06_AXI  0x80000000 0x00010000 otp_ram_bram_ctrl_0/S_AXI             Mem0
+#                        src_block          src_port address    size       dst                                   addrseg name               debug
+register_axi_subordinate axi_interconnect_1 M00_AXI  0x10000000 0x00100000 caliptra_package_top_0/S_AXI_CALIPTRA reg0    S_AXI_CALIPTRA     TRUE
+register_axi_subordinate axi_interconnect_1 M01_AXI  0x20000000 0x00002000 caliptra_package_top_0/S_AXI_I3C      reg0    S_AXI_I3C          TRUE
+register_axi_subordinate axi_interconnect_1 M02_AXI  0x30000000 0x00002000 caliptra_package_top_0/S_AXI_LCC      reg0    S_AXI_LCC          FALSE
+register_axi_subordinate axi_interconnect_1 M03_AXI  0x40000000 0x01000000 caliptra_package_top_0/S_AXI_MCI      reg0    S_AXI_MCI          TRUE
+# 0x5000_0000 used for dccm
+# 0x6000_0000 used for pic
+register_axi_subordinate axi_interconnect_1 M04_AXI  0x70000000 0x00020000 caliptra_package_top_0/S_AXI_MCU_ROM  reg0    S_AXI_MCU_ROM      TRUE
+register_axi_subordinate axi_interconnect_1 M05_AXI  0x80000000 0x00002000 caliptra_package_top_0/S_AXI_OTP      reg0    S_AXI_OTP          TRUE
+register_axi_subordinate axi_interconnect_1 M06_AXI  0x90000000 0x00010000 otp_ram_bram_ctrl_0/S_AXI             Mem0    S_AXI_OTP_RAM      TRUE
 
-register_axi_subordinate axi_interconnect_0 M01_AXI  0xa0000000 0x00001000 axi_firewall_0/S_AXI_CTL              Control
-register_axi_subordinate axi_interconnect_0 M02_AXI  0xb0000000 0x00018000 cptra_rom_bram_ctrl_0/S_AXI           Mem0
-register_axi_subordinate axi_interconnect_0 M03_AXI  0xc0000000 0x00020000 cptra_rom_bram_ctrl_1/S_AXI           Mem0
-register_axi_subordinate axi_interconnect_0 M04_AXI  0xd0000000 0x00002000 caliptra_package_top_0/S_AXI_WRAPPER  reg0
-register_axi_subordinate axi_interconnect_0 M05_AXI  0xe0000000 0x00001000 xilinx_i3c_0/S_AXI                    Reg
+register_axi_subordinate axi_interconnect_0 M01_AXI  0xa0000000 0x00001000 axi_firewall_0/S_AXI_CTL              Control S_AXI_CTL_FIREWALL TRUE
+register_axi_subordinate axi_interconnect_0 M02_AXI  0xb0000000 0x00018000 cptra_rom_bram_ctrl_0/S_AXI           Mem0    S_AXI_CALIPTRA_ROM FALSE
+register_axi_subordinate axi_interconnect_0 M03_AXI  0xc0000000 0x00020000 cptra_rom_bram_ctrl_1/S_AXI           Mem0    S_AXI_SS_ROM       FALSE
+register_axi_subordinate axi_interconnect_0 M04_AXI  0xd0000000 0x00002000 caliptra_package_top_0/S_AXI_WRAPPER  reg0    S_AXI_WRAPPER      FALSE
+register_axi_subordinate axi_interconnect_0 M05_AXI  0xe0000000 0x00001000 xilinx_i3c_0/S_AXI                    Reg     S_AXI_XILINX_I3C   FALSE
 
 # Configure NOC to allow all upstream ports to access all downstream ports
 set_property -dict [list CONFIG.CONNECTIONS {M03_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M08_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M02_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M00_AXI {read_bw {1720} write_bw {1720} read_avg_burst {4} write_avg_burst {4}} M05_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M06_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M07_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /axi_interconnect_1/S00_AXI]
@@ -179,7 +179,6 @@ set_property -dict [list CONFIG.CONNECTIONS {M03_AXI {read_bw {500} write_bw {50
 # Map ARM addresses in the 0x400_0000_0000 range to the memory aperture for the NOC (0x201_0000_0000)
 # Map SS AXI managers to the memory aperture for the NOC (0x201_0000_0000)
 # Minimum mapping size is 64K
-
 for {set i 1} {$i <= $axi_subordinates(ID)} {incr i} {
   puts "$i $axi_subordinates($i,src_block)"
   if {$axi_subordinates($i,src_block) == "axi_interconnect_1"} {
@@ -212,15 +211,6 @@ set_property -dict [list \
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
 
 #### Add Devices ####
-if {$APB} {
-  # Add AXI APB Bridge for Caliptra 1.x
-  create_bd_cell -type ip -vlnv xilinx.com:ip:axi_apb_bridge:3.0 axi_apb_bridge_0
-  set_property -dict [list \
-    CONFIG.C_APB_NUM_SLAVES {1} \
-    CONFIG.C_M_APB_PROTOCOL {apb4} \
-    ] [get_bd_cells axi_apb_bridge_0]
-  #set_property location {3 1041 439} [get_bd_cells axi_apb_bridge_0]
-}
 
 # Add AXI BRAM Controller for backdoor access to Caliptra ROM
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 cptra_rom_bram_ctrl_0
@@ -246,59 +236,42 @@ set_property -dict [list \
 create_bd_cell -type ip -vlnv xilinx.com:ip:xpm_cdc_gen:1.0 xpm_cdc_gen_0
 set_property CONFIG.CDC_TYPE {xpm_cdc_sync_rst} [get_bd_cells xpm_cdc_gen_0]
 
-# TODO: Consider removing
-# Move blocks around on the block diagram. This step is optional.
-#set_property location {1 177 345} [get_bd_cells ps_0]
-#set_property location {2 707 654} [get_bd_cells proc_sys_reset_0]
-#set_property location {2 696 373} [get_bd_cells axi_interconnect_0]
-#set_property location {3 696 373} [get_bd_cells axi_interconnect_1]
-#set_property location {3 1151 617} [get_bd_cells cptra_rom_bram_ctrl_0]
-#set_property location {4 1335 456} [get_bd_cells caliptra_package_top_0]
-#set_property location {4 1951 1027} [get_bd_cells xilinx_i3c_0]
-#set_property location {3 1483 1226} [get_bd_cells xpm_cdc_gen_0]
-
-#### axi_interconnect_0 ####
-# AXI Managers
-# PS -> First AXI Interconnect
-connect_bd_intf_net [get_bd_intf_pins $ps_m_axi] [get_bd_intf_pins axi_interconnect_0/S00_AXI]
-set_property name M_AXI_ARM [get_bd_intf_nets ps_0_M_AXI_FPD]
-
-# AXI Subordinates
-# Firewall
-connect_bd_intf_net [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins axi_firewall_0/S_AXI]
-set_property name S_AXI_FIREWALL [get_bd_intf_nets axi_interconnect_0_M00_AXI]
-connect_bd_intf_net [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins axi_firewall_0/S_AXI_CTL]
+#### BRAM controller connections ####
 # Caliptra ROM Backdoor
 connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/rom_backdoor] [get_bd_intf_pins cptra_rom_bram_ctrl_0/BRAM_PORTA]
 # MCU ROM Backdoor
 connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/mcu_rom_backdoor] [get_bd_intf_pins cptra_rom_bram_ctrl_1/BRAM_PORTA]
 # OTP RAM Backdoor
 connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/otp_mem_backdoor] [get_bd_intf_pins otp_ram_bram_ctrl_0/BRAM_PORTA]
-#### End axi_interconnect_0 ####
+
+#### axi_interconnect_0 ####
+# PS -> First AXI Interconnect
+connect_bd_intf_net -intf_net M_AXI_ARM      [get_bd_intf_pins $ps_m_axi]                  [get_bd_intf_pins axi_interconnect_0/S00_AXI]
+# First AXI Interconnect -> Firewall
+connect_bd_intf_net -intf_net S_AXI_FIREWALL [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins axi_firewall_0/S_AXI]
 
 #### axi_interconnect_1 ####
-# AXI Managers for second AXI Interconnect
-connect_bd_intf_net [get_bd_intf_pins axi_firewall_0/M_AXI]                  [get_bd_intf_pins axi_interconnect_1/S00_AXI]
-set_property name M_AXI_FIREWALL [get_bd_intf_nets axi_firewall_0_M_AXI]
-# Caliptra M_AXI
-connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_intf_pins axi_interconnect_1/S01_AXI]
-set_property name M_AXI_CALIPTRA [get_bd_intf_nets caliptra_package_top_0_M_AXI_CALIPTRA]
-# MCU
-connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_IFU]  [get_bd_intf_pins axi_interconnect_1/S02_AXI]
-connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_LSU]  [get_bd_intf_pins axi_interconnect_1/S03_AXI]
-connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_SB]   [get_bd_intf_pins axi_interconnect_1/S04_AXI]
+# Firewall
+connect_bd_intf_net -int_net M_AXI_FIREWALL  [get_bd_intf_pins axi_firewall_0/M_AXI]                  [get_bd_intf_pins axi_interconnect_1/S00_AXI]
+# SS
+connect_bd_intf_net -intf_net M_AXI_CALIPTRA [get_bd_intf_pins caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_intf_pins axi_interconnect_1/S01_AXI]
+connect_bd_intf_net -intf_net M_AXI_MCU_IFU  [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_IFU]  [get_bd_intf_pins axi_interconnect_1/S02_AXI]
+connect_bd_intf_net -intf_net M_AXI_MCU_LSU  [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_LSU]  [get_bd_intf_pins axi_interconnect_1/S03_AXI]
+connect_bd_intf_net -intf_net M_AXI_MCU_SB   [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_SB]   [get_bd_intf_pins axi_interconnect_1/S04_AXI]
 
 #### Connect axi subordinates to the interconnects ####
 for {set i 1} {$i <= $axi_subordinates(ID)} {incr i} {
-  connect_bd_intf_net /$axi_subordinates($i,src_block)/$axi_subordinates($i,src_port) /$axi_subordinates($i,dst)
-  #set_property name S_AXI_I3C [get_bd_intf_nets axi_interconnect_1_M01_AXI]
+  connect_bd_intf_net -intf_net $axi_subordinates($i,name) /$axi_subordinates($i,src_block)/$axi_subordinates($i,src_port) /$axi_subordinates($i,dst)
+  if {$axi_subordinates($i,debug)} {
+    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {$axi_subordinates($i,name)}]
+  }
 }
 
 #### Create reset connections ####
 connect_bd_net [get_bd_pins $ps_pl_resetn] [get_bd_pins proc_sys_reset_0/ext_reset_in]
-connect_bd_net -net proc_sys_reset_0_peripheral_aresetn \
+connect_bd_net -net aresetn \
   [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
-  [get_bd_pins axi_apb_bridge_0/s_axi_aresetn] \
+  [get_bd_pins axi_interconnect_0/aresetn] \
   [get_bd_pins caliptra_package_top_0/S_AXI_WRAPPER_ARESETN] \
   [get_bd_pins cptra_rom_bram_ctrl_0/s_axi_aresetn] \
   [get_bd_pins cptra_rom_bram_ctrl_1/s_axi_aresetn] \
@@ -309,7 +282,6 @@ connect_bd_net \
   [get_bd_pins $ps_pl_clk] \
   [get_bd_pins $ps_axi_aclk] \
   [get_bd_pins proc_sys_reset_0/slowest_sync_clk] \
-  [get_bd_pins axi_apb_bridge_0/s_axi_aclk] \
   [get_bd_pins axi_interconnect_0/aclk] \
   [get_bd_pins axi_interconnect_1/aclk0] \
   [get_bd_pins caliptra_package_top_0/core_clk] \
@@ -384,7 +356,7 @@ connect_bd_net [get_bd_pins caliptra_package_top_0/ARM_USER] [get_bd_pins axi_fi
 #connect_bd_net [get_bd_pins axi_firewall_0/si_w_error] [get_bd_pins caliptra_package_top_0/si_w_error]
 #connect_bd_net [get_bd_pins axi_firewall_0/si_r_error] [get_bd_pins caliptra_package_top_0/si_r_error]
 
-# Assign address segments for all AXI managers
+#### Assign address segments for all AXI managers ####
 set managers {ps_0/M_AXI_FPD caliptra_package_top_0/M_AXI_MCU_IFU caliptra_package_top_0/M_AXI_MCU_LSU caliptra_package_top_0/M_AXI_MCU_SB caliptra_package_top_0/M_AXI_CALIPTRA}
 set base_offsets {0x40000000000 0 0 0 0}
 
@@ -431,31 +403,6 @@ if {$FAST_I3C} {
   set_property CONFIG.SCL_CLK_FREQ {12500} [get_bd_cells xilinx_i3c_0]
 }
 
-# Mark AXI interfaces for debugging
-#set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets { \
-#  ps_0_M_AXI_FPD \
-#    M_AXI_ARM \
-#    S_AXI_FIREWALL \
-#    M_AXI_FIREWALL \
-#    S_AXI_CALIPTRA \
-#    S_AXI_MCI \
-#    S_AXI_OTP \
-#    M_AXI_MCU_LSU \
-#    S_AXI_I3C \
-#    M_AXI_CALIPTRA}]
-#
-#  apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
-#    [get_bd_intf_nets M_AXI_ARM] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets M_AXI_CALIPTRA] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets M_AXI_MCU_LSU] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets S_AXI_CALIPTRA] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets S_AXI_FIREWALL] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets M_AXI_FIREWALL] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets S_AXI_MCI] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets S_AXI_I3C] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#    [get_bd_intf_nets S_AXI_OTP] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
-#  ]
-#
 # Mark I3C signals for debugging
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {caliptra_package_top_0_SCL }]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_scl_o }]
@@ -466,16 +413,20 @@ set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_sda_t }]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_sda_pullup_en }]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_scl_pullup_en }]
 
+#### Set up ILA ####
+# TODO: Get command
+
 save_bd_design
+regenerate_bd_layout
 
 # Start build
 if {$BUILD} {
-launch_runs synth_1 -jobs 32
-wait_on_runs synth_1
-launch_runs impl_1 -to_step write_device_image -jobs 32
-wait_on_runs impl_1
-open_run impl_1
-report_utilization -file $outputDir/utilization.txt
+  launch_runs synth_1 -jobs 32
+  wait_on_runs synth_1
+  launch_runs impl_1 -to_step write_device_image -jobs 32
+  wait_on_runs impl_1
+  open_run impl_1
+  report_utilization -file $outputDir/utilization.txt
 
-write_hw_platform -fixed -include_bit -force -file $outputDir/caliptra_fpga.xsa
+  write_hw_platform -fixed -include_bit -force -file $outputDir/caliptra_fpga.xsa
 }
