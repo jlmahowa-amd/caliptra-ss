@@ -9,17 +9,17 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 - Absolute Address: 0x0
 - Base Offset: 0x0
-- Size: 0xA401101C
+- Size: 0xD000101C
 
 |  Offset  |  Identifier  |Name|
 |----------|--------------|----|
-|0xA4010000|interface_regs|  — |
-|0xA4011000|   fifo_regs  |  — |
+|0xD0000000|interface_regs|  — |
+|0xD0001000|   fifo_regs  |  — |
 
 ## interface_regs register file
 
-- Absolute Address: 0xA4010000
-- Base Offset: 0xA4010000
+- Absolute Address: 0xD0000000
+- Base Offset: 0xD0000000
 - Size: 0x13C
 
 |Offset|                  Identifier                  |Name|
@@ -101,7 +101,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### fpga_magic register
 
-- Absolute Address: 0xA4010000
+- Absolute Address: 0xD0000000
 - Base Offset: 0x0
 - Size: 0x4
 
@@ -115,7 +115,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### fpga_version register
 
-- Absolute Address: 0xA4010004
+- Absolute Address: 0xD0000004
 - Base Offset: 0x4
 - Size: 0x4
 
@@ -129,7 +129,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### control register
 
-- Absolute Address: 0xA4010008
+- Absolute Address: 0xD0000008
 - Base Offset: 0x8
 - Size: 0x4
 
@@ -147,7 +147,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### status register
 
-- Absolute Address: 0xA401000C
+- Absolute Address: 0xD000000C
 - Base Offset: 0xC
 - Size: 0x4
 
@@ -163,7 +163,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### arm_user register
 
-- Absolute Address: 0xA4010010
+- Absolute Address: 0xD0000010
 - Base Offset: 0x10
 - Size: 0x4
 
@@ -177,7 +177,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### itrng_divisor register
 
-- Absolute Address: 0xA4010014
+- Absolute Address: 0xD0000014
 - Base Offset: 0x14
 - Size: 0x4
 
@@ -187,7 +187,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cycle_count register
 
-- Absolute Address: 0xA4010018
+- Absolute Address: 0xD0000018
 - Base Offset: 0x18
 - Size: 0x4
 
@@ -197,7 +197,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### generic_input_wires register
 
-- Absolute Address: 0xA4010030
+- Absolute Address: 0xD0000030
 - Base Offset: 0x30
 - Size: 0x4
 - Array Dimensions: [2]
@@ -210,7 +210,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### generic_input_wires register
 
-- Absolute Address: 0xA4010034
+- Absolute Address: 0xD0000034
 - Base Offset: 0x30
 - Size: 0x4
 - Array Dimensions: [2]
@@ -223,7 +223,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### generic_output_wires register
 
-- Absolute Address: 0xA4010038
+- Absolute Address: 0xD0000038
 - Base Offset: 0x38
 - Size: 0x4
 - Array Dimensions: [2]
@@ -236,7 +236,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### generic_output_wires register
 
-- Absolute Address: 0xA401003C
+- Absolute Address: 0xD000003C
 - Base Offset: 0x38
 - Size: 0x4
 - Array Dimensions: [2]
@@ -249,7 +249,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA4010040
+- Absolute Address: 0xD0000040
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -262,7 +262,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA4010044
+- Absolute Address: 0xD0000044
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -275,7 +275,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA4010048
+- Absolute Address: 0xD0000048
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -288,7 +288,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA401004C
+- Absolute Address: 0xD000004C
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -301,7 +301,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA4010050
+- Absolute Address: 0xD0000050
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -314,7 +314,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA4010054
+- Absolute Address: 0xD0000054
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -327,7 +327,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA4010058
+- Absolute Address: 0xD0000058
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -340,7 +340,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_key register
 
-- Absolute Address: 0xA401005C
+- Absolute Address: 0xD000005C
 - Base Offset: 0x40
 - Size: 0x4
 - Array Dimensions: [8]
@@ -353,7 +353,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010060
+- Absolute Address: 0xD0000060
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -366,7 +366,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010064
+- Absolute Address: 0xD0000064
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -379,7 +379,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010068
+- Absolute Address: 0xD0000068
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -392,7 +392,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA401006C
+- Absolute Address: 0xD000006C
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -405,7 +405,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010070
+- Absolute Address: 0xD0000070
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -418,7 +418,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010074
+- Absolute Address: 0xD0000074
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -431,7 +431,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010078
+- Absolute Address: 0xD0000078
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -444,7 +444,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA401007C
+- Absolute Address: 0xD000007C
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -457,7 +457,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010080
+- Absolute Address: 0xD0000080
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -470,7 +470,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010084
+- Absolute Address: 0xD0000084
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -483,7 +483,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010088
+- Absolute Address: 0xD0000088
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -496,7 +496,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA401008C
+- Absolute Address: 0xD000008C
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -509,7 +509,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010090
+- Absolute Address: 0xD0000090
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -522,7 +522,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010094
+- Absolute Address: 0xD0000094
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -535,7 +535,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA4010098
+- Absolute Address: 0xD0000098
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -548,7 +548,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_csr_hmac_key register
 
-- Absolute Address: 0xA401009C
+- Absolute Address: 0xD000009C
 - Base Offset: 0x60
 - Size: 0x4
 - Array Dimensions: [16]
@@ -561,7 +561,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100A0
+- Absolute Address: 0xD00000A0
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -574,7 +574,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100A4
+- Absolute Address: 0xD00000A4
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -587,7 +587,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100A8
+- Absolute Address: 0xD00000A8
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -600,7 +600,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100AC
+- Absolute Address: 0xD00000AC
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -613,7 +613,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100B0
+- Absolute Address: 0xD00000B0
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -626,7 +626,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100B4
+- Absolute Address: 0xD00000B4
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -639,7 +639,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100B8
+- Absolute Address: 0xD00000B8
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -652,7 +652,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100BC
+- Absolute Address: 0xD00000BC
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -665,7 +665,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100C0
+- Absolute Address: 0xD00000C0
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -678,7 +678,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100C4
+- Absolute Address: 0xD00000C4
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -691,7 +691,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100C8
+- Absolute Address: 0xD00000C8
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -704,7 +704,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100CC
+- Absolute Address: 0xD00000CC
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -717,7 +717,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100D0
+- Absolute Address: 0xD00000D0
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -730,7 +730,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100D4
+- Absolute Address: 0xD00000D4
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -743,7 +743,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100D8
+- Absolute Address: 0xD00000D8
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -756,7 +756,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_uds_seed register
 
-- Absolute Address: 0xA40100DC
+- Absolute Address: 0xD00000DC
 - Base Offset: 0xA0
 - Size: 0x4
 - Array Dimensions: [16]
@@ -769,7 +769,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100E0
+- Absolute Address: 0xD00000E0
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -782,7 +782,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100E4
+- Absolute Address: 0xD00000E4
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -795,7 +795,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100E8
+- Absolute Address: 0xD00000E8
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -808,7 +808,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100EC
+- Absolute Address: 0xD00000EC
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -821,7 +821,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100F0
+- Absolute Address: 0xD00000F0
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -834,7 +834,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100F4
+- Absolute Address: 0xD00000F4
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -847,7 +847,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100F8
+- Absolute Address: 0xD00000F8
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -860,7 +860,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### cptra_obf_field_entropy register
 
-- Absolute Address: 0xA40100FC
+- Absolute Address: 0xD00000FC
 - Base Offset: 0xE0
 - Size: 0x4
 - Array Dimensions: [8]
@@ -873,7 +873,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### lsu_user register
 
-- Absolute Address: 0xA4010100
+- Absolute Address: 0xD0000100
 - Base Offset: 0x100
 - Size: 0x4
 
@@ -887,7 +887,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### ifu_user register
 
-- Absolute Address: 0xA4010104
+- Absolute Address: 0xD0000104
 - Base Offset: 0x104
 - Size: 0x4
 
@@ -901,7 +901,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### dma_axi_user register
 
-- Absolute Address: 0xA4010108
+- Absolute Address: 0xD0000108
 - Base Offset: 0x108
 - Size: 0x4
 
@@ -915,7 +915,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### soc_config_user register
 
-- Absolute Address: 0xA401010C
+- Absolute Address: 0xD000010C
 - Base Offset: 0x10C
 - Size: 0x4
 
@@ -929,7 +929,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### sram_config_user register
 
-- Absolute Address: 0xA4010110
+- Absolute Address: 0xD0000110
 - Base Offset: 0x110
 - Size: 0x4
 
@@ -943,7 +943,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mcu_reset_vector register
 
-- Absolute Address: 0xA4010114
+- Absolute Address: 0xD0000114
 - Base Offset: 0x114
 - Size: 0x4
 
@@ -957,7 +957,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mci_error register
 
-- Absolute Address: 0xA4010118
+- Absolute Address: 0xD0000118
 - Base Offset: 0x118
 - Size: 0x4
 
@@ -968,7 +968,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mcu_config register
 
-- Absolute Address: 0xA401011C
+- Absolute Address: 0xD000011C
 - Base Offset: 0x11C
 - Size: 0x4
 
@@ -983,7 +983,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### uds_seed_base_addr register
 
-- Absolute Address: 0xA4010120
+- Absolute Address: 0xD0000120
 - Base Offset: 0x120
 - Size: 0x4
 
@@ -993,7 +993,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### prod_debug_unlock_auth_pk_hash_reg_bank_offset register
 
-- Absolute Address: 0xA4010124
+- Absolute Address: 0xD0000124
 - Base Offset: 0x124
 - Size: 0x4
 
@@ -1003,7 +1003,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### num_of_prod_debug_unlock_auth_pk_hashes register
 
-- Absolute Address: 0xA4010128
+- Absolute Address: 0xD0000128
 - Base Offset: 0x128
 - Size: 0x4
 
@@ -1013,7 +1013,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mci_generic_input_wires register
 
-- Absolute Address: 0xA401012C
+- Absolute Address: 0xD000012C
 - Base Offset: 0x12C
 - Size: 0x4
 - Array Dimensions: [2]
@@ -1026,7 +1026,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mci_generic_input_wires register
 
-- Absolute Address: 0xA4010130
+- Absolute Address: 0xD0000130
 - Base Offset: 0x12C
 - Size: 0x4
 - Array Dimensions: [2]
@@ -1039,7 +1039,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mci_generic_output_wires register
 
-- Absolute Address: 0xA4010134
+- Absolute Address: 0xD0000134
 - Base Offset: 0x134
 - Size: 0x4
 - Array Dimensions: [2]
@@ -1052,7 +1052,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### mci_generic_output_wires register
 
-- Absolute Address: 0xA4010138
+- Absolute Address: 0xD0000138
 - Base Offset: 0x134
 - Size: 0x4
 - Array Dimensions: [2]
@@ -1065,8 +1065,8 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ## fifo_regs register file
 
-- Absolute Address: 0xA4011000
-- Base Offset: 0xA4011000
+- Absolute Address: 0xD0001000
+- Base Offset: 0xD0001000
 - Size: 0x1C
 
 |Offset|    Identifier   |Name|
@@ -1081,7 +1081,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### log_fifo_data register
 
-- Absolute Address: 0xA4011000
+- Absolute Address: 0xD0001000
 - Base Offset: 0x0
 - Size: 0x4
 
@@ -1092,7 +1092,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### log_fifo_status register
 
-- Absolute Address: 0xA4011004
+- Absolute Address: 0xD0001004
 - Base Offset: 0x4
 - Size: 0x4
 
@@ -1103,7 +1103,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### itrng_fifo_data register
 
-- Absolute Address: 0xA4011008
+- Absolute Address: 0xD0001008
 - Base Offset: 0x8
 - Size: 0x4
 
@@ -1113,7 +1113,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### itrng_fifo_status register
 
-- Absolute Address: 0xA401100C
+- Absolute Address: 0xD000100C
 - Base Offset: 0xC
 - Size: 0x4
 
@@ -1125,7 +1125,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### dbg_fifo_pop register
 
-- Absolute Address: 0xA4011010
+- Absolute Address: 0xD0001010
 - Base Offset: 0x10
 - Size: 0x4
 
@@ -1135,7 +1135,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### dbg_fifo_push register
 
-- Absolute Address: 0xA4011014
+- Absolute Address: 0xD0001014
 - Base Offset: 0x14
 - Size: 0x4
 
@@ -1145,7 +1145,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 
 ### dbg_fifo_status register
 
-- Absolute Address: 0xA4011018
+- Absolute Address: 0xD0001018
 - Base Offset: 0x18
 - Size: 0x4
 

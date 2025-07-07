@@ -254,55 +254,55 @@ module caliptra_fpga_realtime_regs (
     logic [31:0] decoded_wr_biten;
 
     always_comb begin
-        decoded_reg_strb.interface_regs.fpga_magic = cpuif_req_masked & (cpuif_addr == 32'ha4010000);
-        decoded_reg_strb.interface_regs.fpga_version = cpuif_req_masked & (cpuif_addr == 32'ha4010004);
-        decoded_reg_strb.interface_regs.control = cpuif_req_masked & (cpuif_addr == 32'ha4010008);
-        decoded_reg_strb.interface_regs.status = cpuif_req_masked & (cpuif_addr == 32'ha401000c);
-        decoded_reg_strb.interface_regs.arm_user = cpuif_req_masked & (cpuif_addr == 32'ha4010010);
-        decoded_reg_strb.interface_regs.itrng_divisor = cpuif_req_masked & (cpuif_addr == 32'ha4010014);
-        decoded_reg_strb.interface_regs.cycle_count = cpuif_req_masked & (cpuif_addr == 32'ha4010018);
+        decoded_reg_strb.interface_regs.fpga_magic = cpuif_req_masked & (cpuif_addr == 32'hd0000000);
+        decoded_reg_strb.interface_regs.fpga_version = cpuif_req_masked & (cpuif_addr == 32'hd0000004);
+        decoded_reg_strb.interface_regs.control = cpuif_req_masked & (cpuif_addr == 32'hd0000008);
+        decoded_reg_strb.interface_regs.status = cpuif_req_masked & (cpuif_addr == 32'hd000000c);
+        decoded_reg_strb.interface_regs.arm_user = cpuif_req_masked & (cpuif_addr == 32'hd0000010);
+        decoded_reg_strb.interface_regs.itrng_divisor = cpuif_req_masked & (cpuif_addr == 32'hd0000014);
+        decoded_reg_strb.interface_regs.cycle_count = cpuif_req_masked & (cpuif_addr == 32'hd0000018);
         for(int i0=0; i0<2; i0++) begin
-            decoded_reg_strb.interface_regs.generic_input_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'ha4010030 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.generic_input_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'hd0000030 + (32)'(i0) * 32'h4);
         end
         for(int i0=0; i0<2; i0++) begin
-            decoded_reg_strb.interface_regs.generic_output_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'ha4010038 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.generic_output_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'hd0000038 + (32)'(i0) * 32'h4);
         end
         for(int i0=0; i0<8; i0++) begin
-            decoded_reg_strb.interface_regs.cptra_obf_key[i0] = cpuif_req_masked & (cpuif_addr == 32'ha4010040 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.cptra_obf_key[i0] = cpuif_req_masked & (cpuif_addr == 32'hd0000040 + (32)'(i0) * 32'h4);
         end
         for(int i0=0; i0<16; i0++) begin
-            decoded_reg_strb.interface_regs.cptra_csr_hmac_key[i0] = cpuif_req_masked & (cpuif_addr == 32'ha4010060 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.cptra_csr_hmac_key[i0] = cpuif_req_masked & (cpuif_addr == 32'hd0000060 + (32)'(i0) * 32'h4);
         end
         for(int i0=0; i0<16; i0++) begin
-            decoded_reg_strb.interface_regs.cptra_obf_uds_seed[i0] = cpuif_req_masked & (cpuif_addr == 32'ha40100a0 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.cptra_obf_uds_seed[i0] = cpuif_req_masked & (cpuif_addr == 32'hd00000a0 + (32)'(i0) * 32'h4);
         end
         for(int i0=0; i0<8; i0++) begin
-            decoded_reg_strb.interface_regs.cptra_obf_field_entropy[i0] = cpuif_req_masked & (cpuif_addr == 32'ha40100e0 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.cptra_obf_field_entropy[i0] = cpuif_req_masked & (cpuif_addr == 32'hd00000e0 + (32)'(i0) * 32'h4);
         end
-        decoded_reg_strb.interface_regs.lsu_user = cpuif_req_masked & (cpuif_addr == 32'ha4010100);
-        decoded_reg_strb.interface_regs.ifu_user = cpuif_req_masked & (cpuif_addr == 32'ha4010104);
-        decoded_reg_strb.interface_regs.dma_axi_user = cpuif_req_masked & (cpuif_addr == 32'ha4010108);
-        decoded_reg_strb.interface_regs.soc_config_user = cpuif_req_masked & (cpuif_addr == 32'ha401010c);
-        decoded_reg_strb.interface_regs.sram_config_user = cpuif_req_masked & (cpuif_addr == 32'ha4010110);
-        decoded_reg_strb.interface_regs.mcu_reset_vector = cpuif_req_masked & (cpuif_addr == 32'ha4010114);
-        decoded_reg_strb.interface_regs.mci_error = cpuif_req_masked & (cpuif_addr == 32'ha4010118);
-        decoded_reg_strb.interface_regs.mcu_config = cpuif_req_masked & (cpuif_addr == 32'ha401011c);
-        decoded_reg_strb.interface_regs.uds_seed_base_addr = cpuif_req_masked & (cpuif_addr == 32'ha4010120);
-        decoded_reg_strb.interface_regs.prod_debug_unlock_auth_pk_hash_reg_bank_offset = cpuif_req_masked & (cpuif_addr == 32'ha4010124);
-        decoded_reg_strb.interface_regs.num_of_prod_debug_unlock_auth_pk_hashes = cpuif_req_masked & (cpuif_addr == 32'ha4010128);
+        decoded_reg_strb.interface_regs.lsu_user = cpuif_req_masked & (cpuif_addr == 32'hd0000100);
+        decoded_reg_strb.interface_regs.ifu_user = cpuif_req_masked & (cpuif_addr == 32'hd0000104);
+        decoded_reg_strb.interface_regs.dma_axi_user = cpuif_req_masked & (cpuif_addr == 32'hd0000108);
+        decoded_reg_strb.interface_regs.soc_config_user = cpuif_req_masked & (cpuif_addr == 32'hd000010c);
+        decoded_reg_strb.interface_regs.sram_config_user = cpuif_req_masked & (cpuif_addr == 32'hd0000110);
+        decoded_reg_strb.interface_regs.mcu_reset_vector = cpuif_req_masked & (cpuif_addr == 32'hd0000114);
+        decoded_reg_strb.interface_regs.mci_error = cpuif_req_masked & (cpuif_addr == 32'hd0000118);
+        decoded_reg_strb.interface_regs.mcu_config = cpuif_req_masked & (cpuif_addr == 32'hd000011c);
+        decoded_reg_strb.interface_regs.uds_seed_base_addr = cpuif_req_masked & (cpuif_addr == 32'hd0000120);
+        decoded_reg_strb.interface_regs.prod_debug_unlock_auth_pk_hash_reg_bank_offset = cpuif_req_masked & (cpuif_addr == 32'hd0000124);
+        decoded_reg_strb.interface_regs.num_of_prod_debug_unlock_auth_pk_hashes = cpuif_req_masked & (cpuif_addr == 32'hd0000128);
         for(int i0=0; i0<2; i0++) begin
-            decoded_reg_strb.interface_regs.mci_generic_input_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'ha401012c + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.mci_generic_input_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'hd000012c + (32)'(i0) * 32'h4);
         end
         for(int i0=0; i0<2; i0++) begin
-            decoded_reg_strb.interface_regs.mci_generic_output_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'ha4010134 + (32)'(i0) * 32'h4);
+            decoded_reg_strb.interface_regs.mci_generic_output_wires[i0] = cpuif_req_masked & (cpuif_addr == 32'hd0000134 + (32)'(i0) * 32'h4);
         end
-        decoded_reg_strb.fifo_regs.log_fifo_data = cpuif_req_masked & (cpuif_addr == 32'ha4011000);
-        decoded_reg_strb.fifo_regs.log_fifo_status = cpuif_req_masked & (cpuif_addr == 32'ha4011004);
-        decoded_reg_strb.fifo_regs.itrng_fifo_data = cpuif_req_masked & (cpuif_addr == 32'ha4011008);
-        decoded_reg_strb.fifo_regs.itrng_fifo_status = cpuif_req_masked & (cpuif_addr == 32'ha401100c);
-        decoded_reg_strb.fifo_regs.dbg_fifo_pop = cpuif_req_masked & (cpuif_addr == 32'ha4011010);
-        decoded_reg_strb.fifo_regs.dbg_fifo_push = cpuif_req_masked & (cpuif_addr == 32'ha4011014);
-        decoded_reg_strb.fifo_regs.dbg_fifo_status = cpuif_req_masked & (cpuif_addr == 32'ha4011018);
+        decoded_reg_strb.fifo_regs.log_fifo_data = cpuif_req_masked & (cpuif_addr == 32'hd0001000);
+        decoded_reg_strb.fifo_regs.log_fifo_status = cpuif_req_masked & (cpuif_addr == 32'hd0001004);
+        decoded_reg_strb.fifo_regs.itrng_fifo_data = cpuif_req_masked & (cpuif_addr == 32'hd0001008);
+        decoded_reg_strb.fifo_regs.itrng_fifo_status = cpuif_req_masked & (cpuif_addr == 32'hd000100c);
+        decoded_reg_strb.fifo_regs.dbg_fifo_pop = cpuif_req_masked & (cpuif_addr == 32'hd0001010);
+        decoded_reg_strb.fifo_regs.dbg_fifo_push = cpuif_req_masked & (cpuif_addr == 32'hd0001014);
+        decoded_reg_strb.fifo_regs.dbg_fifo_status = cpuif_req_masked & (cpuif_addr == 32'hd0001018);
     end
 
     // Pass down signals to next stage

@@ -257,6 +257,6 @@ addrmap caliptra_fpga_realtime_regs {
     default regwidth = 32;
     default accesswidth = 32;
 
-    interface_regs interface_regs @ 0xA4010000;
-    fifo_regs fifo_regs @ 0xA4011000;
+    interface_regs interface_regs @ 0xd0000000;
+    fifo_regs fifo_regs @ 0xd0001000;
 };
