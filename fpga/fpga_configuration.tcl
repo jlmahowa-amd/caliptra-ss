@@ -252,7 +252,7 @@ connect_bd_intf_net -intf_net S_AXI_FIREWALL [get_bd_intf_pins axi_interconnect_
 
 #### axi_interconnect_1 ####
 # Firewall
-connect_bd_intf_net -int_net M_AXI_FIREWALL  [get_bd_intf_pins axi_firewall_0/M_AXI]                  [get_bd_intf_pins axi_interconnect_1/S00_AXI]
+connect_bd_intf_net -intf_net M_AXI_FIREWALL  [get_bd_intf_pins axi_firewall_0/M_AXI]                  [get_bd_intf_pins axi_interconnect_1/S00_AXI]
 # SS
 connect_bd_intf_net -intf_net M_AXI_CALIPTRA [get_bd_intf_pins caliptra_package_top_0/M_AXI_CALIPTRA] [get_bd_intf_pins axi_interconnect_1/S01_AXI]
 connect_bd_intf_net -intf_net M_AXI_MCU_IFU  [get_bd_intf_pins caliptra_package_top_0/M_AXI_MCU_IFU]  [get_bd_intf_pins axi_interconnect_1/S02_AXI]
@@ -261,9 +261,10 @@ connect_bd_intf_net -intf_net M_AXI_MCU_SB   [get_bd_intf_pins caliptra_package_
 
 #### Connect axi subordinates to the interconnects ####
 for {set i 1} {$i <= $axi_subordinates(ID)} {incr i} {
+  puts "$i $axi_subordinates($i,name)"
   connect_bd_intf_net -intf_net $axi_subordinates($i,name) /$axi_subordinates($i,src_block)/$axi_subordinates($i,src_port) /$axi_subordinates($i,dst)
   if {$axi_subordinates($i,debug)} {
-    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {$axi_subordinates($i,name)}]
+    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets "$axi_subordinates($i,name)"]
   }
 }
 
@@ -414,19 +415,43 @@ set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_sda_pullup_en }
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_scl_pullup_en }]
 
 #### Set up ILA ####
-# TODO: Get command
+apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
+                                                          [get_bd_nets caliptra_package_top_0_SCL] {PROBE_TYPE "Data and Trigger" CLK_SRC "None (Connect manually)" AXIS_ILA "Auto" } \
+                                                          [get_bd_nets caliptra_package_top_0_SDA] {PROBE_TYPE "Data and Trigger" CLK_SRC "None (Connect manually)" AXIS_ILA "Auto" } \
+                                                          [get_bd_intf_nets S_AXI_CALIPTRA] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets S_AXI_CTL_FIREWALL] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets S_AXI_I3C] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets S_AXI_MCI] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets S_AXI_MCU_ROM] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets S_AXI_OTP] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets S_AXI_OTP_RAM] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_nets xilinx_i3c_0_scl_o] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+                                                          [get_bd_nets xilinx_i3c_0_scl_pullup_en] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+                                                          [get_bd_nets xilinx_i3c_0_scl_t] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+                                                          [get_bd_nets xilinx_i3c_0_sda_o] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+                                                          [get_bd_nets xilinx_i3c_0_sda_pullup_en] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+                                                          [get_bd_nets xilinx_i3c_0_sda_t] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+                                                         ]
 
 save_bd_design
 regenerate_bd_layout
 
-# Start build
-if {$BUILD} {
+proc run_synthesis {} {
   launch_runs synth_1 -jobs 32
   wait_on_runs synth_1
+}
+
+proc run_implementation {} {
   launch_runs impl_1 -to_step write_device_image -jobs 32
   wait_on_runs impl_1
   open_run impl_1
   report_utilization -file $outputDir/utilization.txt
 
   write_hw_platform -fixed -include_bit -force -file $outputDir/caliptra_fpga.xsa
+}
+
+# Start build
+if {$BUILD} {
+  run_synthesis
+  run_implementation
 }
