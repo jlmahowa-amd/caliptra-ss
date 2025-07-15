@@ -28,7 +28,7 @@ module caliptra_package_axi_top (
     input wire core_clk,
     input wire i3c_clk,
 
-`ifdef I3C_OUTSIDE
+//`ifdef I3C_OUTSIDE
     // I3C
     output SDA_UP,
     output SDA_PUSH,
@@ -37,19 +37,19 @@ module caliptra_package_axi_top (
     output SCL_UP,
     output SCL_PUSH,
     output SCL_PULL,
-    input  SCL
-`else
-    // I3C signals from AXI I3C
-    input wire axi_i3c_scl_t,
-    input wire axi_i3c_scl_o,
-    input wire axi_i3c_scl_pullup_en,
-    input wire axi_i3c_sda_t,
-    input wire axi_i3c_sda_o,
-    input wire axi_i3c_sda_pullup_en,
-    // I3C signals back to AXI I3C
-    output wire SCL,
-    output wire SDA,
-`endif
+    input  SCL,
+//`else
+//    // I3C signals from AXI I3C
+//    input wire axi_i3c_scl_t,
+//    input wire axi_i3c_scl_o,
+//    input wire axi_i3c_scl_pullup_en,
+//    input wire axi_i3c_sda_t,
+//    input wire axi_i3c_sda_o,
+//    input wire axi_i3c_sda_pullup_en,
+//    // I3C signals back to AXI I3C
+//    output wire SCL,
+//    output wire SDA,
+//`endif
     
 
     // Caliptra AXI Interface
@@ -553,7 +553,7 @@ caliptra_wrapper_top cptra_wrapper (
     .core_clk(core_clk),
     .i3c_clk(i3c_clk),
 
-`ifdef I3C_OUTSIDE
+//`ifdef I3C_OUTSIDE
 
     .SDA_UP(SDA_UP),
     .SDA_PUSH(SDA_PUSH),
@@ -562,17 +562,17 @@ caliptra_wrapper_top cptra_wrapper (
     .SCL_UP(SCL_UP),
     .SCL_PUSH(SCL_PUSH),
     .SCL_PULL(SCL_PULL),
-    .SCL(SCL)
-`else
-    .axi_i3c_scl_t(axi_i3c_scl_t),
-    .axi_i3c_scl_o(axi_i3c_scl_o),
-    .axi_i3c_scl_pullup_en(axi_i3c_scl_pullup_en),
-    .axi_i3c_sda_t(axi_i3c_sda_t),
-    .axi_i3c_sda_o(axi_i3c_sda_o),
-    .axi_i3c_sda_pullup_en(axi_i3c_sda_pullup_en),
     .SCL(SCL),
-    .SDA(SDA),
-`endif
+//`else
+//    .axi_i3c_scl_t(axi_i3c_scl_t),
+//    .axi_i3c_scl_o(axi_i3c_scl_o),
+//    .axi_i3c_scl_pullup_en(axi_i3c_scl_pullup_en),
+//    .axi_i3c_sda_t(axi_i3c_sda_t),
+//    .axi_i3c_sda_o(axi_i3c_sda_o),
+//    .axi_i3c_sda_pullup_en(axi_i3c_sda_pullup_en),
+//    .SCL(SCL),
+//    .SDA(SDA),
+//`endif
 
     // Caliptra AXI Interface
     .S_AXI_CALIPTRA_AWADDR(S_AXI_CALIPTRA_AWADDR),

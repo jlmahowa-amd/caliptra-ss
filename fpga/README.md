@@ -174,3 +174,10 @@ Test requirements exclusive to OpenOCD:
 - Access to VEER CSRs.
 - Access to Debug Module registers.
 - Caliptra registers exposed to JTAG RW/RO status matches.
+
+#### I3C Connections ####
+
+The Antmicro PMOD I3C Driver operates with signal pins at 1.8V.
+The VCK190 uses 1.5V on the FMC connector, and uses a level shifter to adapt to the 3.3V expected on a PMOD connector.
+
+Solder a wire to the pad of R13 closer to the USB port for a 1.8V reference.

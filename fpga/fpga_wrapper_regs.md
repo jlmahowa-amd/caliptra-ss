@@ -141,6 +141,7 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 |  6 |      bootfsm_brkpoint     |  rw  | 0x0 |  — |
 |  7 |      ss_debug_intent      |  rw  | 0x0 |  — |
 |  8 | i3c_axi_user_id_filtering |  rw  | 0x0 |  — |
+|  9 |       use_backup_scl      |  rw  | 0x0 |  — |
 
 ### status register
 

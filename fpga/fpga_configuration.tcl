@@ -146,18 +146,22 @@ set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells cptra_rom_bram_ctrl_0]
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 cptra_rom_bram_ctrl_1
 set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells cptra_rom_bram_ctrl_1]
 
-# Not connected when I3C_OUTSIDE is used
-# Create AXI I3C to act as external I3C
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_i3c:1.0 axi_i3c_0
-set_property -dict [list \
-  CONFIG.ENABLE_PEC {1} \
-  CONFIG.HJ_CAPABLE {1} \
-  CONFIG.IBI_CAPABLE {1} \
-  #CONFIG.SCL_CLK_FREQ {12500} \
-] [get_bd_cells axi_i3c_0]
-# Create CDC for AXI I3C
-create_bd_cell -type ip -vlnv xilinx.com:ip:xpm_cdc_gen:1.0 xpm_cdc_gen_0
-set_property CONFIG.CDC_TYPE {xpm_cdc_sync_rst} [get_bd_cells xpm_cdc_gen_0]
+
+if {!$I3C_OUTSIDE} {
+  # Not connected when I3C_OUTSIDE is used
+  # Create AXI I3C to act as external I3C
+  create_bd_cell -type ip -vlnv xilinx.com:ip:axi_i3c:1.0 axi_i3c_0
+  set_property -dict [list \
+    CONFIG.ENABLE_PEC {1} \
+    CONFIG.HJ_CAPABLE {1} \
+    CONFIG.IBI_CAPABLE {1} \
+    #CONFIG.SCL_CLK_FREQ {12500} \
+  ] [get_bd_cells axi_i3c_0]
+  # Create CDC for AXI I3C
+  create_bd_cell -type ip -vlnv xilinx.com:ip:xpm_cdc_gen:1.0 xpm_cdc_gen_0
+  set_property CONFIG.CDC_TYPE {xpm_cdc_sync_rst} [get_bd_cells xpm_cdc_gen_0]
+}
+
 
 # Create reset block
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
@@ -227,7 +231,9 @@ connect_bd_intf_net [get_bd_intf_pins caliptra_package_top_0/mcu_rom_backdoor] [
 # MCU RAM
 connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M09_AXI] [get_bd_intf_pins mcu_imem_bram_ctrl_1/S_AXI]
 # AXI I3C
-connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M10_AXI] [get_bd_intf_pins axi_i3c_0/S_AXI]
+if {!$I3C_OUTSIDE} {
+  connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M10_AXI] [get_bd_intf_pins axi_i3c_0/S_AXI]
+}
 
 
 # Create reset connections
@@ -256,16 +262,20 @@ if {$FAST_I3C} {
     [get_bd_pins ps_0/pl1_ref_clk] \
     [get_bd_pins axi_interconnect_0/aclk1] \
     [get_bd_pins caliptra_package_top_0/i3c_clk] \
-    [get_bd_pins axi_i3c_0/s_axi_aclk] \
     [get_bd_pins xpm_cdc_gen_0/dest_clk]
+  if {!$I3C_OUTSIDE} {
+    connect_bd_net [get_bd_pins ps_0/pl1_ref_clk] [get_bd_pins axi_i3c_0/s_axi_aclk]
+  }
 } else {
   # Use regular clock for i3c to avoid timing problems
   connect_bd_net \
     [get_bd_pins $ps_pl_clk] \
     [get_bd_pins axi_interconnect_0/aclk1] \
     [get_bd_pins caliptra_package_top_0/i3c_clk] \
-    [get_bd_pins axi_i3c_0/s_axi_aclk] \
     [get_bd_pins xpm_cdc_gen_0/dest_clk]
+  if {!$I3C_OUTSIDE} {
+    connect_bd_net [get_bd_pins $ps_pl_clk] [get_bd_pins axi_i3c_0/s_axi_aclk]
+  }
 }
 
 if {$I3C_OUTSIDE} {
@@ -319,7 +329,9 @@ foreach manager $managers {
   assign_bd_address -offset 0xA4040000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_LCC/reg0] -force
   assign_bd_address -offset 0xA4060000 -range 0x00002000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/S_AXI_OTP/reg0] -force
   # AXI I3C - TODO: FIgure out size
-  assign_bd_address -offset 0xA4080000 -range 0x00001000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs axi_i3c_0/S_AXI/Reg] -force
+  if {!$I3C_OUTSIDE} {
+    assign_bd_address -offset 0xA4080000 -range 0x00001000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs axi_i3c_0/S_AXI/Reg] -force
+  }
   # Caliptra Core
   if {$APB} {
     assign_bd_address -offset 0xA4100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces $manager] [get_bd_addr_segs caliptra_package_top_0/s_apb/Reg] -force
@@ -358,26 +370,56 @@ set_property STEPS.SYNTH_DESIGN.ARGS.GATED_CLOCK_CONVERSION $GATED_CLOCK_CONVERS
 # Add DDR pin placement constraints
 add_files -fileset constrs_1 $fpgaDir/src/ddr4_constraints.xdc
 
+# Add I3C pin placement constraints
+add_files -fileset constrs_1 $fpgaDir/src/versal_i3c_constraints.xdc
 
 # Consider constraint:
 # set_max_delay -from [get_clocks clk_pl_0] -to [get_clocks clk_pl_1] 25.0
 
-
+# TODO: This looks wrong
 if {$FAST_I3C} {
+
 } else {
-# TODO: Weird why this couldn't be earlier
-set_property CONFIG.SCL_CLK_FREQ {12500} [get_bd_cells axi_i3c_0]
-save_bd_design
+  # TODO: Weird why this couldn't be earlier
+  set_property CONFIG.SCL_CLK_FREQ {12500} [get_bd_cells axi_i3c_0]
+  save_bd_design
 }
 
-# Start build
-if {$BUILD} {
-  launch_runs synth_1 -jobs 10
+# TODO: Rearrange stuff
+# Create clocking wizard to derive 20Mhz clock from 200MHz clock
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wizard:1.0 clk_wizard_0
+set_property -dict [list \
+  CONFIG.CLKOUT_DRIVES {BUFG,BUFG,BUFG,BUFG,BUFG,BUFG,BUFG} \
+  CONFIG.CLKOUT_DYN_PS {None,None,None,None,None,None,None} \
+  CONFIG.CLKOUT_GROUPING {Auto,Auto,Auto,Auto,Auto,Auto,Auto} \
+  CONFIG.CLKOUT_MATCHED_ROUTING {false,false,false,false,false,false,false} \
+  CONFIG.CLKOUT_PORT {clk_out1,clk_out2,clk_out3,clk_out4,clk_out5,clk_out6,clk_out7} \
+  CONFIG.CLKOUT_REQUESTED_DUTY_CYCLE {50.000,50.000,50.000,50.000,50.000,50.000,50.000} \
+  CONFIG.CLKOUT_REQUESTED_OUT_FREQUENCY {20.000,100.000,100.000,100.000,100.000,100.000,100.000} \
+  CONFIG.CLKOUT_REQUESTED_PHASE {0.000,0.000,0.000,0.000,0.000,0.000,0.000} \
+  CONFIG.CLKOUT_USED {true,false,false,false,false,false,false} \
+] [get_bd_cells clk_wizard_0]
+connect_bd_net [get_bd_pins ps_0/pl1_ref_clk] [get_bd_pins clk_wizard_0/clk_in1]
+disconnect_bd_net /ps_0_pl0_ref_clk [get_bd_pins ps_0/pl0_ref_clk]
+connect_bd_net [get_bd_pins clk_wizard_0/clk_out1] [get_bd_pins mcu_imem_bram_ctrl_1/s_axi_aclk]
+save_bd_design
+
+proc run_synthesis {} {
+  launch_runs synth_1 -jobs 32
   wait_on_runs synth_1
-  launch_runs impl_1 -to_step write_device_image -jobs 10
+}
+
+proc run_implementation {} {
+  launch_runs impl_1 -to_step write_device_image -jobs 32
   wait_on_runs impl_1
   open_run impl_1
   report_utilization -file $outputDir/utilization.txt
 
   write_hw_platform -fixed -include_bit -force -file $outputDir/caliptra_fpga.xsa
+}
+
+# Start build
+if {$BUILD} {
+  run_synthesis
+  run_implementation
 }

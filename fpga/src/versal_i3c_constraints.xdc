@@ -1,10 +1,10 @@
 # Pin mapping for pmod-i3c-driver tops-down
-#SDA_UP   -  1 | 2  - SCL
-#SDA_PULL -  3 | 4  - SCL_PUSH
-#SDA_PUSH -  5 | 6  - SCL_PULL
-#SDA      -  7 | 8  - SCL_UP
-#GND      -  9 | 10 - GND
-#3v3      - 11 | 12 - 3v3
+#SDA_UP          -  1 | 2  - SCL
+#SDA_PULL/SDA_EN -  3 | 4  - SCL_PUSH
+#SDA_PUSH/SDA_IN -  5 | 6  - SCL_PULL
+#SDA             -  7 | 8  - SCL_UP
+#GND             -  9 | 10 - GND
+#3v3             - 11 | 12 - 3v3
 
 # PMOD connector J4 tops-down
 # AW24 CS1   - 1 | 7  - PM1 IO5  BF24
@@ -34,6 +34,30 @@ set_property IOSTANDARD LVCMOS15 [get_ports SCL_UP]
 set_property IOSTANDARD LVCMOS15 [get_ports SCL_PUSH]
 set_property IOSTANDARD LVCMOS15 [get_ports SCL_PULL]
 set_property IOSTANDARD LVCMOS15 [get_ports SCL]
+
+# L08 - BC22 SCL_UP
+# L07 - BC25 SCL_PULL
+# L06 - BC20 SCL_PUSH
+# L05 - SCL
+# L00_CC - BD23 SDA
+# L04 - AU21 SDA_PUSH
+# L03 - AV22 SDA_PULL
+# L02 - AW24 SDA_UP
+
+
+# Using another PMOD for the backup SCL
+# PM2IO5
+# Bottom right
+# BG21
+# LA12 - On FMC card
+
+#set_property PACKAGE_PIN BG21 [get_ports backup_SCL]
+#set_property IOSTANDARD LVCMOS15 [get_ports backup_SCL]
+
+
+
+
+
 
 
 

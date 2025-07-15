@@ -42,7 +42,7 @@ module caliptra_wrapper_top #(
     (* syn_keep = "true", mark_debug = "true" *)output logic SCL_UP,
     (* syn_keep = "true", mark_debug = "true" *)output logic SCL_PUSH,
     (* syn_keep = "true", mark_debug = "true" *)output logic SCL_PULL,
-    (* syn_keep = "true", mark_debug = "true" *)input  logic SCL
+    (* syn_keep = "true", mark_debug = "true" *)input  logic SCL,
 `else
     // I3C signals from AXI I3C
     (* syn_keep = "true", mark_debug = "true" *) input wire axi_i3c_scl_t,
@@ -1632,8 +1632,9 @@ I think this is the one that isn't used
 
     // CDC for user signal to I3C
     logic [`CALIPTRA_AXI_USER_WIDTH-1:0] i3c_user_synch;
+    reg [`CALIPTRA_AXI_USER_WIDTH-1:0] i3c_user_synch2;
     xpm_cdc_array_single #(
-        .DEST_SYNC_FF(4),   // DECIMAL; range: 2-10
+        .DEST_SYNC_FF(10),   // DECIMAL; range: 2-10
         .INIT_SYNC_FF(0),   // DECIMAL; 0=disable simulation init values, 1=enable simulation init values
         .SIM_ASSERT_CHK(0), // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
         .SRC_INPUT_REG(1),  // DECIMAL; 0=do not register input, 1=register input
@@ -1645,6 +1646,10 @@ I think this is the one that isn't used
         .src_clk(core_clk),
         .src_in(hwif_out.interface_regs.pauser.pauser.value)
     );
+    // TODO: Attempt at resolving timing by giving a reg stage
+    always@(posedge i3c_clk) begin
+        i3c_user_synch2 <= i3c_user_synch;
+    end
 
     // I3C AXI Subordinate
     axi_if #(
@@ -1659,7 +1664,7 @@ I think this is the one that isn't used
     assign cptra_ss_i3c_s_axi_if.awburst  = S_AXI_I3C_AWBURST;
     assign cptra_ss_i3c_s_axi_if.awsize   = S_AXI_I3C_AWSIZE;
     assign cptra_ss_i3c_s_axi_if.awlen    = S_AXI_I3C_AWLEN;
-    assign cptra_ss_i3c_s_axi_if.awuser   = i3c_user_synch; //S_AXI_I3C_AWUSER;
+    assign cptra_ss_i3c_s_axi_if.awuser   = i3c_user_synch2; //S_AXI_I3C_AWUSER;
     assign cptra_ss_i3c_s_axi_if.awid     = S_AXI_I3C_AWID;
     assign cptra_ss_i3c_s_axi_if.awlock   = S_AXI_I3C_AWLOCK;
     assign cptra_ss_i3c_s_axi_if.awvalid  = S_AXI_I3C_AWVALID;
@@ -1680,7 +1685,7 @@ I think this is the one that isn't used
     assign cptra_ss_i3c_s_axi_if.arburst = S_AXI_I3C_ARBURST;
     assign cptra_ss_i3c_s_axi_if.arsize  = S_AXI_I3C_ARSIZE;
     assign cptra_ss_i3c_s_axi_if.arlen   = S_AXI_I3C_ARLEN;
-    assign cptra_ss_i3c_s_axi_if.aruser  = i3c_user_synch; // S_AXI_I3C_ARUSER;
+    assign cptra_ss_i3c_s_axi_if.aruser  = i3c_user_synch2; // S_AXI_I3C_ARUSER;
     assign cptra_ss_i3c_s_axi_if.arid    = S_AXI_I3C_ARID;
     assign cptra_ss_i3c_s_axi_if.arlock  = S_AXI_I3C_ARLOCK;
     assign cptra_ss_i3c_s_axi_if.arvalid = S_AXI_I3C_ARVALID;
@@ -1830,13 +1835,20 @@ I think this is the one that isn't used
     );
 
     /*
-    Line Driver logic
+    Line Driver logic - Board built for line driver
     sel_od_pp == 1 indicates push-pull
     | sel_od_pp | phy2io | phy_data_io |    |   IN |   EN | UP |    |      wire      |
     |         0 |      0 |           z | -> |    x |    1 |  1 | -> | z              | // TODO: Use z or pull up 2k?
     |         0 |      1 |           0 | -> |    1 |    0 |  0 | -> | open drain low | // What? These look backwards
     |         1 |      0 |           0 | -> |    1 |    0 |  1 | -> | push pull low  |
     |         1 |      1 |           1 | -> |    0 |    0 |  1 | -> | push pull high |
+    Line Driver Logic - Table from schematic
+    | IN | EN | UP  | DOWN | OUTPUT
+    | X  | H  | H   | L    | Z
+    | X  | H  | L   | L    | PULL-UP 2K
+    | H  | L  | L   | L    | OPEN-DRAIN LOW
+    | H  | L  | H   | L    | PUSH-PULL LOW
+    | L  | L  | H   | L    | PUSH-PULL HIGH
 
     Discrete logic
     sel_od_pp == 1 indicates push-pull
@@ -1848,8 +1860,14 @@ I think this is the one that isn't used
     */
     (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_sel_od_pp_o;
     (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_scl_o;
+    (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_scl_oe;
     (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_sda_o;
+    (* syn_keep = "true", mark_debug = "true" *) logic i3c_core_sda_oe;
 `ifdef I3C_OUTSIDE
+    // Leave SCL as Z to let external board drive it. scl_oe should always be 0.
+    assign {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b011;
+    /*
+    If you use this case statement again, it is assuming discrete logic.
     always_comb begin
         case ({
         i3c_core_sel_od_pp_o, i3c_core_scl_o
@@ -1861,18 +1879,46 @@ I think this is the one that isn't used
         default: {SCL_PUSH, SCL_PULL, SCL_UP} = 3'b101;
         endcase
     end
+    */
 
+    // TODO: Change these signals to SDA_IN and SDA_EN to reflect that we are using the line driver
     always_comb begin
-        case ({
-        i3c_core_sel_od_pp_o, i3c_core_sda_o
-        })
-        2'b00:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b101;
-        2'b01:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b110;
-        2'b10:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b111;
-        2'b11:   {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b001;
-        default: {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b101;
+        case ({ i3c_core_sda_oe, i3c_core_sel_od_pp_o, i3c_core_sda_o })
+        3'b100:  {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b100; // OD low
+        3'b101:  {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b010; // Pull-up 2K
+        3'b110:  {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b101; // Push-pull low
+        3'b111:  {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b001; // Push-pull high
+        default: {SDA_PUSH, SDA_PULL, SDA_UP} = 3'b011; // No output enable. Z: x11
         endcase
     end
+
+    // Synchronize SCL
+    logic SCL_synchronized;
+    xpm_cdc_single #(
+        .DEST_SYNC_FF(4),   // DECIMAL; range: 2-10
+        .INIT_SYNC_FF(0),   // DECIMAL; 0=disable simulation init values, 1=enable simulation init values
+        .SIM_ASSERT_CHK(0), // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+        .SRC_INPUT_REG(0)   // DECIMAL; 0=do not register input, 1=register input
+    )
+    xpm_cdc_single_scl (
+    .dest_out(SCL_synchronized),
+    .dest_clk(i3c_clk),
+    .src_in(SCL)
+    );
+    
+    // Synchronize SDA
+    logic SDA_synchronized;
+    xpm_cdc_single #(
+        .DEST_SYNC_FF(4),   // DECIMAL; range: 2-10
+        .INIT_SYNC_FF(0),   // DECIMAL; 0=disable simulation init values, 1=enable simulation init values
+        .SIM_ASSERT_CHK(0), // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+        .SRC_INPUT_REG(0)   // DECIMAL; 0=do not register input, 1=register input
+    )
+    xpm_cdc_single_sda (
+    .dest_out(SDA_synchronized),
+    .dest_clk(i3c_clk),
+    .src_in(SDA)
+    );
 
 `else
     // TODO: Connect OE signals from i3c-core
@@ -2191,12 +2237,12 @@ caliptra_ss_top caliptra_ss_top_0 (
     .cptra_ss_fuse_macro_inputs_o  (cptra_ss_fuse_macro_inputs_tb),
 
     // Caliptra SS I3C GPIO Interface
-    .cptra_ss_i3c_scl_i(SCL),
-    .cptra_ss_i3c_sda_i(SDA),
+    .cptra_ss_i3c_scl_i(SCL_synchronized),
+    .cptra_ss_i3c_sda_i(SDA_synchronized),
     .cptra_ss_i3c_scl_o(i3c_core_scl_o),
     .cptra_ss_i3c_sda_o(i3c_core_sda_o),
-    .cptra_ss_i3c_scl_oe(), // TODO: Connect
-    .cptra_ss_i3c_sda_oe(), // TODO: Connect
+    .cptra_ss_i3c_scl_oe(i3c_core_scl_oe), // TODO: Connect
+    .cptra_ss_i3c_sda_oe(i3c_core_sda_oe), // TODO: Connect
     .cptra_ss_sel_od_pp_o(i3c_core_sel_od_pp_o),
 
     .cptra_i3c_axi_user_id_filtering_enable_i(hwif_out.interface_regs.control.i3c_axi_user_id_filtering.value),
@@ -2206,10 +2252,11 @@ caliptra_ss_top caliptra_ss_top_0 (
     .cptra_error_fatal(),
     .cptra_error_non_fatal()
 );
-
+/*
     // Hierarchical references to generic output wires register. Use as input to log FIFO.
     assign fifo_write_en = caliptra_ss_top_0.caliptra_top_dut.soc_ifc_top1.i_soc_ifc_reg.field_combo.CPTRA_GENERIC_OUTPUT_WIRES[0].generic_wires.load_next;
     assign fifo_char[7:0] = caliptra_ss_top_0.caliptra_top_dut.soc_ifc_top1.i_soc_ifc_reg.field_combo.CPTRA_GENERIC_OUTPUT_WIRES[0].generic_wires.next[7:0];
+*/
 
 
 `ifdef DISABLING_THIS
