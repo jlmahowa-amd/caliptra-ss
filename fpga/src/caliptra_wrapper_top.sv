@@ -1588,22 +1588,6 @@ mcu_rom (
     assign cptra_ss_mcu_sb_m_axi_if.rvalid =   M_AXI_MCU_SB_RVALID;
     assign M_AXI_MCU_SB_RREADY = cptra_ss_mcu_sb_m_axi_if.rready;
 
-    // CDC for user signal to I3C
-    logic [63:0] i3c_user_synch;
-    xpm_cdc_array_single #(
-        .DEST_SYNC_FF(4),   // DECIMAL; range: 2-10
-        .INIT_SYNC_FF(0),   // DECIMAL; 0=disable simulation init values, 1=enable simulation init values
-        .SIM_ASSERT_CHK(0), // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
-        .SRC_INPUT_REG(1),  // DECIMAL; 0=do not register input, 1=register input
-        .WIDTH(64) // DECIMAL; range: 1-1024
-    )
-    xpm_cdc_array_single_inst (
-        .dest_out(i3c_user_synch),
-        .dest_clk(i3c_clk),
-        .src_clk(core_clk),
-        .src_in({S_AXI_I3C_AWUSER, S_AXI_I3C_ARUSER})
-    );
-
     // I3C AXI Subordinate
     axi_if #(
         .AW(32),
@@ -1617,7 +1601,7 @@ mcu_rom (
     assign cptra_ss_i3c_s_axi_if.awburst  = S_AXI_I3C_AWBURST;
     assign cptra_ss_i3c_s_axi_if.awsize   = S_AXI_I3C_AWSIZE;
     assign cptra_ss_i3c_s_axi_if.awlen    = S_AXI_I3C_AWLEN;
-    assign cptra_ss_i3c_s_axi_if.awuser   = i3c_user_synch[63:32]; //S_AXI_I3C_AWUSER;
+    assign cptra_ss_i3c_s_axi_if.awuser   = S_AXI_I3C_AWUSER;
     assign cptra_ss_i3c_s_axi_if.awid     = S_AXI_I3C_AWID;
     assign cptra_ss_i3c_s_axi_if.awlock   = S_AXI_I3C_AWLOCK;
     assign cptra_ss_i3c_s_axi_if.awvalid  = S_AXI_I3C_AWVALID;
@@ -1638,7 +1622,7 @@ mcu_rom (
     assign cptra_ss_i3c_s_axi_if.arburst = S_AXI_I3C_ARBURST;
     assign cptra_ss_i3c_s_axi_if.arsize  = S_AXI_I3C_ARSIZE;
     assign cptra_ss_i3c_s_axi_if.arlen   = S_AXI_I3C_ARLEN;
-    assign cptra_ss_i3c_s_axi_if.aruser  = i3c_user_synch[31:0]; // S_AXI_I3C_ARUSER;
+    assign cptra_ss_i3c_s_axi_if.aruser  = S_AXI_I3C_ARUSER;
     assign cptra_ss_i3c_s_axi_if.arid    = S_AXI_I3C_ARID;
     assign cptra_ss_i3c_s_axi_if.arlock  = S_AXI_I3C_ARLOCK;
     assign cptra_ss_i3c_s_axi_if.arvalid = S_AXI_I3C_ARVALID;
