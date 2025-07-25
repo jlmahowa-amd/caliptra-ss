@@ -437,7 +437,9 @@ set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets { \
     M_AXI_MCU_LSU \
     S_AXI_I3C \
     M_AXI_CALIPTRA}]
+connect_bd_net -net si_w_error [get_bd_pins axi_firewall_0/si_w_error]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {si_w_error }]
+connect_bd_net -net si_r_error [get_bd_pins axi_firewall_0/si_r_error]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {si_r_error }]
 
 
