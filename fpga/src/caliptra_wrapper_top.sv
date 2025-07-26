@@ -510,6 +510,13 @@ module caliptra_wrapper_top #(
     input logic                       lc_jtag_trst_n_i,
     output logic                      lc_jtag_tdo_o,
 
+    output logic [31:0]               caliptra_ifu_i0_pc,
+    output logic [31:0]               mcu_ifu_i0_pc,
+    output logic [31:0]               ifu_i0_instr,
+    output logic [3:0]                mci_boot_fsm,
+    output logic [7:0]                caliptra_log,
+    output logic [7:0]                dbg_log,
+
     // FPGA Realtime register AXI Interface
     input	wire                      S_AXI_WRAPPER_ARESETN,
     input	wire                      S_AXI_WRAPPER_AWVALID,
@@ -2132,5 +2139,12 @@ caliptra_ss_top caliptra_ss_top_0 (
     // Hierarchical references to generic output wires register. Use as input to log FIFO.
     assign fifo_write_en = caliptra_ss_top_0.caliptra_top_dut.soc_ifc_top1.i_soc_ifc_reg.field_combo.CPTRA_GENERIC_OUTPUT_WIRES[0].generic_wires.load_next;
     assign fifo_char[7:0] = caliptra_ss_top_0.caliptra_top_dut.soc_ifc_top1.i_soc_ifc_reg.field_combo.CPTRA_GENERIC_OUTPUT_WIRES[0].generic_wires.next[7:0];
+
+    assign caliptra_ifu_i0_pc = {caliptra_ss_top_0.caliptra_top_dut.rvtop.veer.ifu_i0_pc, 1'b0};
+    assign mcu_ifu_i0_pc      = {caliptra_ss_top_0.rvtop_wrapper.rvtop.veer.ifu_i0_pc, 1'b0};
+    assign ifu_i0_instr       = caliptra_ss_top_0.rvtop_wrapper.rvtop.veer.ifu_i0_instr;
+    assign mci_boot_fsm       = caliptra_ss_top_0.mci_top_i.i_boot_seqr.boot_fsm;
+    assign caliptra_log       = fifo_char;
+    assign dbg_log            = hwif_out.fifo_regs.dbg_fifo_push.in_data.value[7:0];
 
 endmodule

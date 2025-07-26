@@ -490,6 +490,13 @@ module caliptra_package_axi_top (
     input wire [14:0]                  jtag_in,     // JTAG input signals concatenated
     output wire [14:0]                 jtag_out,    // JTAG tdo
 
+    output wire [31:0]                 caliptra_ifu_i0_pc,
+    output wire [31:0]                 mcu_ifu_i0_pc,
+    output wire [31:0]                 ifu_i0_instr,
+    output wire [3:0]                  mci_boot_fsm,
+    output wire [7:0]                  caliptra_log,
+    output wire [7:0]                  dbg_log,
+
     // FPGA Realtime register AXI Interface
     input	wire                      S_AXI_WRAPPER_ARESETN,
     input	wire                      S_AXI_WRAPPER_AWVALID,
@@ -990,6 +997,13 @@ caliptra_wrapper_top cptra_wrapper (
     .lc_jtag_tdi_i(jtag_in[12]),
     .lc_jtag_trst_n_i(jtag_in[13]),
     .lc_jtag_tdo_o(jtag_out[14]),
+
+    .caliptra_ifu_i0_pc(caliptra_ifu_i0_pc),
+    .mcu_ifu_i0_pc(mcu_ifu_i0_pc),
+    .ifu_i0_instr(ifu_i0_instr),
+    .mci_boot_fsm(mci_boot_fsm),
+    .caliptra_log(caliptra_log),
+    .dbg_log(dbg_log),
 
     // FPGA Realtime register AXI Interface
     .S_AXI_WRAPPER_ARESETN(S_AXI_WRAPPER_ARESETN),

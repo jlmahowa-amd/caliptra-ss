@@ -437,11 +437,25 @@ set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets { \
     M_AXI_MCU_LSU \
     S_AXI_I3C \
     M_AXI_CALIPTRA}]
+
+# Mark firewall error signals for debug
 connect_bd_net -net si_w_error [get_bd_pins axi_firewall_0/si_w_error]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {si_w_error }]
 connect_bd_net -net si_r_error [get_bd_pins axi_firewall_0/si_r_error]
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {si_r_error }]
 
+# Mark Caliptra and MCU VEER program counters for debug
+connect_bd_net -net caliptra_ifu_i0_pc [get_bd_pins caliptra_package_top_0/caliptra_ifu_i0_pc]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {caliptra_ifu_i0_pc}]
+connect_bd_net -net mcu_ifu_i0_pc [get_bd_pins caliptra_package_top_0/mcu_ifu_i0_pc]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {mcu_ifu_i0_pc}]
+
+connect_bd_net -net mci_boot_fsm [get_bd_pins caliptra_package_top_0/mci_boot_fsm]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {mci_boot_fsm}]
+connect_bd_net -net caliptra_log [get_bd_pins caliptra_package_top_0/caliptra_log]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {caliptra_log}]
+connect_bd_net -net dbg_log [get_bd_pins caliptra_package_top_0/dbg_log]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {dbg_log}]
 
 # Mark I3C signals for debugging
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {caliptra_package_top_0_SCL }]
@@ -454,17 +468,31 @@ set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_sda_pullup_en }
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {xilinx_i3c_0_scl_pullup_en }]
 
 apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
-                                                          [get_bd_nets caliptra_package_top_0_SCL] {PROBE_TYPE "Data and Trigger" CLK_SRC "None (Connect manually)" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets caliptra_package_top_0_SDA] {PROBE_TYPE "Data and Trigger" CLK_SRC "None (Connect manually)" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets si_r_error] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets si_w_error] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets xilinx_i3c_0_scl_o] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets xilinx_i3c_0_scl_pullup_en] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets xilinx_i3c_0_scl_t] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets xilinx_i3c_0_sda_o] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets xilinx_i3c_0_sda_pullup_en] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
-                                                          [get_bd_nets xilinx_i3c_0_sda_t] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
-                                                         ]
+    [get_bd_nets caliptra_package_top_0_SCL] {PROBE_TYPE "Data and Trigger" CLK_SRC "None (Connect manually)" AXIS_ILA "Auto" } \
+    [get_bd_nets caliptra_package_top_0_SDA] {PROBE_TYPE "Data and Trigger" CLK_SRC "None (Connect manually)" AXIS_ILA "Auto" } \
+    [get_bd_nets si_r_error] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets si_w_error] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets xilinx_i3c_0_scl_o] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets xilinx_i3c_0_scl_pullup_en] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets xilinx_i3c_0_scl_t] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets xilinx_i3c_0_sda_o] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets xilinx_i3c_0_sda_pullup_en] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets xilinx_i3c_0_sda_t] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_intf_nets M_AXI_ARM] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets M_AXI_CALIPTRA] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets M_AXI_MCU_LSU] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets S_AXI_CALIPTRA] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets S_AXI_FIREWALL] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets M_AXI_FIREWALL] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets S_AXI_MCI] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets S_AXI_I3C] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl1_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets S_AXI_OTP] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" APC_EN "0" } \
+    [get_bd_nets caliptra_ifu_i0_pc] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets mcu_ifu_i0_pc] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets mci_boot_fsm] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets caliptra_log] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+    [get_bd_nets dbg_log] {PROBE_TYPE "Data and Trigger" CLK_SRC "/ps_0/pl0_ref_clk" AXIS_ILA "Auto" } \
+  ]
 
 save_bd_design
 
