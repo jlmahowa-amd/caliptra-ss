@@ -1908,22 +1908,35 @@ mcu_rom (
     end
 
 
-// Looping back cptra_rst_b
+// Looping back resets
 logic cptra_rst_b;
+logic cptra_ss_mcu_rst_b;
 // Looping back cptra_ss_cptra_generic_fw_exec_ctrl_2_mcu
 logic cptra_ss_cptra_generic_fw_exec_ctrl_2_mcu;
 // Looping back MCU Halt Ack Interface
 logic cptra_ss_mcu_halt_status;
 logic cptra_ss_mcu_halt_ack;
+// Looping back I3C signals
+logic i3c_recovery_payload_available;
+logic i3c_recovery_image_activated;
 
 caliptra_ss_top caliptra_ss_top_0 (
 
     .cptra_ss_clk_i(core_clk),
     .cptra_i3c_clk_i(i3c_clk),
+    .cptra_ss_rdc_clk_cg_o(), // TODO: Should this be connected?
+    .cptra_ss_mcu_clk_cg_o(), // TODO: Should this be connected?
     .cptra_ss_pwrgood_i(hwif_out.interface_regs.control.cptra_pwrgood.value),
     .cptra_ss_rst_b_i(hwif_out.interface_regs.control.cptra_ss_rst_b.value),
     .cptra_ss_mci_cptra_rst_b_i(cptra_rst_b),
     .cptra_ss_mci_cptra_rst_b_o(cptra_rst_b),
+
+    .cptra_ss_mcu_rst_b_o(cptra_ss_mcu_rst_b),
+    .cptra_ss_mcu_rst_b_i(cptra_ss_mcu_rst_b),
+
+    .cptra_ss_warm_reset_rdc_clk_dis_o(),     // TODO: Should this be connected?
+    .cptra_ss_early_warm_reset_warn_o(),      // TODO: Should this be connected?
+    .cptra_ss_mcu_fw_update_rdc_clk_dis_o(),  // TODO: Should this be connected?
 
     // Caliptra Core AXI Sub Interface
     .cptra_ss_cptra_core_s_axi_if_w_sub(cptra_core_s_axi.w_sub),
@@ -2024,7 +2037,7 @@ caliptra_ss_top caliptra_ss_top_0 (
     // Caliptra SS mailbox sram interface
     .cptra_ss_cptra_core_mbox_sram_cs_o(mbox_sram_cs),
     .cptra_ss_cptra_core_mbox_sram_we_o(mbox_sram_we),
-    .cptra_sscptra_core_mbox_sram_addr_o(mbox_sram_addr),
+    .cptra_ss_cptra_core_mbox_sram_addr_o(mbox_sram_addr),
     .cptra_ss_cptra_core_mbox_sram_wdata_o(mbox_sram_wdata),
     .cptra_ss_cptra_core_mbox_sram_rdata_i(mbox_sram_rdata),
 
@@ -2127,6 +2140,12 @@ caliptra_ss_top caliptra_ss_top_0 (
     .cptra_ss_i3c_scl_oe(), // TODO: Connect
     .cptra_ss_i3c_sda_oe(), // TODO: Connect
     .cptra_ss_sel_od_pp_o(i3c_core_sel_od_pp_o),
+
+    .cptra_ss_i3c_recovery_payload_available_o(i3c_recovery_payload_available),
+    .cptra_ss_i3c_recovery_payload_available_i(i3c_recovery_payload_available),
+
+    .cptra_ss_i3c_recovery_image_activated_o(i3c_recovery_image_activated),
+    .cptra_ss_i3c_recovery_image_activated_i(i3c_recovery_image_activated),
 
     .cptra_i3c_axi_user_id_filtering_enable_i(hwif_out.interface_regs.control.i3c_axi_user_id_filtering.value),
 
