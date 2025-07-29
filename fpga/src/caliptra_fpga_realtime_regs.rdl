@@ -42,18 +42,16 @@ regfile interface_regs {
     } fpga_version;
 
     reg {
-        field { sw=rw; hw=r; } cptra_pwrgood = 1'b0;
-        field { sw=rw; hw=r; } cptra_ss_rst_b = 1'b0;
+        field { sw=rw; hw=r; } cptra_pwrgood[0:0] = 1'b0;
+        field { sw=rw; hw=r; } cptra_ss_rst_b[1:1] = 1'b0;
 
-        field { sw=rw; hw=r; } cptra_obf_uds_seed_vld = 1'b0;
-        field { sw=rw; hw=r; } cptra_obf_field_entropy_vld = 1'b0;
-        // Removed bits here. Leaving reserved to avoid changing offsets
-        field { sw=rw; hw=r; } rsvd0 = 1'b0;
-        field { sw=rw; hw=r; } rsvd1 = 1'b0;
+        field { sw=rw; hw=r; } cptra_obf_uds_seed_vld[2:2] = 1'b0;
+        field { sw=rw; hw=r; } cptra_obf_field_entropy_vld[3:3] = 1'b0;
 
-        field { sw=rw; hw=r; } bootfsm_brkpoint = 1'b0;
-        field { sw=rw; hw=r; } ss_debug_intent = 1'b0;
-        field { sw=rw; hw=r; } i3c_axi_user_id_filtering = 1'b0;
+        field { sw=rw; hw=r; } bootfsm_brkpoint[6:6] = 1'b0;
+        field { sw=rw; hw=r; } ss_debug_intent[7:7] = 1'b0;
+        field { sw=rw; hw=r; } i3c_axi_user_id_filtering[8:8] = 1'b0;
+        field { sw=rw; hw=r; singlepulse=true; } trigger_axi_reset[31:31] = 1'b0;
     } control;
 
     reg {

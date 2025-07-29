@@ -35,6 +35,7 @@ module caliptra_wrapper_top #(
 
     output wire[31:0] ARM_USER,
     output wire xilinx_i3c_aresetn,
+    (* syn_keep = "true", mark_debug = "true" *) output reg axi_reset,
 
     // I3C signals from AXI I3C
     (* syn_keep = "true", mark_debug = "true" *) input wire axi_i3c_scl_t,
@@ -596,6 +597,22 @@ module caliptra_wrapper_top #(
 
     assign ARM_USER = hwif_out.interface_regs.arm_user.arm_user.value;
     assign xilinx_i3c_aresetn = hwif_out.interface_regs.control.cptra_ss_rst_b.value;
+
+    // When sw sets trigger_axi_reset, assert the reset for 0xF cycles (requirement is 4 cycles).
+    (* syn_keep = "true", mark_debug = "true" *) reg [3:0] axi_reset_counter;
+    (* syn_keep = "true", mark_debug = "true" *) reg axi_reset_triggered;
+    always@(posedge core_clk) begin
+        axi_reset_triggered <= hwif_out.interface_regs.control.trigger_axi_reset.value;
+        if (hwif_out.interface_regs.control.trigger_axi_reset.value && ~axi_reset_triggered) begin
+            axi_reset_counter <= 4'hf;
+            axi_reset <= 0;
+        end else if (axi_reset_counter > 4'h0) begin
+            axi_reset <= 0;
+            axi_reset_counter <= axi_reset_counter - 1;
+        end else begin
+            axi_reset <= 1;
+        end
+    end
 
     // TODO: Rearrange this to be more logically located
     logic [127:0] ss_generic_fw_exec_ctrl;

@@ -342,14 +342,6 @@ module caliptra_fpga_realtime_regs (
                 struct {
                     logic next;
                     logic load_next;
-                } rsvd0;
-                struct {
-                    logic next;
-                    logic load_next;
-                } rsvd1;
-                struct {
-                    logic next;
-                    logic load_next;
                 } bootfsm_brkpoint;
                 struct {
                     logic next;
@@ -359,6 +351,10 @@ module caliptra_fpga_realtime_regs (
                     logic next;
                     logic load_next;
                 } i3c_axi_user_id_filtering;
+                struct {
+                    logic next;
+                    logic load_next;
+                } trigger_axi_reset;
             } control;
             struct {
                 struct {
@@ -636,12 +632,6 @@ module caliptra_fpga_realtime_regs (
                 } cptra_obf_field_entropy_vld;
                 struct {
                     logic value;
-                } rsvd0;
-                struct {
-                    logic value;
-                } rsvd1;
-                struct {
-                    logic value;
                 } bootfsm_brkpoint;
                 struct {
                     logic value;
@@ -649,6 +639,9 @@ module caliptra_fpga_realtime_regs (
                 struct {
                     logic value;
                 } i3c_axi_user_id_filtering;
+                struct {
+                    logic value;
+                } trigger_axi_reset;
             } control;
             struct {
                 struct {
@@ -973,52 +966,6 @@ module caliptra_fpga_realtime_regs (
         end
     end
     assign hwif_out.interface_regs.control.cptra_obf_field_entropy_vld.value = field_storage.interface_regs.control.cptra_obf_field_entropy_vld.value;
-    // Field: caliptra_fpga_realtime_regs.interface_regs.control.rsvd0
-    always_comb begin
-        automatic logic [0:0] next_c;
-        automatic logic load_next_c;
-        next_c = field_storage.interface_regs.control.rsvd0.value;
-        load_next_c = '0;
-        if(decoded_reg_strb.interface_regs.control && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.interface_regs.control.rsvd0.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
-            load_next_c = '1;
-        end
-        field_combo.interface_regs.control.rsvd0.next = next_c;
-        field_combo.interface_regs.control.rsvd0.load_next = load_next_c;
-    end
-    always_ff @(posedge clk) begin
-        if(rst) begin
-            field_storage.interface_regs.control.rsvd0.value <= 1'h0;
-        end else begin
-            if(field_combo.interface_regs.control.rsvd0.load_next) begin
-                field_storage.interface_regs.control.rsvd0.value <= field_combo.interface_regs.control.rsvd0.next;
-            end
-        end
-    end
-    assign hwif_out.interface_regs.control.rsvd0.value = field_storage.interface_regs.control.rsvd0.value;
-    // Field: caliptra_fpga_realtime_regs.interface_regs.control.rsvd1
-    always_comb begin
-        automatic logic [0:0] next_c;
-        automatic logic load_next_c;
-        next_c = field_storage.interface_regs.control.rsvd1.value;
-        load_next_c = '0;
-        if(decoded_reg_strb.interface_regs.control && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.interface_regs.control.rsvd1.value & ~decoded_wr_biten[5:5]) | (decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
-            load_next_c = '1;
-        end
-        field_combo.interface_regs.control.rsvd1.next = next_c;
-        field_combo.interface_regs.control.rsvd1.load_next = load_next_c;
-    end
-    always_ff @(posedge clk) begin
-        if(rst) begin
-            field_storage.interface_regs.control.rsvd1.value <= 1'h0;
-        end else begin
-            if(field_combo.interface_regs.control.rsvd1.load_next) begin
-                field_storage.interface_regs.control.rsvd1.value <= field_combo.interface_regs.control.rsvd1.next;
-            end
-        end
-    end
-    assign hwif_out.interface_regs.control.rsvd1.value = field_storage.interface_regs.control.rsvd1.value;
     // Field: caliptra_fpga_realtime_regs.interface_regs.control.bootfsm_brkpoint
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1088,6 +1035,32 @@ module caliptra_fpga_realtime_regs (
         end
     end
     assign hwif_out.interface_regs.control.i3c_axi_user_id_filtering.value = field_storage.interface_regs.control.i3c_axi_user_id_filtering.value;
+    // Field: caliptra_fpga_realtime_regs.interface_regs.control.trigger_axi_reset
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.interface_regs.control.trigger_axi_reset.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.interface_regs.control && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.interface_regs.control.trigger_axi_reset.value & ~decoded_wr_biten[31:31]) | (decoded_wr_data[31:31] & decoded_wr_biten[31:31]);
+            load_next_c = '1;
+        end else begin // singlepulse clears back to 0
+            next_c = '0;
+            load_next_c = '1;
+        end
+        field_combo.interface_regs.control.trigger_axi_reset.next = next_c;
+        field_combo.interface_regs.control.trigger_axi_reset.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.interface_regs.control.trigger_axi_reset.value <= 1'h0;
+        end else begin
+            if(field_combo.interface_regs.control.trigger_axi_reset.load_next) begin
+                field_storage.interface_regs.control.trigger_axi_reset.value <= field_combo.interface_regs.control.trigger_axi_reset.next;
+            end
+        end
+    end
+    assign hwif_out.interface_regs.control.trigger_axi_reset.value = field_storage.interface_regs.control.trigger_axi_reset.value;
     // Field: caliptra_fpga_realtime_regs.interface_regs.status.cptra_error_fatal
     always_comb begin
         automatic logic [0:0] next_c;
@@ -2213,12 +2186,12 @@ module caliptra_fpga_realtime_regs (
     assign readback_array[2][1:1] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.cptra_ss_rst_b.value : '0;
     assign readback_array[2][2:2] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.cptra_obf_uds_seed_vld.value : '0;
     assign readback_array[2][3:3] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.cptra_obf_field_entropy_vld.value : '0;
-    assign readback_array[2][4:4] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.rsvd0.value : '0;
-    assign readback_array[2][5:5] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.rsvd1.value : '0;
+    assign readback_array[2][5:4] = '0;
     assign readback_array[2][6:6] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.bootfsm_brkpoint.value : '0;
     assign readback_array[2][7:7] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.ss_debug_intent.value : '0;
     assign readback_array[2][8:8] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.i3c_axi_user_id_filtering.value : '0;
-    assign readback_array[2][31:9] = '0;
+    assign readback_array[2][30:9] = '0;
+    assign readback_array[2][31:31] = (decoded_reg_strb.interface_regs.control && !decoded_req_is_wr) ? field_storage.interface_regs.control.trigger_axi_reset.value : '0;
     assign readback_array[3][0:0] = (decoded_reg_strb.interface_regs.status && !decoded_req_is_wr) ? field_storage.interface_regs.status.cptra_error_fatal.value : '0;
     assign readback_array[3][1:1] = (decoded_reg_strb.interface_regs.status && !decoded_req_is_wr) ? field_storage.interface_regs.status.cptra_error_non_fatal.value : '0;
     assign readback_array[3][2:2] = (decoded_reg_strb.interface_regs.status && !decoded_req_is_wr) ? field_storage.interface_regs.status.ready_for_fuses.value : '0;

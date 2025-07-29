@@ -30,6 +30,7 @@ module caliptra_package_axi_top (
 
     output wire[31:0] ARM_USER,
     output wire xilinx_i3c_aresetn,
+    output wire axi_reset,
 
     input wire axi_i3c_scl_t,
     input wire axi_i3c_scl_o,
@@ -536,6 +537,7 @@ caliptra_wrapper_top cptra_wrapper (
 
     .ARM_USER(ARM_USER),
     .xilinx_i3c_aresetn(xilinx_i3c_aresetn),
+    .axi_reset(axi_reset),
 
     .axi_i3c_scl_t(axi_i3c_scl_t),
     .axi_i3c_scl_o(axi_i3c_scl_o),

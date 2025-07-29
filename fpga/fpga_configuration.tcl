@@ -280,6 +280,9 @@ connect_bd_net -net proc_sys_reset_0_peripheral_aresetn \
   [get_bd_pins mcu_rom_backdoor_bram_0/s_axi_aresetn] \
   [get_bd_pins otp_ram_bram_ctrl_0/s_axi_aresetn] \
   [get_bd_pins axi_firewall_0/aresetn]
+# Connect auxillary reset source to package
+connect_bd_net [get_bd_pins caliptra_package_top_0/axi_reset] [get_bd_pins proc_sys_reset_0/aux_reset_in]
+
 # Create clock connections
 connect_bd_net \
   [get_bd_pins $ps_pl_clk] \

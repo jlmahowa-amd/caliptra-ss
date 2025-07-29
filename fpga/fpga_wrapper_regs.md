@@ -139,11 +139,10 @@ Don't override. Generated from: caliptra_fpga_realtime_regs
 |  1 |       cptra_ss_rst_b      |  rw  | 0x0 |  — |
 |  2 |   cptra_obf_uds_seed_vld  |  rw  | 0x0 |  — |
 |  3 |cptra_obf_field_entropy_vld|  rw  | 0x0 |  — |
-|  4 |           rsvd0           |  rw  | 0x0 |  — |
-|  5 |           rsvd1           |  rw  | 0x0 |  — |
 |  6 |      bootfsm_brkpoint     |  rw  | 0x0 |  — |
 |  7 |      ss_debug_intent      |  rw  | 0x0 |  — |
 |  8 | i3c_axi_user_id_filtering |  rw  | 0x0 |  — |
+| 31 |     trigger_axi_reset     |  rw  | 0x0 |  — |
 
 ### status register
 
