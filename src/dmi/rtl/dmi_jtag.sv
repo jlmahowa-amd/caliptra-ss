@@ -48,7 +48,7 @@ module dmi_jtag #(
     DMINoError = 2'h0, DMIReservedError = 2'h1,
     DMIOPFailed = 2'h2, DMIBusy = 2'h3
   } dmi_error_e;
-  dmi_error_e error_d, error_q;
+  (* syn_keep = "true", mark_debug = "true" *) dmi_error_e error_d, error_q;
 
   logic tck;
   logic jtag_dmi_clear; // Synchronous reset of DMI triggered by TestLogicReset in

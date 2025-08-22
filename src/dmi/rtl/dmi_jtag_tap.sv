@@ -25,13 +25,13 @@ module dmi_jtag_tap #(
   // xxxxxxxxxxx      manufacturer id
   // 1                required by standard
 ) (
-  input  logic        tck_i,    // JTAG test clock pad
-  input  logic        tms_i,    // JTAG test mode select pad
-  input  logic        trst_ni,  // JTAG test reset pad
-  input  logic        td_i,     // JTAG test data input pad
-  output logic        td_o,     // JTAG test data output pad
+  (* syn_keep = "true", mark_debug = "true" *) input  logic        tck_i,    // JTAG test clock pad
+  (* syn_keep = "true", mark_debug = "true" *) input  logic        tms_i,    // JTAG test mode select pad
+  (* syn_keep = "true", mark_debug = "true" *) input  logic        trst_ni,  // JTAG test reset pad
+  (* syn_keep = "true", mark_debug = "true" *) input  logic        td_i,     // JTAG test data input pad
+  (* syn_keep = "true", mark_debug = "true" *) output logic        td_o,     // JTAG test data output pad
   output logic        tdo_oe_o, // Data out output enable
-  input  logic        testmode_i,
+  (* syn_keep = "true", mark_debug = "true" *) input  logic        testmode_i,
   // JTAG is interested in writing the DTM CSR register
   output logic        tck_o,
   // Synchronous reset of the dmi module triggered by JTAG TAP
@@ -44,7 +44,7 @@ module dmi_jtag_tap #(
   input  logic        dtmcs_tdo_i,
   // we want to access DMI register
   output logic        dmi_select_o,
-  input  logic        dmi_tdo_i
+  (* syn_keep = "true", mark_debug = "true" *) input  logic        dmi_tdo_i
 );
 
   typedef enum logic [3:0] {
@@ -54,7 +54,7 @@ module dmi_jtag_tap #(
     Exit1Ir, PauseIr, Exit2Ir, UpdateIr
   } tap_state_e;
 
-  tap_state_e tap_state_q, tap_state_d;
+  (* syn_keep = "true", mark_debug = "true" *) tap_state_e tap_state_q, tap_state_d;
   logic update_dr, shift_dr, capture_dr;
 
   typedef enum logic [IrLength-1:0] {
@@ -72,7 +72,7 @@ module dmi_jtag_tap #(
   // shift register
   logic [IrLength-1:0]  jtag_ir_shift_d, jtag_ir_shift_q;
   // IR register -> this gets captured from shift register upon update_ir
-  ir_reg_e              jtag_ir_d, jtag_ir_q;
+  (* syn_keep = "true", mark_debug = "true" *) ir_reg_e              jtag_ir_d, jtag_ir_q;
   logic capture_ir, shift_ir, update_ir, test_logic_reset; // pause_ir
 
   always_comb begin : p_jtag
@@ -118,8 +118,8 @@ module dmi_jtag_tap #(
   // - IDCODE
   // - DTM CS
   logic [31:0] idcode_d, idcode_q;
-  logic        idcode_select;
-  logic        bypass_select;
+  (* syn_keep = "true", mark_debug = "true" *) logic        idcode_select;
+  (* syn_keep = "true", mark_debug = "true" *) logic        bypass_select;
 
   logic        bypass_d, bypass_q;  // this is a 1-bit register
 
