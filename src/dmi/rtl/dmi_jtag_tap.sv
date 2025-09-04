@@ -72,7 +72,8 @@ module dmi_jtag_tap #(
   // shift register
   logic [IrLength-1:0]  jtag_ir_shift_d, jtag_ir_shift_q;
   // IR register -> this gets captured from shift register upon update_ir
-  (* syn_keep = "true", mark_debug = "true" *) ir_reg_e              jtag_ir_d, jtag_ir_q;
+  (* syn_keep = "true", mark_debug = "true" *) ir_reg_e              jtag_ir_d;
+  (* syn_keep = "true", mark_debug = "true" *) ir_reg_e              jtag_ir_q;
   logic capture_ir, shift_ir, update_ir, test_logic_reset; // pause_ir
 
   always_comb begin : p_jtag
